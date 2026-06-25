@@ -30,7 +30,7 @@ You get:
 
 ## Status
 
-Astral is early, but the first release is useful for small static sites and documentation prototypes. Collections, feeds, sitemap generation, and richer routing are intentionally left for follow-up releases.
+Astral is early, but the first release is useful for small static sites and documentation prototypes. Collections, feeds, sitemap generation, and richer routing are intentionally left for follow-up releases. See [`ROADMAP.md`](ROADMAP.md) for the planned path toward an Astro-class framework.
 
 ## Installation
 

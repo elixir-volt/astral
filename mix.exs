@@ -82,6 +82,7 @@ defmodule Astral.MixProject do
       mix.exs
       README.md
       CHANGELOG.md
+      ROADMAP.md
       LICENSE
       examples/basic/.formatter.exs
       examples/basic/.gitignore
@@ -108,7 +109,7 @@ defmodule Astral.MixProject do
       main: "Astral",
       source_ref: "v#{@version}",
       source_url: @source_url,
-      extras: ["README.md", "CHANGELOG.md", "guides/deployment.md"]
+      extras: ["README.md", "CHANGELOG.md", "ROADMAP.md", "guides/deployment.md"]
     ]
   end
 end
