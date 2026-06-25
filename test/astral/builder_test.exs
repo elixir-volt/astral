@@ -16,7 +16,7 @@ defmodule Astral.BuilderTest do
     write("pages/index.html", "<h1>Home</h1>")
     write("pages/about.html", "<h1>About</h1>")
     write("pages/blog/post.html", "<h1>Post</h1>")
-    write("layouts/default.html", "<html><body>{{ content }}</body></html>")
+    write("layouts/default.html", "<html><body><%= @content %></body></html>")
 
     assert {:ok, result} = Astral.build(root: @tmp)
 
@@ -29,7 +29,7 @@ defmodule Astral.BuilderTest do
   test "builds Markdown pages through MDEx" do
     write("pages/index.md", "# Home")
     write("pages/about.md", "# About")
-    write("layouts/default.html", "<main>{{ content }}</main>")
+    write("layouts/default.html", "<main><%= @content %></main>")
 
     assert {:ok, result} = Astral.build(root: @tmp)
 
@@ -56,6 +56,30 @@ defmodule Astral.BuilderTest do
     assert page.content.layout == "page.html"
     assert page.content.metadata["title"] == "About Astral"
     assert read("dist/about-us/index.html") == "<h1>About</h1>"
+  end
+
+  test "renders layout assigns from page metadata" do
+    write("pages/index.md", """
+    ---
+    title: Home Page
+    description: Welcome
+    ---
+    # Home
+    """)
+
+    write("layouts/default.html", """
+    <title><%= @page.title %></title>
+    <meta name="description" content="<%= @metadata["description"] %>">
+    <main data-route="<%= @route %>"><%= @content %></main>
+    """)
+
+    assert {:ok, _result} = Astral.build(root: @tmp)
+
+    assert read("dist/index.html") == """
+           <title>Home Page</title>
+           <meta name="description" content="Welcome">
+           <main data-route="/"><h1>Home</h1></main>
+           """
   end
 
   test "copies public files into the output directory" do

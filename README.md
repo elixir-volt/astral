@@ -20,12 +20,15 @@ assets/app.js
 public/robots.txt
 ```
 
-Use `{{ content }}` in `layouts/default.html` where page HTML should be inserted:
+Layouts are EEx templates. Use `@content` where page HTML should be inserted, and `@page`, `@metadata`, and `@route` for page data:
 
 ```html
 <!doctype html>
 <html>
-  <body>{{ content }}</body>
+  <head>
+    <title><%= @page.title || "Astral" %></title>
+  </head>
+  <body><%= @content %></body>
 </html>
 ```
 

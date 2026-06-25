@@ -6,8 +6,6 @@ defmodule Astral.Builder do
   public directory copied as-is, and an optional Volt asset entry.
   """
 
-  @content_placeholder "{{ content }}"
-
   @doc "Build a static site from keyword options."
   @spec build(keyword() | Astral.Config.t()) :: {:ok, Astral.BuildResult.t()} | {:error, term()}
   def build(opts \\ [])
@@ -79,7 +77,7 @@ defmodule Astral.Builder do
   end
 
   defp render_page(page, layout) do
-    html = apply_layout(page.content.html, layout)
+    html = Astral.Layout.render(page.content.html, layout, page)
 
     with :ok <- File.mkdir_p(Path.dirname(page.output_path)),
          :ok <- File.write(page.output_path, html) do
@@ -88,7 +86,4 @@ defmodule Astral.Builder do
       {:error, reason} -> {:error, {:render_failed, page.source_path, reason}}
     end
   end
-
-  defp apply_layout(source, nil), do: source
-  defp apply_layout(source, layout), do: String.replace(layout, @content_placeholder, source)
 end
