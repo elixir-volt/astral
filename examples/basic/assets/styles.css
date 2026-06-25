@@ -1,0 +1,70 @@
+:root {
+  color-scheme: light dark;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+
+body {
+  margin: 0;
+  background: #10131a;
+  color: #f5f7fb;
+}
+
+.site-header,
+.site-footer {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem clamp(1rem, 5vw, 4rem);
+  background: #171b25;
+}
+
+.brand,
+a {
+  color: #8bd3ff;
+}
+
+nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.page,
+.hero {
+  width: min(70ch, calc(100% - 2rem));
+  margin: 4rem auto;
+}
+
+.hero {
+  min-height: 70vh;
+  display: grid;
+  place-content: center;
+  text-align: center;
+}
+
+h1 {
+  font-size: clamp(2rem, 6vw, 4.5rem);
+  line-height: 1;
+}
+
+.button {
+  display: inline-block;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  background: #8bd3ff;
+  color: #10131a;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.asset-status {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  background: #23304a;
+  color: #f5f7fb;
+}

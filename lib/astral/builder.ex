@@ -60,7 +60,8 @@ defmodule Astral.Builder do
         entry: config.asset_entry,
         outdir: config.asset_outdir,
         asset_url_prefix: config.asset_url_prefix,
-        root: config.assets
+        root: config.assets,
+        hash: config.asset_hash
       )
     else
       {:ok, nil}

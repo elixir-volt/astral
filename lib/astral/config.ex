@@ -16,6 +16,7 @@ defmodule Astral.Config do
           asset_entry: String.t(),
           asset_outdir: String.t(),
           asset_url_prefix: String.t(),
+          asset_hash: boolean(),
           layout: String.t()
         }
 
@@ -28,6 +29,7 @@ defmodule Astral.Config do
             asset_entry: nil,
             asset_outdir: nil,
             asset_url_prefix: "/assets",
+            asset_hash: true,
             layout: nil
 
   @doc "Declare an Astral site configuration."
@@ -56,6 +58,7 @@ defmodule Astral.Config do
       asset_entry: path(opts, :asset_entry, assets, "app.js"),
       asset_outdir: path(opts, :asset_outdir, outdir, "assets"),
       asset_url_prefix: Keyword.get(opts, :asset_url_prefix, "/assets"),
+      asset_hash: Keyword.get(opts, :asset_hash, true),
       layout: Keyword.get(opts, :layout, "default.html")
     }
   end
@@ -110,4 +113,5 @@ defmodule Astral.Config do
   defp asset_expression_to_opts({:entry, _meta, [path]}), do: [asset_entry: path]
   defp asset_expression_to_opts({:outdir, _meta, [path]}), do: [asset_outdir: path]
   defp asset_expression_to_opts({:url_prefix, _meta, [prefix]}), do: [asset_url_prefix: prefix]
+  defp asset_expression_to_opts({:hash, _meta, [enabled]}), do: [asset_hash: enabled]
 end

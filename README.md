@@ -16,7 +16,7 @@ Create a small site:
 pages/index.html
 pages/about.md
 layouts/default.html
-assets/app.js
+assets/app.ts
 public/robots.txt
 ```
 
@@ -49,7 +49,7 @@ site do
   end
 
   assets "assets" do
-    entry "app.js"
+    entry "app.ts"
     url_prefix "/assets"
   end
 end
@@ -111,7 +111,7 @@ layout: false
 # Raw Page
 ```
 
-If `assets/app.js` exists, Astral builds it with Volt into `dist/assets`.
+If the configured asset entry exists, Astral builds it with Volt into `dist/assets`. Asset output uses Volt's content hashes by default; set `hash false` inside the `assets` block when a simple stable filename is better for examples or prototypes.
 
 ## Development server
 
@@ -140,6 +140,18 @@ def deps do
   ]
 end
 ```
+
+## Example site
+
+A runnable example lives in `examples/basic`:
+
+```sh
+cd examples/basic
+mix deps.get
+mix astral.dev
+```
+
+It demonstrates Markdown, HTML pages, layouts, public files, Volt TypeScript/CSS assets, and Volt JS/TS formatting/linting.
 
 ## Development
 

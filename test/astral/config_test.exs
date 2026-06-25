@@ -19,6 +19,7 @@ defmodule Astral.ConfigTest do
           entry("main.ts")
           outdir("static/assets")
           url_prefix("/static/assets")
+          hash(false)
         end
       end
 
@@ -32,5 +33,6 @@ defmodule Astral.ConfigTest do
     assert config.asset_entry == "/tmp/astral/frontend/main.ts"
     assert config.asset_outdir == "/tmp/astral/_site/static/assets"
     assert config.asset_url_prefix == "/static/assets"
+    refute config.asset_hash
   end
 end
