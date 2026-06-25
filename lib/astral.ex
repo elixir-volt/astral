@@ -11,6 +11,10 @@ defmodule Astral do
   @spec build(keyword() | Astral.Config.t()) :: {:ok, Astral.BuildResult.t()} | {:error, term()}
   defdelegate build(opts \\ []), to: Astral.Builder
 
+  @doc "Start a supervised Astral development server."
+  @spec dev(keyword()) :: Supervisor.on_start()
+  defdelegate dev(opts \\ []), to: Astral.Dev, as: :start_link
+
   @doc "Return the package version."
   @spec version() :: String.t()
   def version do

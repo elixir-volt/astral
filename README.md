@@ -113,6 +113,22 @@ layout: false
 
 If `assets/app.js` exists, Astral builds it with Volt into `dist/assets`.
 
+## Development server
+
+Start the development server with:
+
+```bash
+mix astral.dev --config astral.config.exs --port 4000
+```
+
+Or from Elixir:
+
+```elixir
+Astral.dev(config: "astral.config.exs", port: 4000)
+```
+
+The dev server composes Volt under the asset URL prefix, serves Astral page routes, serves public files, injects Volt's HMR client into rendered pages, and watches pages/layouts/public files for full reloads.
+
 ## Installation
 
 Once published, add Astral to your dependencies:

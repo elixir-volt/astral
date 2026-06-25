@@ -77,29 +77,13 @@ defmodule Astral.Builder do
   end
 
   defp render_page(page, site) do
-    with {:ok, layout} <- page_layout(page, site) do
-      html = Astral.Layout.render(page.content.html, layout, page)
-
-      with :ok <- File.mkdir_p(Path.dirname(page.output_path)),
-           :ok <- File.write(page.output_path, html) do
-        :ok
-      else
-        {:error, reason} -> {:error, {:render_failed, page.source_path, reason}}
-      end
-    end
-  end
-
-  defp page_layout(%{content: %{layout: false}}, _site), do: {:ok, nil}
-  defp page_layout(%{content: %{layout: "none"}}, _site), do: {:ok, nil}
-  defp page_layout(%{content: %{layout: "false"}}, _site), do: {:ok, nil}
-
-  defp page_layout(page, site) do
-    layout_name = page.content.layout || site.config.layout
-
-    case Map.fetch(site.layouts, layout_name) do
-      {:ok, layout} -> {:ok, layout}
-      :error when page.content.layout == nil -> {:ok, nil}
-      :error -> {:error, {:missing_layout, page.source_path, layout_name}}
+    with {:ok, html} <- Astral.Renderer.render_page(site, page),
+         :ok <- File.mkdir_p(Path.dirname(page.output_path)),
+         :ok <- File.write(page.output_path, html) do
+      :ok
+    else
+      {:error, {:missing_layout, _path, _layout} = reason} -> {:error, reason}
+      {:error, reason} -> {:error, {:render_failed, page.source_path, reason}}
     end
   end
 end
