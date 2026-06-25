@@ -150,6 +150,22 @@ def deps do
 end
 ```
 
+## Create a starter site
+
+In an existing Mix project with Astral installed:
+
+```sh
+mix astral.new
+```
+
+Or install and scaffold through Igniter:
+
+```sh
+mix igniter.install astral
+```
+
+The Igniter-powered scaffold creates `astral.config.exs`, starter Markdown pages, an EEx layout, TypeScript/CSS assets, public files, `tsconfig.json`, and Volt JS/TS formatting/linting configuration.
+
 ## Example site
 
 A runnable example lives in `examples/basic`:

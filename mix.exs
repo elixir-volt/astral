@@ -42,6 +42,7 @@ defmodule Astral.MixProject do
       {:bandit, "~> 1.12"},
       {:floki, "~> 0.38"},
       {:plug, "~> 1.20"},
+      {:igniter, "~> 0.8", optional: true},
       {:ex_slop, "~> 0.4", only: [:dev, :test], runtime: false},
       {:reach, "~> 2.0", only: [:dev, :test], runtime: false},
       {:ex_dna, "~> 1.0", only: [:dev, :test], runtime: false},
