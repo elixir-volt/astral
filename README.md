@@ -29,7 +29,36 @@ Use `{{ content }}` in `layouts/default.html` where page HTML should be inserted
 </html>
 ```
 
+Configure the site with Elixir:
+
+```elixir
+# astral.config.exs
+import Astral.Config
+
+site do
+  root "."
+  outdir "dist"
+  pages "pages"
+  public "public"
+
+  layouts "layouts" do
+    default "default.html"
+  end
+
+  assets "assets" do
+    entry "app.js"
+    url_prefix "/assets"
+  end
+end
+```
+
 Build the site:
+
+```elixir
+Astral.build(config: "astral.config.exs")
+```
+
+You can also pass keyword options directly:
 
 ```elixir
 Astral.build(

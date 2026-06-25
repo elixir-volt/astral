@@ -8,7 +8,7 @@ defmodule Astral do
   """
 
   @doc "Build a static Astral site."
-  @spec build(keyword()) :: {:ok, Astral.BuildResult.t()} | {:error, term()}
+  @spec build(keyword() | Astral.Config.t()) :: {:ok, Astral.BuildResult.t()} | {:error, term()}
   defdelegate build(opts \\ []), to: Astral.Builder
 
   @doc "Return the package version."

@@ -35,6 +35,26 @@ defmodule Astral.BuilderTest do
     assert read("dist/robots.txt") == "User-agent: *"
   end
 
+  test "builds from an astral config file" do
+    write("site_pages/index.html", "<h1>Home</h1>")
+
+    config_path = Path.join(@tmp, "astral.config.exs")
+
+    File.write!(config_path, """
+    import Astral.Config
+
+    site do
+      root #{inspect(@tmp)}
+      pages "site_pages"
+      outdir "site_dist"
+    end
+    """)
+
+    assert {:ok, _result} = Astral.build(config: config_path)
+
+    assert read("site_dist/index.html") == "<h1>Home</h1>"
+  end
+
   test "builds Volt assets when an asset entry exists" do
     write("pages/index.html", "<h1>Home</h1>")
     write("assets/app.js", "console.log('astral')")

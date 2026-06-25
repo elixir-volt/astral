@@ -9,16 +9,33 @@ defmodule Astral.Builder do
   @content_placeholder "{{ content }}"
 
   @doc "Build a static site from keyword options."
-  @spec build(keyword()) :: {:ok, Astral.BuildResult.t()} | {:error, term()}
-  def build(opts \\ []) do
-    config = Astral.Config.new(opts)
+  @spec build(keyword() | Astral.Config.t()) :: {:ok, Astral.BuildResult.t()} | {:error, term()}
+  def build(opts \\ [])
 
+  def build(%Astral.Config{} = config) do
+    build_config(config)
+  end
+
+  def build(opts) when is_list(opts) do
+    opts
+    |> config_from_opts()
+    |> build_config()
+  end
+
+  defp build_config(config) do
     with {:ok, site} <- Astral.Discovery.discover(config),
          :ok <- prepare_outdir(config),
          :ok <- copy_public(config),
          {:ok, assets} <- build_assets(config),
          :ok <- render_pages(site) do
       {:ok, %Astral.BuildResult{site: site, assets: assets}}
+    end
+  end
+
+  defp config_from_opts(opts) do
+    case Keyword.fetch(opts, :config) do
+      {:ok, path} -> Astral.Config.Reader.read!(path)
+      :error -> Astral.Config.new(opts)
     end
   end
 
