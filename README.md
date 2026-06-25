@@ -92,7 +92,26 @@ pages/about.md        -> dist/about/index.html
 pages/blog/post.html  -> dist/blog/post/index.html
 ```
 
-A `permalink` frontmatter value overrides the default route. If `assets/app.js` exists, Astral builds it with Volt into `dist/assets`.
+A `permalink` frontmatter value overrides the default route. A `layout` value selects a layout from the layouts directory, and `layout: false` renders without a layout:
+
+```markdown
+---
+title: Landing
+layout: marketing.html
+---
+
+# Landing
+```
+
+```markdown
+---
+layout: false
+---
+
+# Raw Page
+```
+
+If `assets/app.js` exists, Astral builds it with Volt into `dist/assets`.
 
 ## Installation
 

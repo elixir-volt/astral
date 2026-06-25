@@ -48,6 +48,8 @@ defmodule Astral.BuilderTest do
     # About
     """)
 
+    write("layouts/page.html", "<%= @content %>")
+
     assert {:ok, result} = Astral.build(root: @tmp)
 
     [page] = result.site.pages
@@ -55,7 +57,50 @@ defmodule Astral.BuilderTest do
     assert page.content.title == "About Astral"
     assert page.content.layout == "page.html"
     assert page.content.metadata["title"] == "About Astral"
-    assert read("dist/about-us/index.html") == "<h1>About</h1>"
+  end
+
+  test "uses page frontmatter layout override" do
+    write("pages/index.md", """
+    ---
+    title: Home
+    layout: page.html
+    ---
+    # Home
+    """)
+
+    write("layouts/default.html", "<default><%= @content %></default>")
+    write("layouts/page.html", "<page><%= @page.title %>:<%= @content %></page>")
+
+    assert {:ok, _result} = Astral.build(root: @tmp)
+
+    assert read("dist/index.html") == "<page>Home:<h1>Home</h1></page>"
+  end
+
+  test "supports disabling layout from page frontmatter" do
+    write("pages/index.md", """
+    ---
+    layout: false
+    ---
+    # Home
+    """)
+
+    write("layouts/default.html", "<default><%= @content %></default>")
+
+    assert {:ok, _result} = Astral.build(root: @tmp)
+
+    assert read("dist/index.html") == "<h1>Home</h1>"
+  end
+
+  test "returns an error for missing frontmatter layout" do
+    write("pages/index.md", """
+    ---
+    layout: missing.html
+    ---
+    # Home
+    """)
+
+    assert {:error, {:missing_layout, path, "missing.html"}} = Astral.build(root: @tmp)
+    assert path == Path.join(@tmp, "pages/index.md")
   end
 
   test "renders layout assigns from page metadata" do

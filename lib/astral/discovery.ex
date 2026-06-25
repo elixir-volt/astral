@@ -5,12 +5,12 @@ defmodule Astral.Discovery do
 
   @page_extensions ~w(.html .md)
 
-  @doc "Discover pages and the configured layout for a site."
+  @doc "Discover pages and layouts for a site."
   @spec discover(Astral.Config.t()) :: {:ok, Astral.Site.t()} | {:error, term()}
   def discover(%Astral.Config{} = config) do
     with {:ok, pages} <- discover_pages(config),
-         {:ok, layout} <- read_layout(config) do
-      {:ok, %Astral.Site{config: config, pages: pages, layout: layout}}
+         {:ok, layouts} <- read_layouts(config) do
+      {:ok, %Astral.Site{config: config, pages: pages, layouts: layouts}}
     end
   end
 
@@ -80,13 +80,25 @@ defmodule Astral.Discovery do
     end
   end
 
-  defp read_layout(config) do
-    path = Path.join(config.layouts, config.layout)
+  defp read_layouts(config) do
+    if File.dir?(config.layouts) do
+      config.layouts
+      |> Path.join("**/*.html")
+      |> Path.wildcard()
+      |> Enum.sort()
+      |> Enum.reduce_while({:ok, %{}}, &read_layout_file(&1, &2, config))
+    else
+      {:ok, %{}}
+    end
+  end
 
-    cond do
-      File.regular?(path) -> File.read(path)
-      File.dir?(config.layouts) -> {:ok, nil}
-      true -> {:ok, nil}
+  defp read_layout_file(path, {:ok, layouts}, config) do
+    case File.read(path) do
+      {:ok, source} ->
+        {:cont, {:ok, Map.put(layouts, Path.relative_to(path, config.layouts), source)}}
+
+      {:error, reason} ->
+        {:halt, {:error, {:layout_read_failed, path, reason}}}
     end
   end
 

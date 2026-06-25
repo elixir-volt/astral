@@ -19,7 +19,7 @@ defmodule Astral.Markdown do
          html: html,
          metadata: metadata,
          title: string_field(metadata, "title"),
-         layout: string_field(metadata, "layout"),
+         layout: layout_field(metadata),
          permalink: string_field(metadata, "permalink")
        }}
     end
@@ -64,6 +64,14 @@ defmodule Astral.Markdown do
     {:ok, MDEx.to_html!(document)}
   rescue
     error in [MDEx.DecodeError] -> {:error, error}
+  end
+
+  defp layout_field(metadata) do
+    case Map.fetch(metadata, "layout") do
+      {:ok, false} -> false
+      {:ok, value} when is_binary(value) -> value
+      _ -> nil
+    end
   end
 
   defp string_field(metadata, key) do
