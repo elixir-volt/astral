@@ -6,7 +6,7 @@ It is inspired by Astro's separation of responsibilities: Volt remains the gener
 
 ## Status
 
-Astral is in early development. The first milestone supports plain HTML pages, an optional single layout, public static files, and an optional Volt asset entry.
+Astral is in early development. The first milestone supports HTML and Markdown pages, MDEx-backed frontmatter extraction, an optional single layout, public static files, and an optional Volt asset entry.
 
 ## Usage
 
@@ -14,7 +14,7 @@ Create a small site:
 
 ```text
 pages/index.html
-pages/about.html
+pages/about.md
 layouts/default.html
 assets/app.js
 public/robots.txt
@@ -70,15 +70,26 @@ Astral.build(
 )
 ```
 
+Markdown pages are rendered with MDEx. YAML frontmatter is extracted by MDEx and decoded with YamlElixir:
+
+```markdown
+---
+title: About Astral
+permalink: /about-us/
+---
+
+# About
+```
+
 Output routes:
 
 ```text
 pages/index.html      -> dist/index.html
-pages/about.html      -> dist/about/index.html
+pages/about.md        -> dist/about/index.html
 pages/blog/post.html  -> dist/blog/post/index.html
 ```
 
-If `assets/app.js` exists, Astral builds it with Volt into `dist/assets`.
+A `permalink` frontmatter value overrides the default route. If `assets/app.js` exists, Astral builds it with Volt into `dist/assets`.
 
 ## Installation
 

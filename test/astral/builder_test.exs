@@ -26,6 +26,38 @@ defmodule Astral.BuilderTest do
     assert read("dist/blog/post/index.html") == "<html><body><h1>Post</h1></body></html>"
   end
 
+  test "builds Markdown pages through MDEx" do
+    write("pages/index.md", "# Home")
+    write("pages/about.md", "# About")
+    write("layouts/default.html", "<main>{{ content }}</main>")
+
+    assert {:ok, result} = Astral.build(root: @tmp)
+
+    assert Enum.map(result.site.pages, & &1.route_path) == ["/about/", "/"]
+    assert read("dist/index.html") == "<main><h1>Home</h1></main>"
+    assert read("dist/about/index.html") == "<main><h1>About</h1></main>"
+  end
+
+  test "uses MDEx frontmatter metadata for Markdown pages" do
+    write("pages/about.md", """
+    ---
+    title: About Astral
+    permalink: /about-us/
+    layout: page.html
+    ---
+    # About
+    """)
+
+    assert {:ok, result} = Astral.build(root: @tmp)
+
+    [page] = result.site.pages
+    assert page.route_path == "/about-us/"
+    assert page.content.title == "About Astral"
+    assert page.content.layout == "page.html"
+    assert page.content.metadata["title"] == "About Astral"
+    assert read("dist/about-us/index.html") == "<h1>About</h1>"
+  end
+
   test "copies public files into the output directory" do
     write("pages/index.html", "<h1>Home</h1>")
     write("public/robots.txt", "User-agent: *")

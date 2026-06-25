@@ -79,9 +79,9 @@ defmodule Astral.Builder do
   end
 
   defp render_page(page, layout) do
-    with {:ok, source} <- File.read(page.source_path),
-         html = apply_layout(source, layout),
-         :ok <- File.mkdir_p(Path.dirname(page.output_path)),
+    html = apply_layout(page.content.html, layout)
+
+    with :ok <- File.mkdir_p(Path.dirname(page.output_path)),
          :ok <- File.write(page.output_path, html) do
       :ok
     else
