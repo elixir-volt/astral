@@ -70,8 +70,8 @@ Implementation should mirror Volt's runner discipline:
 
 Goal: make Astral useful for blogs, docs, changelogs, and small content-heavy sites.
 
-- Content collections.
-- Collection schemas and validation.
+- Content collections. *(Initial discovery landed on `master` after v0.1.0.)*
+- Collection schemas and validation. JSONSpec-generated JSON Schema maps are the preferred schema format; Zoi schemas are also supported. *(Initial adapter landed on `master` after v0.1.0.)*
 - Draft support.
 - Slugs and permalinks.
 - Dynamic routes such as `pages/blog/[slug].md`.

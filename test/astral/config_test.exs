@@ -2,6 +2,7 @@ defmodule Astral.ConfigTest do
   use ExUnit.Case, async: true
 
   import Astral.Config
+  import JSONSpec
 
   test "site DSL builds normalized config" do
     config =
@@ -21,6 +22,15 @@ defmodule Astral.ConfigTest do
           url_prefix("/static/assets")
           hash(false)
         end
+
+        collections do
+          collection :posts, "content/posts" do
+            permalink("/blog/:slug/")
+            layout("post.html")
+            drafts(true)
+            schema(schema(%{required(:title) => String.t()}))
+          end
+        end
       end
 
     assert config.root == "/tmp/astral"
@@ -34,5 +44,13 @@ defmodule Astral.ConfigTest do
     assert config.asset_outdir == "/tmp/astral/_site/static/assets"
     assert config.asset_url_prefix == "/static/assets"
     refute config.asset_hash
+
+    assert [%Astral.Collection{} = collection] = config.collections
+    assert collection.name == :posts
+    assert collection.dir == "/tmp/astral/content/posts"
+    assert collection.permalink == "/blog/:slug/"
+    assert collection.layout == "post.html"
+    assert collection.drafts
+    assert collection.schema["type"] == "object"
   end
 end

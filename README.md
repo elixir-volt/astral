@@ -99,6 +99,49 @@ site do
 end
 ```
 
+## Content collections
+
+Astral collections group Markdown entries such as posts, docs, changelog items, or authors. JSONSpec is the preferred schema definition style, with Zoi also supported.
+
+```elixir
+import Astral.Config
+import JSONSpec
+
+site do
+  collections do
+    collection :posts, "content/posts" do
+      permalink "/blog/:slug/"
+      layout "post.html"
+
+      schema schema(%{
+        required(:title) => String.t(),
+        required(:date) => String.t(),
+        optional(:draft) => boolean(),
+        optional(:tags) => [String.t()]
+      })
+    end
+  end
+end
+```
+
+Zoi schemas can be used when runtime transformations or refinements are useful:
+
+```elixir
+collection :posts, "content/posts" do
+  schema Zoi.map(%{title: Zoi.string(), tags: Zoi.array(Zoi.string()) |> Zoi.optional()}, coerce: true)
+end
+```
+
+Collection entries are exposed to layouts as `@collections`:
+
+```eex
+<%= for post <- @collections.posts do %>
+  <a href={post.route_path}><%= post.data.title %></a>
+<% end %>
+```
+
+`post.metadata` keeps the original string-keyed frontmatter. `post.data` contains schema-normalized data.
+
 ## Pages and frontmatter
 
 Markdown pages are rendered with MDEx. YAML frontmatter is extracted by MDEx and decoded with YamlElixir:

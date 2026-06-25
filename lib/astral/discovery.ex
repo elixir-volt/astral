@@ -9,8 +9,16 @@ defmodule Astral.Discovery do
   @spec discover(Astral.Config.t()) :: {:ok, Astral.Site.t()} | {:error, term()}
   def discover(%Astral.Config{} = config) do
     with {:ok, pages} <- discover_pages(config),
+         {:ok, entries} <- discover_collections(config),
          {:ok, layouts} <- read_layouts(config) do
-      {:ok, %Astral.Site{config: config, pages: pages, layouts: layouts}}
+      {:ok,
+       %Astral.Site{
+         config: config,
+         pages: pages,
+         layouts: layouts,
+         collections: config.collections,
+         entries: entries
+       }}
     end
   end
 
@@ -79,6 +87,80 @@ defmodule Astral.Discovery do
       {:ok, %Astral.Content{html: source}}
     end
   end
+
+  defp discover_collections(config) do
+    Enum.reduce_while(config.collections, {:ok, %{}}, fn collection, {:ok, entries} ->
+      case discover_collection(collection) do
+        {:ok, collection_entries} ->
+          {:cont, {:ok, Map.put(entries, collection.name, collection_entries)}}
+
+        {:error, _reason} = error ->
+          {:halt, error}
+      end
+    end)
+  end
+
+  defp discover_collection(collection) do
+    if File.dir?(collection.dir) do
+      collection.dir
+      |> page_paths()
+      |> Enum.filter(&(Path.extname(&1) == ".md"))
+      |> build_entries(collection)
+    else
+      {:error, {:missing_collection_dir, collection.name, collection.dir}}
+    end
+  end
+
+  defp build_entries(paths, collection) do
+    Enum.reduce_while(paths, {:ok, []}, fn path, {:ok, entries} ->
+      case entry(path, collection) do
+        {:ok, nil} -> {:cont, {:ok, entries}}
+        {:ok, entry} -> {:cont, {:ok, [entry | entries]}}
+        {:error, _reason} = error -> {:halt, error}
+      end
+    end)
+    |> case do
+      {:ok, entries} -> {:ok, Enum.reverse(entries)}
+      {:error, _} = error -> error
+    end
+  end
+
+  defp entry(path, collection) do
+    with {:ok, source} <- File.read(path),
+         {:ok, content} <- Astral.Markdown.render(source),
+         false <- draft?(content) and not collection.drafts,
+         {:ok, data} <- Astral.Schema.normalize(collection.schema, content.metadata) do
+      slug = entry_slug(path, collection)
+      route_path = content.permalink || entry_route_path(collection, slug)
+
+      {:ok,
+       %Astral.Entry{
+         collection: collection.name,
+         slug: slug,
+         source_path: path,
+         route_path: route_path,
+         content: %{content | layout: content.layout || collection.layout},
+         metadata: content.metadata,
+         data: data
+       }}
+    else
+      true -> {:ok, nil}
+      {:error, _reason} = error -> error
+    end
+  end
+
+  defp draft?(%{metadata: metadata}), do: metadata["draft"] == true
+
+  defp entry_slug(path, collection) do
+    path
+    |> Path.relative_to(collection.dir)
+    |> Path.rootname(Path.extname(path))
+    |> Path.split()
+    |> Enum.join("/")
+  end
+
+  defp entry_route_path(%{permalink: nil}, slug), do: "/" <> slug <> "/"
+  defp entry_route_path(collection, slug), do: String.replace(collection.permalink, ":slug", slug)
 
   defp read_layouts(config) do
     if File.dir?(config.layouts) do

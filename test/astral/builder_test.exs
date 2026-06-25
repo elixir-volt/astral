@@ -1,6 +1,8 @@
 defmodule Astral.BuilderTest do
   use ExUnit.Case, async: false
 
+  import JSONSpec
+
   @tmp Path.expand("../tmp/builder", __DIR__)
 
   setup do
@@ -164,6 +166,92 @@ defmodule Astral.BuilderTest do
 
     assert result.assets != nil
     assert File.regular?(Path.join(@tmp, "dist/assets/manifest.json"))
+  end
+
+  test "discovers JSONSpec-backed collection entries" do
+    write("pages/index.html", "")
+
+    write(
+      "layouts/default.html",
+      "<%= inspect(@collections.posts |> Enum.map(& &1.data.title)) %>"
+    )
+
+    write("content/posts/hello.md", """
+    ---
+    title: Hello
+    tags:
+      - elixir
+    ---
+
+    # Hello
+    """)
+
+    config =
+      Astral.Config.new(
+        root: @tmp,
+        collections: [
+          [
+            name: :posts,
+            dir: "content/posts",
+            permalink: "/blog/:slug/",
+            schema:
+              schema(%{
+                required(:title) => String.t(),
+                optional(:tags) => [String.t()]
+              })
+          ]
+        ]
+      )
+
+    assert {:ok, result} = Astral.build(config)
+
+    assert [%Astral.Entry{} = entry] = result.site.entries.posts
+    assert entry.slug == "hello"
+    assert entry.route_path == "/blog/hello/"
+    assert entry.data == %{title: "Hello", tags: ["elixir"]}
+    assert read("dist/index.html") == ~s(["Hello"])
+  end
+
+  test "discovers Zoi-backed collection entries" do
+    write("pages/index.html", "<h1>Home</h1>")
+
+    write("content/posts/hello.md", """
+    ---
+    title: Hello
+    ---
+
+    # Hello
+    """)
+
+    config =
+      Astral.Config.new(
+        root: @tmp,
+        collections: [
+          [
+            name: :posts,
+            dir: "content/posts",
+            schema: Zoi.map(%{title: Zoi.string()}, coerce: true)
+          ]
+        ]
+      )
+
+    assert {:ok, result} = Astral.build(config)
+    assert [%{data: %{title: "Hello"}}] = result.site.entries.posts
+  end
+
+  test "returns collection validation errors" do
+    write("pages/index.html", "<h1>Home</h1>")
+    write("content/posts/hello.md", "# Hello")
+
+    config =
+      Astral.Config.new(
+        root: @tmp,
+        collections: [
+          [name: :posts, dir: "content/posts", schema: schema(%{required(:title) => String.t()})]
+        ]
+      )
+
+    assert {:error, {:invalid_metadata, _error}} = Astral.build(config)
   end
 
   test "returns an error when pages directory is missing" do

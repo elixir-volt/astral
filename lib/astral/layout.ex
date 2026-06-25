@@ -29,7 +29,8 @@ defmodule Astral.Layout do
       page: page.content,
       metadata: page.content.metadata,
       route: page.route_path,
-      site: site
+      site: site,
+      collections: site.entries
     ]
   end
 end

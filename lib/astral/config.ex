@@ -17,7 +17,8 @@ defmodule Astral.Config do
           asset_outdir: String.t(),
           asset_url_prefix: String.t(),
           asset_hash: boolean(),
-          layout: String.t()
+          layout: String.t(),
+          collections: [Astral.Collection.t()]
         }
 
   defstruct root: nil,
@@ -30,14 +31,15 @@ defmodule Astral.Config do
             asset_outdir: nil,
             asset_url_prefix: "/assets",
             asset_hash: true,
-            layout: nil
+            layout: nil,
+            collections: []
 
   @doc "Declare an Astral site configuration."
   defmacro site(do: block) do
     opts = block_to_opts(block)
 
     quote do
-      Astral.Config.new(unquote(opts))
+      Astral.Config.new(unquote(keyword_ast(opts)))
     end
   end
 
@@ -59,7 +61,8 @@ defmodule Astral.Config do
       asset_outdir: path(opts, :asset_outdir, outdir, "assets"),
       asset_url_prefix: Keyword.get(opts, :asset_url_prefix, "/assets"),
       asset_hash: Keyword.get(opts, :asset_hash, true),
-      layout: Keyword.get(opts, :layout, "default.html")
+      layout: Keyword.get(opts, :layout, "default.html"),
+      collections: collections(opts, root)
     }
   end
 
@@ -68,6 +71,49 @@ defmodule Astral.Config do
     |> Keyword.get(key, default)
     |> Path.expand(base)
   end
+
+  defp collections(opts, root) do
+    opts
+    |> Keyword.get(:collections, [])
+    |> Enum.map(fn opts ->
+      %Astral.Collection{
+        name: Keyword.fetch!(opts, :name),
+        dir: path(opts, :dir, root, "content"),
+        schema: Keyword.get(opts, :schema),
+        permalink: Keyword.get(opts, :permalink),
+        layout: Keyword.get(opts, :layout),
+        drafts: Keyword.get(opts, :drafts, false)
+      }
+    end)
+  end
+
+  defp keyword_ast(opts) do
+    pairs = Enum.map(opts, fn {key, value} -> pair_ast(key, value) end)
+
+    quote do
+      [unquote_splicing(pairs)]
+    end
+  end
+
+  defp pair_ast(key, value) do
+    quote do
+      {unquote(key), unquote(value_ast(value))}
+    end
+  end
+
+  defp value_ast(collections) when is_list(collections) do
+    if Enum.all?(collections, &Keyword.keyword?/1) do
+      items = Enum.map(collections, &keyword_ast/1)
+
+      quote do
+        [unquote_splicing(items)]
+      end
+    else
+      collections
+    end
+  end
+
+  defp value_ast(value), do: value
 
   defp block_to_opts({:__block__, _meta, expressions}) do
     Enum.flat_map(expressions, &expression_to_opts/1)
@@ -96,6 +142,10 @@ defmodule Astral.Config do
     [assets: path] ++ asset_block_to_opts(block)
   end
 
+  defp expression_to_opts({:collections, _meta, [[do: block]]}) do
+    [collections: collection_block_to_opts(block)]
+  end
+
   defp layout_block_to_opts({:__block__, _meta, expressions}) do
     Enum.flat_map(expressions, &layout_expression_to_opts/1)
   end
@@ -114,4 +164,29 @@ defmodule Astral.Config do
   defp asset_expression_to_opts({:outdir, _meta, [path]}), do: [asset_outdir: path]
   defp asset_expression_to_opts({:url_prefix, _meta, [prefix]}), do: [asset_url_prefix: prefix]
   defp asset_expression_to_opts({:hash, _meta, [enabled]}), do: [asset_hash: enabled]
+
+  defp collection_block_to_opts({:__block__, _meta, expressions}) do
+    Enum.map(expressions, &collection_expression_to_opts/1)
+  end
+
+  defp collection_block_to_opts(expression), do: [collection_expression_to_opts(expression)]
+
+  defp collection_expression_to_opts({:collection, _meta, [name, dir]}) do
+    [name: name, dir: dir]
+  end
+
+  defp collection_expression_to_opts({:collection, _meta, [name, dir, [do: block]]}) do
+    [name: name, dir: dir] ++ collection_options_to_opts(block)
+  end
+
+  defp collection_options_to_opts({:__block__, _meta, expressions}) do
+    Enum.flat_map(expressions, &collection_option_to_opts/1)
+  end
+
+  defp collection_options_to_opts(expression), do: collection_option_to_opts(expression)
+
+  defp collection_option_to_opts({:schema, _meta, [schema]}), do: [schema: schema]
+  defp collection_option_to_opts({:permalink, _meta, [permalink]}), do: [permalink: permalink]
+  defp collection_option_to_opts({:layout, _meta, [layout]}), do: [layout: layout]
+  defp collection_option_to_opts({:drafts, _meta, [enabled]}), do: [drafts: enabled]
 end
