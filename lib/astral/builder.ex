@@ -26,7 +26,8 @@ defmodule Astral.Builder do
          :ok <- prepare_outdir(config),
          :ok <- copy_public(config),
          {:ok, assets} <- build_assets(config),
-         :ok <- render_pages(site) do
+         :ok <- render_pages(site),
+         :ok <- render_routes(site) do
       result = %Astral.BuildResult{site: site, assets: assets}
 
       with :ok <- Astral.PluginRunner.build_done(config.plugins, result) do
@@ -90,6 +91,27 @@ defmodule Astral.Builder do
     else
       {:error, {:missing_layout, _path, _layout} = reason} -> {:error, reason}
       {:error, reason} -> {:error, {:render_failed, page.source_path, reason}}
+    end
+  end
+
+  defp render_routes(site) do
+    Enum.reduce_while(site.routes, :ok, fn route, :ok ->
+      case render_route(route, site) do
+        :ok -> {:cont, :ok}
+        {:error, _reason} = error -> {:halt, error}
+      end
+    end)
+  end
+
+  defp render_route(route, site) do
+    with {:ok, body, _content_type} <-
+           Astral.PluginRunner.render_route(site.config.plugins, route, site),
+         :ok <- File.mkdir_p(Path.dirname(route.output_path)),
+         :ok <- File.write(route.output_path, body) do
+      :ok
+    else
+      nil -> {:error, {:missing_route_renderer, route.path}}
+      {:error, reason} -> {:error, {:route_render_failed, route.path, reason}}
     end
   end
 end

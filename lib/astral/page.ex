@@ -7,11 +7,13 @@ defmodule Astral.Page do
           source_path: String.t(),
           route_path: String.t(),
           output_path: String.t(),
-          content: Astral.Content.t()
+          content: Astral.Content.t(),
+          entry: Astral.Entry.t() | nil
         }
 
   defstruct source_path: nil,
             route_path: nil,
             output_path: nil,
-            content: nil
+            content: nil,
+            entry: nil
 end

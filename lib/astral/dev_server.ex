@@ -42,7 +42,8 @@ defmodule Astral.DevServer do
 
   defp maybe_serve_astral(%Plug.Conn{method: method} = conn, config)
        when method in ["GET", "HEAD"] do
-    serve_public(conn, config) || serve_page(conn, config) || not_found(conn)
+    serve_public(conn, config) || serve_page(conn, config) || serve_route(conn, config) ||
+      not_found(conn)
   end
 
   defp maybe_serve_astral(conn, _config) do
@@ -99,22 +100,27 @@ defmodule Astral.DevServer do
   end
 
   defp find_page(site, request_path) do
-    Enum.find(site.pages, &route_match?(&1.route_path, request_path))
+    Enum.find(site.pages, &Astral.Route.match?(&1.route_path, request_path))
   end
 
-  defp route_match?(route_path, request_path) do
-    normalized_route = normalize_route(route_path)
-    normalized_request = normalize_route(request_path)
-
-    normalized_route == normalized_request
+  defp serve_route(conn, config) do
+    with {:ok, site} <- discover_dev_site(config),
+         %Astral.Route{} = route <- find_route(site, conn.request_path),
+         {:ok, body, content_type} <-
+           Astral.PluginRunner.render_route(config.plugins, route, site) do
+      conn
+      |> put_resp_content_type(content_type)
+      |> put_resp_header("cache-control", "no-cache, no-store, must-revalidate")
+      |> send_resp(200, body)
+      |> halt()
+    else
+      nil -> nil
+      {:error, reason} -> server_error(conn, reason)
+    end
   end
 
-  defp normalize_route("/"), do: "/"
-
-  defp normalize_route(path) do
-    path
-    |> String.trim_trailing("/")
-    |> then(&if(&1 == "", do: "/", else: &1))
+  defp find_route(site, request_path) do
+    Enum.find(site.routes, &Astral.Route.match?(&1.path, request_path))
   end
 
   defp server_error(conn, reason) do

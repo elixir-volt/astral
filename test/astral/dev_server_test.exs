@@ -4,6 +4,22 @@ defmodule Astral.DevServerTest do
   import Plug.Conn
   import Plug.Test
 
+  defmodule TextRoutePlugin do
+    @behaviour Astral.Plugin
+
+    @impl true
+    def name, do: "text-route"
+
+    @impl true
+    def routes(site) do
+      [Astral.Route.new("/generated.txt", site.config, content_type: "text/plain")]
+    end
+
+    @impl true
+    def render_route(%Astral.Route{path: "/generated.txt"}, _site), do: {:ok, "generated"}
+    def render_route(_route, _site), do: nil
+  end
+
   @tmp Path.expand("../tmp/dev_server", __DIR__)
 
   setup do
@@ -45,6 +61,15 @@ defmodule Astral.DevServerTest do
 
     assert conn.status == 200
     assert conn.resp_body == "User-agent: *"
+    assert get_resp_header(conn, "content-type") |> hd() =~ "text/plain"
+  end
+
+  test "serves plugin generated routes" do
+    opts = Astral.DevServer.init(root: @tmp, plugins: [TextRoutePlugin])
+    conn = conn(:get, "/generated.txt") |> Astral.DevServer.call(opts)
+
+    assert conn.status == 200
+    assert conn.resp_body == "generated"
     assert get_resp_header(conn, "content-type") |> hd() =~ "text/plain"
   end
 

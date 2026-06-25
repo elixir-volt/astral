@@ -41,6 +41,29 @@ defmodule Astral.PluginRunner do
     end)
   end
 
+  @doc "Collect generated routes from plugins."
+  @spec routes([plugin()], Astral.Site.t()) :: [Astral.Route.t()]
+  def routes(plugins, site) do
+    plugins
+    |> plugins()
+    |> Enum.flat_map(fn plugin -> call_optional(plugin, :routes, [site], []) end)
+    |> Enum.map(&Astral.Route.with_output_path(&1, site.config))
+  end
+
+  @doc "Render a generated route with the first plugin that owns it."
+  @spec render_route([plugin()], Astral.Route.t(), Astral.Site.t()) ::
+          {:ok, String.t(), String.t()} | {:error, term()} | nil
+  def render_route(plugins, route, site) do
+    Enum.find_value(plugins(plugins), fn plugin ->
+      case call_optional(plugin, :render_route, [route, site], nil) do
+        {:ok, body} -> {:ok, body, route.content_type}
+        {:ok, body, content_type} -> {:ok, body, content_type}
+        {:error, _reason} = error -> error
+        nil -> nil
+      end
+    end)
+  end
+
   @doc "Run render_page hooks in sequence, piping HTML through each plugin."
   @spec render_page([plugin()], String.t(), Astral.Page.t(), Astral.Site.t()) ::
           {:ok, String.t()} | {:error, term()}

@@ -47,8 +47,8 @@ Likely next plugin callbacks:
 
 - `collections/1` — provide content collection definitions.
 - `load_content/3` — load/normalize content entries for plugin-owned formats.
-- `routes/1` — add generated routes such as feeds, sitemaps, tag pages, or pagination pages.
-- `render_route/2` — render plugin-owned generated routes.
+- `routes/1` — add generated routes such as feeds, sitemaps, tag pages, or pagination pages. *(Initial foundation landed on `master` after v0.1.0.)*
+- `render_route/2` — render plugin-owned generated routes. *(Initial foundation landed on `master` after v0.1.0.)*
 - `transform_markdown/3` — transform MDEx document or rendered Markdown before layout.
 - `transform_html/3` or expanded `render_page/3`/route hooks — transform rendered route HTML before writing/serving.
 - `head/2` — contribute metadata/link/script tags.
@@ -73,7 +73,7 @@ Goal: make Astral useful for blogs, docs, changelogs, and small content-heavy si
 - Draft support.
 - Slugs and permalinks.
 - Dynamic routes such as `pages/blog/[slug].md`.
-- Generated routes from collections.
+- Generated routes from collections. *(Initial collection entry routes landed on `master` after v0.1.0.)*
 - Pagination.
 - Tags and categories.
 - RSS/Atom feed generation.
@@ -90,6 +90,7 @@ Goal: make content/build behavior extensible without hard-coding every SSG featu
 - Config DSL support for plugins. *(Initial foundation landed on `master` after v0.1.0.)*
 - Plugin docs and examples. *(Initial README coverage landed on `master` after v0.1.0.)*
 - Built-in feed/sitemap functionality either as internal plugins or plugin-shaped modules.
+- Generated route hooks for feeds/sitemaps/pagination. *(Initial `routes/1` + `render_route/2` hooks landed on `master` after v0.1.0.)*
 - Compatibility story for passing Astral-generated virtual entries/modules to Volt.
 
 ### v0.4 — HEEx components

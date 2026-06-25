@@ -39,6 +39,26 @@ defmodule Astral.BuilderTest do
     end
   end
 
+  defmodule FeedPlugin do
+    @behaviour Astral.Plugin
+
+    @impl true
+    def name, do: "feed-test"
+
+    @impl true
+    def routes(site) do
+      [Astral.Route.new("/feed.xml", site.config, content_type: "application/atom+xml")]
+    end
+
+    @impl true
+    def render_route(%Astral.Route{path: "/feed.xml"}, site) do
+      titles = Enum.map_join(site.entries.posts, ",", & &1.data.title)
+      {:ok, "<feed>#{titles}</feed>"}
+    end
+
+    def render_route(_route, _site), do: nil
+  end
+
   @tmp Path.expand("../tmp/builder", __DIR__)
 
   setup do
@@ -222,7 +242,7 @@ defmodule Astral.BuilderTest do
     assert read("dist/index.html") == "<main><h1>Home</h1></main><!-- /plugin/:done -->"
   end
 
-  test "discovers JSONSpec-backed collection entries" do
+  test "discovers and renders JSONSpec-backed collection entries" do
     write("pages/index.html", "")
 
     write(
@@ -264,6 +284,39 @@ defmodule Astral.BuilderTest do
     assert entry.route_path == "/blog/hello/"
     assert entry.data == %{title: "Hello", tags: ["elixir"]}
     assert read("dist/index.html") == ~s(["Hello"])
+    assert read("dist/blog/hello/index.html") == ~s(["Hello"])
+  end
+
+  test "renders plugin generated routes" do
+    write("pages/index.html", "<h1>Home</h1>")
+
+    write("content/posts/hello.md", """
+    ---
+    title: Hello
+    ---
+
+    # Hello
+    """)
+
+    config =
+      Astral.Config.new(
+        root: @tmp,
+        plugins: [FeedPlugin],
+        collections: [
+          [
+            name: :posts,
+            dir: "content/posts",
+            schema: schema(%{required(:title) => String.t()})
+          ]
+        ]
+      )
+
+    assert {:ok, result} = Astral.build(config)
+
+    assert [%Astral.Route{path: "/feed.xml", content_type: "application/atom+xml"}] =
+             result.site.routes
+
+    assert read("dist/feed.xml") == "<feed>Hello</feed>"
   end
 
   test "discovers Zoi-backed collection entries" do

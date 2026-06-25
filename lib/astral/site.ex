@@ -12,6 +12,7 @@ defmodule Astral.Site do
           layouts: layouts(),
           collections: [Astral.Collection.t()],
           entries: entries(),
+          routes: [Astral.Route.t()],
           mode: :build | :dev
         }
 
@@ -20,5 +21,6 @@ defmodule Astral.Site do
             layouts: %{},
             collections: [],
             entries: %{},
+            routes: [],
             mode: :build
 end

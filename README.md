@@ -132,7 +132,7 @@ collection :posts, "content/posts" do
 end
 ```
 
-Collection entries are exposed to layouts as `@collections`:
+Collection entries are validated, exposed to layouts as `@collections`, and rendered as static pages at their collection permalink:
 
 ```eex
 <%= for post <- @collections.posts do %>
@@ -140,7 +140,7 @@ Collection entries are exposed to layouts as `@collections`:
 <% end %>
 ```
 
-`post.metadata` keeps the original string-keyed frontmatter. `post.data` contains schema-normalized data.
+`post.metadata` keeps the original string-keyed frontmatter. `post.data` contains schema-normalized data. Entry layouts also receive `@entry` for the current collection entry.
 
 ## Plugins
 
@@ -173,7 +173,30 @@ defmodule MySite.AnalyticsPlugin do
 end
 ```
 
-Available hooks include `config/1`, `build_start/1`, `site_discovered/1`, `render_page/3`, and `build_done/1`. Tuple options are passed to callbacks that define one extra argument, such as `render_page/4`.
+Available hooks include `config/1`, `build_start/1`, `site_discovered/1`, `routes/1`, `render_route/2`, `render_page/3`, and `build_done/1`. Tuple options are passed to callbacks that define one extra argument, such as `render_page/4`.
+
+Plugins can add generated routes for feeds, sitemaps, pagination, or tag pages:
+
+```elixir
+defmodule MySite.FeedPlugin do
+  @behaviour Astral.Plugin
+
+  @impl true
+  def name, do: "feed"
+
+  @impl true
+  def routes(site) do
+    [Astral.Route.new("/feed.xml", site.config, content_type: "application/atom+xml")]
+  end
+
+  @impl true
+  def render_route(%Astral.Route{path: "/feed.xml"}, site) do
+    {:ok, MySite.Feed.render(site.entries.posts)}
+  end
+
+  def render_route(_route, _site), do: nil
+end
+```
 
 ## Pages and frontmatter
 
@@ -227,6 +250,9 @@ Available assigns:
 - `@metadata` — decoded frontmatter map.
 - `@route` — route path such as `/about/`.
 - `@site` — discovered `%Astral.Site{}`.
+- `@collections` — collection entries grouped by collection name.
+- `@entry` — current `%Astral.Entry{}` for collection entry pages, otherwise `nil`.
+- `@routes` — generated `%Astral.Route{}` values.
 
 ## Assets
 

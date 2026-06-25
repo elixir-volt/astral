@@ -35,6 +35,16 @@ defmodule Astral.Plugin do
   @callback site_discovered(site :: Astral.Site.t()) :: Astral.Site.t()
   @callback site_discovered(site :: Astral.Site.t(), opts :: keyword()) :: Astral.Site.t()
 
+  @doc "Return generated routes such as feeds, sitemaps, tag pages, or pagination pages."
+  @callback routes(site :: Astral.Site.t()) :: [Astral.Route.t()]
+  @callback routes(site :: Astral.Site.t(), opts :: keyword()) :: [Astral.Route.t()]
+
+  @doc "Render a plugin-owned generated route."
+  @callback render_route(route :: Astral.Route.t(), site :: Astral.Site.t()) ::
+              {:ok, String.t()} | {:ok, String.t(), String.t()} | nil
+  @callback render_route(route :: Astral.Route.t(), site :: Astral.Site.t(), opts :: keyword()) ::
+              {:ok, String.t()} | {:ok, String.t(), String.t()} | nil
+
   @doc "Transform rendered page HTML."
   @callback render_page(html :: String.t(), page :: Astral.Page.t(), site :: Astral.Site.t()) ::
               {:ok, String.t()} | nil
@@ -58,6 +68,10 @@ defmodule Astral.Plugin do
                       build_start: 2,
                       site_discovered: 1,
                       site_discovered: 2,
+                      routes: 1,
+                      routes: 2,
+                      render_route: 2,
+                      render_route: 3,
                       render_page: 3,
                       render_page: 4,
                       build_done: 1,

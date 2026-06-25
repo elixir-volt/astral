@@ -13,7 +13,8 @@ defmodule Astral.Dev do
     children = [
       {Volt.Watcher,
        root: config.assets,
-       reload_dirs: existing_dirs([config.pages, config.layouts, config.public]),
+       reload_dirs:
+         existing_dirs([config.pages, config.layouts, config.public | collection_dirs(config)]),
        name: Keyword.get(opts, :watcher_name, Astral.Dev.Watcher)},
       {Bandit,
        plug: {Astral.DevServer, dev_config},
@@ -29,6 +30,8 @@ defmodule Astral.Dev do
   end
 
   defp existing_dirs(paths), do: Enum.filter(paths, &File.dir?/1)
+
+  defp collection_dirs(config), do: Enum.map(config.collections, & &1.dir)
 
   defp host_tuple("localhost"), do: {127, 0, 0, 1}
   defp host_tuple("127.0.0.1"), do: {127, 0, 0, 1}

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title><%= @page.title || "Astral Basic" %></title>
+    <title><%= @entry.data.title %> — Astral Basic</title>
     <script type="module" src="<%= Astral.asset_path(@site, "app.ts") %>"></script>
   </head>
   <body>
@@ -16,22 +16,12 @@
       </nav>
     </header>
 
-    <main class="page" data-route="<%= @route %>">
+    <article class="page post" data-route="<%= @route %>">
+      <p class="eyebrow">Collection: <%= @entry.collection %></p>
+      <h1><%= @entry.data.title %></h1>
+      <p class="post-meta"><%= @entry.data.date %> · <%= Enum.join(Map.get(@entry.data, :tags, []), ", ") %></p>
       <%= @content %>
-
-      <%= if @route == "/" do %>
-        <section class="post-list" aria-labelledby="posts-heading">
-          <h2 id="posts-heading">Posts collection</h2>
-          <%= for post <- Map.get(@collections, :posts, []) do %>
-            <article>
-              <h3><a href="<%= post.route_path %>"><%= post.data.title %></a></h3>
-              <p><%= post.data.description %></p>
-              <small><%= post.data.date %></small>
-            </article>
-          <% end %>
-        </section>
-      <% end %>
-    </main>
+    </article>
 
     <footer class="site-footer">
       Built with Astral and Volt.

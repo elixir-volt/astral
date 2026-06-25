@@ -13,13 +13,16 @@ defmodule Astral.Discovery do
          {:ok, layouts} <- read_layouts(config) do
       site = %Astral.Site{
         config: config,
-        pages: pages,
+        pages: pages ++ entry_pages(entries, config),
         layouts: layouts,
         collections: config.collections,
         entries: entries
       }
 
-      {:ok, Astral.PluginRunner.site_discovered(config.plugins, site)}
+      site = Astral.PluginRunner.site_discovered(config.plugins, site)
+      routes = Astral.PluginRunner.routes(config.plugins, site)
+
+      {:ok, %{site | routes: routes}}
     end
   end
 
@@ -58,7 +61,7 @@ defmodule Astral.Discovery do
     with {:ok, content} <- read_content(path) do
       relative = Path.relative_to(path, config.pages)
       route_path = content.permalink || route_path(relative)
-      output_path = Path.join(config.outdir, output_relative(route_path))
+      output_path = Path.join(config.outdir, Astral.Route.output_relative(route_path))
 
       {:ok,
        %Astral.Page{
@@ -163,6 +166,23 @@ defmodule Astral.Discovery do
   defp entry_route_path(%{permalink: nil}, slug), do: "/" <> slug <> "/"
   defp entry_route_path(collection, slug), do: String.replace(collection.permalink, ":slug", slug)
 
+  defp entry_pages(entries, config) do
+    entries
+    |> Map.values()
+    |> List.flatten()
+    |> Enum.map(&entry_page(&1, config))
+  end
+
+  defp entry_page(entry, config) do
+    %Astral.Page{
+      source_path: entry.source_path,
+      route_path: entry.route_path,
+      output_path: Path.join(config.outdir, Astral.Route.output_relative(entry.route_path)),
+      content: entry.content,
+      entry: entry
+    }
+  end
+
   defp read_layouts(config) do
     if File.dir?(config.layouts) do
       config.layouts
@@ -192,14 +212,5 @@ defmodule Astral.Discovery do
     relative
     |> Path.rootname(Path.extname(relative))
     |> then(&("/" <> &1 <> "/"))
-  end
-
-  defp output_relative("/"), do: "index.html"
-
-  defp output_relative(route_path) do
-    route_path
-    |> String.trim_leading("/")
-    |> String.trim_trailing("/")
-    |> Path.join("index.html")
   end
 end
