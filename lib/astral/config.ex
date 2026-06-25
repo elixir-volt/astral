@@ -185,8 +185,16 @@ defmodule Astral.Config do
 
   defp collection_options_to_opts(expression), do: collection_option_to_opts(expression)
 
-  defp collection_option_to_opts({:schema, _meta, [schema]}), do: [schema: schema]
+  defp collection_option_to_opts({:schema, _meta, [schema]}),
+    do: [schema: schema_expression(schema)]
+
   defp collection_option_to_opts({:permalink, _meta, [permalink]}), do: [permalink: permalink]
   defp collection_option_to_opts({:layout, _meta, [layout]}), do: [layout: layout]
   defp collection_option_to_opts({:drafts, _meta, [enabled]}), do: [drafts: enabled]
+
+  defp schema_expression({:%{}, _meta, _pairs} = schema) do
+    Macro.escape(JSONSpec.convert(schema))
+  end
+
+  defp schema_expression(schema), do: schema
 end

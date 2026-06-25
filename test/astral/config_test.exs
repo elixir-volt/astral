@@ -2,7 +2,6 @@ defmodule Astral.ConfigTest do
   use ExUnit.Case, async: true
 
   import Astral.Config
-  import JSONSpec
 
   test "site DSL builds normalized config" do
     config =
@@ -28,7 +27,7 @@ defmodule Astral.ConfigTest do
             permalink("/blog/:slug/")
             layout("post.html")
             drafts(true)
-            schema(schema(%{required(:title) => String.t()}))
+            schema(%{required(:title) => String.t()})
           end
         end
       end

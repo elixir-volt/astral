@@ -101,11 +101,10 @@ end
 
 ## Content collections
 
-Astral collections group Markdown entries such as posts, docs, changelog items, or authors. JSONSpec is the preferred schema definition style, with Zoi also supported.
+Astral collections group Markdown entries such as posts, docs, changelog items, or authors. JSONSpec-style typespec maps are the preferred schema definition style, with Zoi also supported.
 
 ```elixir
 import Astral.Config
-import JSONSpec
 
 site do
   collections do
@@ -113,12 +112,12 @@ site do
       permalink "/blog/:slug/"
       layout "post.html"
 
-      schema schema(%{
+      schema %{
         required(:title) => String.t(),
         required(:date) => String.t(),
         optional(:draft) => boolean(),
         optional(:tags) => [String.t()]
-      })
+      }
     end
   end
 end
