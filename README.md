@@ -128,6 +128,7 @@ Start the development server with:
 
 ```bash
 mix astral.dev --config astral.config.exs --port 4000
+mix astral.dev --open
 ```
 
 Or from Elixir:
@@ -136,7 +137,7 @@ Or from Elixir:
 Astral.dev(config: "astral.config.exs", port: 4000)
 ```
 
-The dev server composes Volt under the asset URL prefix, serves Astral page routes, serves public files, injects Volt's HMR client into rendered pages, and watches pages/layouts/public files for full reloads.
+The dev server composes Volt under the asset URL prefix, serves Astral page routes, serves public files, injects Volt's HMR client into rendered pages, watches pages/layouts/public files for full reloads, and renders development error pages for site failures.
 
 ## Installation
 
@@ -178,6 +179,8 @@ mix astral.build
 ```
 
 It demonstrates Markdown, HTML pages, layouts, public files, Volt TypeScript/CSS assets, and Volt JS/TS formatting/linting.
+
+See `guides/deployment.md` for static hosting and production asset behavior.
 
 ## Development
 

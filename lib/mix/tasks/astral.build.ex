@@ -75,9 +75,37 @@ defmodule Mix.Tasks.Astral.Build do
     outdir = Path.relative_to_cwd(result.site.config.outdir)
 
     Mix.shell().info("[Astral] Built #{page_count} page(s) into #{outdir}")
+    print_routes(result.site.pages)
+    print_assets(result)
   end
 
   defp report_result({:error, reason}) do
     Mix.raise("Astral build failed: #{inspect(reason)}")
+  end
+
+  defp print_routes([]), do: :ok
+
+  defp print_routes(pages) do
+    width =
+      pages |> Enum.max_by(&String.length(&1.route_path)) |> then(&String.length(&1.route_path))
+
+    Mix.shell().info("\nRoutes:")
+
+    Enum.each(pages, fn page ->
+      route = String.pad_trailing(page.route_path, width)
+      output = Path.relative_to_cwd(page.output_path)
+      Mix.shell().info("  #{route}  #{output}")
+    end)
+  end
+
+  defp print_assets(%{assets: nil}), do: :ok
+
+  defp print_assets(%{site: site}) do
+    manifest = Path.join(site.config.asset_outdir, "manifest.json")
+
+    if File.regular?(manifest) do
+      Mix.shell().info("\nAssets:")
+      Mix.shell().info("  #{Path.relative_to_cwd(manifest)}")
+    end
   end
 end

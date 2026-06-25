@@ -71,7 +71,7 @@ defmodule Astral.MixProject do
     [
       licenses: ["MIT"],
       links: %{"GitHub" => @source_url},
-      files: ~w[lib mix.exs README.md LICENSE]
+      files: ~w[lib guides mix.exs README.md CHANGELOG.md LICENSE]
     ]
   end
 
@@ -80,7 +80,7 @@ defmodule Astral.MixProject do
       main: "Astral",
       source_ref: "v#{@version}",
       source_url: @source_url,
-      extras: ["README.md"]
+      extras: ["README.md", "CHANGELOG.md", "guides/deployment.md"]
     ]
   end
 end

@@ -25,6 +25,8 @@ defmodule Mix.Tasks.Astral.BuildTest do
       end)
 
     assert output =~ "[Astral] Built 1 page(s) into dist"
+    assert output =~ "Routes:"
+    assert output =~ "/  dist/index.html"
     assert File.read!(Path.join(@tmp, "dist/index.html")) == "<h1>Home</h1>"
   end
 
@@ -34,6 +36,7 @@ defmodule Mix.Tasks.Astral.BuildTest do
     output = capture_io(fn -> Mix.Tasks.Astral.Build.run(["--root", @tmp]) end)
 
     assert output =~ "[Astral] Built 1 page(s) into"
+    assert output =~ "Routes:"
     assert File.read!(Path.join(@tmp, "dist/index.html")) == "<h1>Home</h1>"
   end
 

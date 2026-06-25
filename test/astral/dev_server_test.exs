@@ -59,6 +59,23 @@ defmodule Astral.DevServerTest do
     assert get_resp_header(conn, "content-type") |> hd() =~ "javascript"
   end
 
+  test "renders development error pages" do
+    write("pages/broken.md", """
+    ---
+    layout: missing.html
+    ---
+
+    # Broken
+    """)
+
+    conn = call_dev_server("/broken/")
+
+    assert conn.status == 500
+    assert conn.resp_body =~ "Astral development error"
+    assert conn.resp_body =~ "Missing layout"
+    assert get_resp_header(conn, "content-type") |> hd() =~ "text/html"
+  end
+
   test "returns 404 for unknown paths" do
     conn = call_dev_server("/missing")
 
