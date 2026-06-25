@@ -1,41 +1,82 @@
-# Astral
+# Astral ✨
 
-Astral is a Volt-powered static site generator for Elixir applications.
+[![Hex.pm](https://img.shields.io/hexpm/v/astral.svg)](https://hex.pm/packages/astral) [![Documentation](https://img.shields.io/badge/documentation-gray)](https://hexdocs.pm/astral)
 
-It is inspired by Astro's separation of responsibilities: Volt remains the generic frontend asset/dev/build layer, while Astral owns site semantics such as pages, routes, layouts, content, and static HTML output.
+Volt-powered static site generation for Elixir. Astral owns site semantics — pages, routes, Markdown, frontmatter, layouts, public files, and static HTML output — while [Volt](https://hex.pm/packages/volt) handles TypeScript, CSS, assets, dev-server integration, and HMR.
+
+```bash
+mix igniter.install astral
+mix astral.dev
+mix astral.build
+```
+
+Astral is intentionally separate from Volt. Volt remains the Vite-like frontend toolchain; Astral is the site framework built on top.
+
+## Why Astral
+
+Static site generators often force site configuration, content rules, and frontend tooling into JavaScript. Astral keeps the site layer in ordinary Elixir while reusing Volt's BEAM-native asset pipeline.
+
+You get:
+
+- Elixir `astral.config.exs` instead of JavaScript config objects.
+- Markdown pages rendered with MDEx and YAML frontmatter.
+- EEx layouts with `@content`, `@page`, `@metadata`, `@route`, and `@site` assigns.
+- Per-page layout selection through frontmatter.
+- Plain HTML pages for simple routes.
+- Public static files copied as-is.
+- TypeScript/CSS/assets built and served by Volt.
+- A Plug/Bandit dev server with Volt HMR client injection and full reloads for pages/layouts/public files.
+- Igniter-powered starter scaffolding.
 
 ## Status
 
-Astral is in early development. The first milestone supports HTML and Markdown pages, MDEx-backed frontmatter extraction, an optional single layout, public static files, and an optional Volt asset entry.
+Astral is early, but the first release is useful for small static sites and documentation prototypes. Collections, feeds, sitemap generation, and richer routing are intentionally left for follow-up releases.
 
-## Usage
+## Installation
 
-Create a small site:
+Install into an existing Mix project with Igniter:
+
+```bash
+mix igniter.install astral
+```
+
+Or add the dependency manually:
+
+```elixir
+def deps do
+  [
+    {:astral, "~> 0.1.0"}
+  ]
+end
+```
+
+Then scaffold a starter site:
+
+```bash
+mix astral.new
+```
+
+The scaffold creates `astral.config.exs`, starter Markdown pages, an EEx layout, TypeScript/CSS assets, public files, `tsconfig.json`, and Volt JS/TS formatting/linting configuration.
+
+## Project layout
 
 ```text
-pages/index.html
-pages/about.md
-layouts/default.html
-assets/app.ts
-public/robots.txt
+astral.config.exs
+pages/
+  index.md
+  about.md
+layouts/
+  default.html
+assets/
+  app.ts
+  styles.css
+public/
+  robots.txt
 ```
 
-Layouts are EEx templates. Use `@content` where page HTML should be inserted, and `@page`, `@metadata`, `@route`, and `@site` for page/site data:
+## Configuration
 
-```html
-<!doctype html>
-<html>
-  <head>
-    <title><%= @page.title || "Astral" %></title>
-  </head>
-  <body>
-    <%= @content %>
-    <script type="module" src="<%= Astral.asset_path(@site, "app.ts") %>"></script>
-  </body>
-</html>
-```
-
-Configure the site with Elixir:
+Astral config is real Elixir and returns an `%Astral.Config{}` struct. No global app env is required for site settings.
 
 ```elixir
 # astral.config.exs
@@ -58,29 +99,7 @@ site do
 end
 ```
 
-Build the site:
-
-```sh
-mix astral.build
-```
-
-Or call the library API directly:
-
-```elixir
-Astral.build(config: "astral.config.exs")
-```
-
-You can also pass keyword options directly:
-
-```elixir
-Astral.build(
-  root: ".",
-  pages: "pages",
-  layouts: "layouts",
-  outdir: "dist",
-  assets: "assets"
-)
-```
+## Pages and frontmatter
 
 Markdown pages are rendered with MDEx. YAML frontmatter is extracted by MDEx and decoded with YamlElixir:
 
@@ -88,6 +107,7 @@ Markdown pages are rendered with MDEx. YAML frontmatter is extracted by MDEx and
 ---
 title: About Astral
 permalink: /about-us/
+layout: default.html
 ---
 
 # About
@@ -96,95 +116,129 @@ permalink: /about-us/
 Output routes:
 
 ```text
-pages/index.html      -> dist/index.html
+pages/index.md        -> dist/index.html
 pages/about.md        -> dist/about/index.html
 pages/blog/post.html  -> dist/blog/post/index.html
 ```
 
-A `permalink` frontmatter value overrides the default route. A `layout` value selects a layout from the layouts directory, and `layout: false` renders without a layout:
+`permalink` overrides the default route. `layout` selects a layout from the layouts directory. Use `layout: false` to render without a layout.
 
-```markdown
----
-title: Landing
-layout: marketing.html
----
+Plain `.html` files in `pages/` are supported too.
 
-# Landing
+## Layouts
+
+Layouts are EEx templates. Use `@content` where page HTML should be inserted:
+
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <title><%= @page.title || "Astral" %></title>
+    <script type="module" src="<%= Astral.asset_path(@site, "app.ts") %>"></script>
+  </head>
+  <body>
+    <main data-route="<%= @route %>">
+      <%= @content %>
+    </main>
+  </body>
+</html>
 ```
 
-```markdown
----
-layout: false
----
+Available assigns:
 
-# Raw Page
+- `@content` — rendered page HTML.
+- `@page` — `%Astral.Content{}` for the current page.
+- `@metadata` — decoded frontmatter map.
+- `@route` — route path such as `/about/`.
+- `@site` — discovered `%Astral.Site{}`.
+
+## Assets
+
+Astral delegates assets to Volt. Reference source assets from layouts with `Astral.asset_path/2`:
+
+```eex
+<script type="module" src="<%= Astral.asset_path(@site, "app.ts") %>"></script>
 ```
 
-If the configured asset entry exists, Astral builds it with Volt into `dist/assets`. Asset output uses Volt's content hashes by default; use `Astral.asset_path(@site, "app.ts")` in layouts so production pages reference the manifest output. Set `hash false` inside the `assets` block when a simple stable filename is better for examples or prototypes.
+In development this returns the source path served by Volt, for example `/assets/app.ts`. In static builds it reads Volt's manifest and returns the emitted file, for example `/assets/app-5e6f7a8b.js`.
 
-## Development server
-
-Start the development server with:
-
-```bash
-mix astral.dev --config astral.config.exs --port 4000
-mix astral.dev --open
-```
-
-Or from Elixir:
+Volt content hashes are enabled by default. For examples or prototypes that need stable filenames:
 
 ```elixir
-Astral.dev(config: "astral.config.exs", port: 4000)
-```
-
-The dev server composes Volt under the asset URL prefix, serves Astral page routes, serves public files, injects Volt's HMR client into rendered pages, watches pages/layouts/public files for full reloads, and renders development error pages for site failures.
-
-## Installation
-
-Once published, add Astral to your dependencies:
-
-```elixir
-def deps do
-  [
-    {:astral, "~> 0.1.0"}
-  ]
+assets "assets" do
+  entry "app.ts"
+  url_prefix "/assets"
+  hash false
 end
 ```
 
-## Create a starter site
+## Development server
 
-In an existing Mix project with Astral installed:
-
-```sh
-mix astral.new
+```bash
+mix astral.dev
+mix astral.dev --open
+mix astral.dev --config astral.config.exs --port 4000
 ```
 
-Or install and scaffold through Igniter:
+The dev server:
 
-```sh
-mix igniter.install astral
+- serves Astral routes,
+- serves public files,
+- delegates Volt asset/HMR routes to `Volt.DevServer`,
+- injects Volt's HMR client into rendered HTML,
+- watches pages/layouts/public files for full reloads,
+- renders useful HTML error pages for Markdown/layout/config failures.
+
+## Static builds
+
+```bash
+mix astral.build
 ```
 
-The Igniter-powered scaffold creates `astral.config.exs`, starter Markdown pages, an EEx layout, TypeScript/CSS assets, public files, `tsconfig.json`, and Volt JS/TS formatting/linting configuration.
+Example output:
+
+```text
+[Astral] Built 2 page(s) into dist
+
+Routes:
+  /        dist/index.html
+  /about/  dist/about/index.html
+
+Assets:
+  dist/assets/manifest.json
+```
+
+Upload `dist/` to any static host or CDN. See [`guides/deployment.md`](guides/deployment.md) for production asset behavior and deployment notes.
 
 ## Example site
 
 A runnable example lives in `examples/basic`:
 
-```sh
+```bash
 cd examples/basic
 mix deps.get
 mix astral.dev
 mix astral.build
+mix check
 ```
 
 It demonstrates Markdown, HTML pages, layouts, public files, Volt TypeScript/CSS assets, and Volt JS/TS formatting/linting.
 
-See `guides/deployment.md` for static hosting and production asset behavior.
+## Programmatic API
+
+```elixir
+Astral.build(config: "astral.config.exs")
+Astral.dev(config: "astral.config.exs", port: 4000)
+Astral.asset_path(site, "app.ts")
+```
 
 ## Development
 
-```sh
+```bash
 mix deps.get
 mix ci
 ```
+
+## License
+
+MIT © 2026 Danila Poyarkov

@@ -71,7 +71,35 @@ defmodule Astral.MixProject do
     [
       licenses: ["MIT"],
       links: %{"GitHub" => @source_url},
-      files: ~w[lib guides mix.exs README.md CHANGELOG.md LICENSE]
+      files: package_files()
+    ]
+  end
+
+  defp package_files do
+    ~w[
+      lib
+      guides
+      mix.exs
+      README.md
+      CHANGELOG.md
+      LICENSE
+      examples/basic/.formatter.exs
+      examples/basic/.gitignore
+      examples/basic/README.md
+      examples/basic/assets/app.ts
+      examples/basic/assets/styles.css
+      examples/basic/astral.config.exs
+      examples/basic/config/config.exs
+      examples/basic/layouts/default.html
+      examples/basic/layouts/marketing.html
+      examples/basic/mix.exs
+      examples/basic/pages/about.md
+      examples/basic/pages/blog/hello-astral.md
+      examples/basic/pages/index.md
+      examples/basic/pages/landing.md
+      examples/basic/pages/raw.html
+      examples/basic/public/robots.txt
+      examples/basic/tsconfig.json
     ]
   end
 
