@@ -142,6 +142,18 @@ Collection entries are validated, exposed to layouts as `@collections`, and rend
 
 `post.metadata` keeps the original string-keyed frontmatter. `post.data` contains schema-normalized data. Entry layouts also receive `@entry` for the current collection entry.
 
+Collection helpers are available for layouts and plugins:
+
+```elixir
+posts =
+  @site
+  |> Astral.Collection.entries(:posts)
+  |> Astral.Collection.published()
+  |> Astral.Collection.sort_by_date(:desc)
+
+tags = Astral.Collection.tags(posts)
+```
+
 ## Plugins
 
 Astral plugins mirror Volt's plugin shape: implement `Astral.Plugin`, configure modules or `{module, opts}` tuples, and optionally return `:pre` or `:post` from `enforce/0` to control ordering.
@@ -185,7 +197,10 @@ site do
      title: "My Blog",
      author: "Astral",
      collection: :posts},
-    {Astral.Plugin.Sitemap, site_url: "https://example.com"}
+    {Astral.Plugin.Sitemap,
+     site_url: "https://example.com",
+     changefreq: :weekly,
+     priority: fn page -> if page.route_path == "/", do: 1.0, else: 0.7 end}
   ]
 end
 ```
@@ -232,7 +247,7 @@ document do
 end
 ```
 
-The DSL supports attributes, nested elements, loops, conditionals, comments, text nodes, and CDATA while Saxy handles XML escaping and encoding.
+The DSL supports attributes, nested elements, dynamic `tag "name"` nodes, loops, conditionals, comments, text nodes, CDATA, binary rendering, and iodata rendering while Saxy handles XML escaping and encoding.
 
 ## Pages and frontmatter
 

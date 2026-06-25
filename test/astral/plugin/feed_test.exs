@@ -56,6 +56,45 @@ defmodule Astral.Plugin.FeedTest do
     assert feed =~ "<![CDATA[<h1>Hello</h1>]]>"
   end
 
+  test "supports summary, author, and text content options", %{root: root} do
+    config =
+      Astral.Config.new(
+        root: root,
+        plugins: [
+          {Astral.Plugin.Feed,
+           site_url: "https://example.com",
+           summary: fn entry -> "Summary: #{entry.data.title}" end,
+           entry_author: fn _entry -> "Entry Author" end,
+           content: :text}
+        ],
+        collections: [
+          [
+            name: :posts,
+            dir: "content/posts",
+            permalink: "/blog/:slug/",
+            schema: %{
+              "type" => "object",
+              "properties" => %{
+                "title" => %{"type" => "string"},
+                "date" => %{"type" => "string"},
+                "description" => %{"type" => "string"}
+              },
+              "required" => ["title", "date"],
+              "additionalProperties" => false
+            }
+          ]
+        ]
+      )
+
+    assert {:ok, _result} = Astral.build(config)
+
+    feed = File.read!(Path.join(root, "dist/feed.xml"))
+    assert feed =~ "<summary>Summary: Hello &amp; XML</summary>"
+    assert feed =~ "<name>Entry Author</name>"
+    assert feed =~ ~s(<content type="text">Hello</content>)
+    refute feed =~ "<![CDATA["
+  end
+
   defp write(root, path, content) do
     path = Path.join(root, path)
     File.mkdir_p!(Path.dirname(path))

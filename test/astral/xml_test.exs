@@ -43,6 +43,30 @@ defmodule Astral.XMLTest do
     assert Astral.XML.render(entry) =~ ~s(<content type="html">)
   end
 
+  test "supports dynamic tags and iodata rendering" do
+    [node] =
+      tree do
+        tag("media:thumbnail", url: "https://example.com/image.png")
+      end
+
+    assert node == {"media:thumbnail", [{"url", "https://example.com/image.png"}], []}
+    assert node |> Astral.XML.render_iodata() |> IO.iodata_to_binary() =~ "<media:thumbnail"
+  end
+
+  test "raises clear errors for invalid documents" do
+    assert_raise ArgumentError, ~r/requires a root element/, fn ->
+      Astral.XML.render([])
+    end
+
+    assert_raise ArgumentError, ~r/exactly one root element/, fn ->
+      tree do
+        one()
+        two()
+      end
+      |> Astral.XML.render()
+    end
+  end
+
   test "supports conditionals" do
     include? = System.unique_integer() != 0
 

@@ -25,6 +25,30 @@ defmodule Astral.Plugin.SitemapTest do
     assert sitemap =~ "<lastmod>2026-06-25</lastmod>"
   end
 
+  test "supports exclude, changefreq, priority, and lastmod options", %{root: root} do
+    config =
+      Astral.Config.new(
+        root: root,
+        plugins: [
+          {Astral.Plugin.Sitemap,
+           site_url: "https://example.com",
+           exclude: ["/"],
+           changefreq: fn _source -> :weekly end,
+           priority: fn source -> if source.route_path == "/about/", do: 0.8, else: 0.5 end,
+           lastmod: fn _source -> ~D[2026-01-01] end}
+        ]
+      )
+
+    assert {:ok, _result} = Astral.build(config)
+
+    sitemap = File.read!(Path.join(root, "dist/sitemap.xml"))
+    refute sitemap =~ "<loc>https://example.com/</loc>"
+    assert sitemap =~ "<loc>https://example.com/about/</loc>"
+    assert sitemap =~ "<lastmod>2026-01-01</lastmod>"
+    assert sitemap =~ "<changefreq>weekly</changefreq>"
+    assert sitemap =~ "<priority>0.8</priority>"
+  end
+
   defp write(root, path, content) do
     path = Path.join(root, path)
     File.mkdir_p!(Path.dirname(path))
