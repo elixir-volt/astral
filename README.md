@@ -57,6 +57,12 @@ end
 
 Build the site:
 
+```sh
+mix astral.build
+```
+
+Or call the library API directly:
+
 ```elixir
 Astral.build(config: "astral.config.exs")
 ```
@@ -149,6 +155,7 @@ A runnable example lives in `examples/basic`:
 cd examples/basic
 mix deps.get
 mix astral.dev
+mix astral.build
 ```
 
 It demonstrates Markdown, HTML pages, layouts, public files, Volt TypeScript/CSS assets, and Volt JS/TS formatting/linting.

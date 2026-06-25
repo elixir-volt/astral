@@ -39,7 +39,7 @@ mix check
 
 ```sh
 mix deps.get
-mix run -e 'Astral.build(config: "astral.config.exs")'
+mix astral.build
 ```
 
 The output is written to `dist/`.
