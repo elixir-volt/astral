@@ -42,6 +42,7 @@ defmodule Astral.MixProject do
       {:json_spec, "~> 1.1"},
       {:jsv, "~> 0.8"},
       {:zoi, "~> 0.18"},
+      {:saxy, "~> 1.6"},
       {:bandit, "~> 1.12"},
       {:floki, "~> 0.38"},
       {:plug, "~> 1.20"},
@@ -94,11 +95,12 @@ defmodule Astral.MixProject do
       examples/basic/assets/styles.css
       examples/basic/astral.config.exs
       examples/basic/config/config.exs
+      examples/basic/content/posts/hello-astral.md
       examples/basic/layouts/default.html
       examples/basic/layouts/marketing.html
+      examples/basic/layouts/post.html
       examples/basic/mix.exs
       examples/basic/pages/about.md
-      examples/basic/pages/blog/hello-astral.md
       examples/basic/pages/index.md
       examples/basic/pages/landing.md
       examples/basic/pages/raw.html

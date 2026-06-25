@@ -1,15 +1,10 @@
 defmodule Astral.AssetsTest do
   use ExUnit.Case, async: false
 
-  @tmp Path.expand("../tmp/assets", __DIR__)
+  @moduletag :tmp_dir
 
-  setup do
-    File.rm_rf!(@tmp)
-    File.mkdir_p!(@tmp)
-
-    on_exit(fn -> File.rm_rf!(@tmp) end)
-
-    {:ok, config: Astral.Config.new(root: @tmp, asset_entry: "app.ts")}
+  setup %{tmp_dir: tmp_dir} do
+    {:ok, config: Astral.Config.new(root: tmp_dir, asset_entry: "app.ts")}
   end
 
   test "returns stable dev-style script paths before a manifest exists", %{config: config} do

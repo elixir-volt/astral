@@ -175,6 +175,21 @@ end
 
 Available hooks include `config/1`, `build_start/1`, `site_discovered/1`, `routes/1`, `render_route/2`, `render_page/3`, and `build_done/1`. Tuple options are passed to callbacks that define one extra argument, such as `render_page/4`.
 
+Astral includes plugin-shaped feed and sitemap generators:
+
+```elixir
+site do
+  plugins [
+    {Astral.Plugin.Feed,
+     site_url: "https://example.com",
+     title: "My Blog",
+     author: "Astral",
+     collection: :posts},
+    {Astral.Plugin.Sitemap, site_url: "https://example.com"}
+  ]
+end
+```
+
 Plugins can add generated routes for feeds, sitemaps, pagination, or tag pages:
 
 ```elixir
@@ -197,6 +212,27 @@ defmodule MySite.FeedPlugin do
   def render_route(_route, _site), do: nil
 end
 ```
+
+## XML DSL
+
+Astral ships a small XML DSL backed by Saxy. It exists for feed/sitemap plugins today, but it is deliberately generic so it can later be extracted into a standalone XML package.
+
+```elixir
+import Astral.XML
+
+document do
+  urlset xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" do
+    for page <- pages do
+      url do
+        loc site_url <> page.route_path
+        lastmod page.date
+      end
+    end
+  end
+end
+```
+
+The DSL supports attributes, nested elements, loops, conditionals, comments, text nodes, and CDATA while Saxy handles XML escaping and encoding.
 
 ## Pages and frontmatter
 

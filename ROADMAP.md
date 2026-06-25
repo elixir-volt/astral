@@ -76,8 +76,8 @@ Goal: make Astral useful for blogs, docs, changelogs, and small content-heavy si
 - Generated routes from collections. *(Initial collection entry routes landed on `master` after v0.1.0.)*
 - Pagination.
 - Tags and categories.
-- RSS/Atom feed generation.
-- Sitemap generation.
+- RSS/Atom feed generation. *(Initial Atom feed plugin landed on `master` after v0.1.0.)*
+- Sitemap generation. *(Initial sitemap plugin landed on `master` after v0.1.0.)*
 - Frontmatter defaults.
 - Table of contents and heading anchors.
 
@@ -89,7 +89,7 @@ Goal: make content/build behavior extensible without hard-coding every SSG featu
 - `Astral.PluginRunner` with Volt-style optional callback dispatch. *(Initial foundation landed on `master` after v0.1.0.)*
 - Config DSL support for plugins. *(Initial foundation landed on `master` after v0.1.0.)*
 - Plugin docs and examples. *(Initial README coverage landed on `master` after v0.1.0.)*
-- Built-in feed/sitemap functionality either as internal plugins or plugin-shaped modules.
+- Built-in feed/sitemap functionality either as internal plugins or plugin-shaped modules. *(Initial plugin-shaped modules landed on `master` after v0.1.0.)*
 - Generated route hooks for feeds/sitemaps/pagination. *(Initial `routes/1` + `render_route/2` hooks landed on `master` after v0.1.0.)*
 - Compatibility story for passing Astral-generated virtual entries/modules to Volt.
 

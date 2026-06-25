@@ -59,14 +59,10 @@ defmodule Astral.BuilderTest do
     def render_route(_route, _site), do: nil
   end
 
-  @tmp Path.expand("../tmp/builder", __DIR__)
+  @moduletag :tmp_dir
 
-  setup do
-    File.rm_rf!(@tmp)
-    File.mkdir_p!(@tmp)
-
-    on_exit(fn -> File.rm_rf!(@tmp) end)
-
+  setup %{tmp_dir: tmp_dir} do
+    Process.put(:astral_test_tmp, tmp_dir)
     :ok
   end
 
@@ -76,7 +72,7 @@ defmodule Astral.BuilderTest do
     write("pages/blog/post.html", "<h1>Post</h1>")
     write("layouts/default.html", "<html><body><%= @content %></body></html>")
 
-    assert {:ok, result} = Astral.build(root: @tmp)
+    assert {:ok, result} = Astral.build(root: tmp())
 
     assert Enum.map(result.site.pages, & &1.route_path) == ["/about/", "/blog/post/", "/"]
     assert read("dist/index.html") == "<html><body><h1>Home</h1></body></html>"
@@ -89,7 +85,7 @@ defmodule Astral.BuilderTest do
     write("pages/about.md", "# About")
     write("layouts/default.html", "<main><%= @content %></main>")
 
-    assert {:ok, result} = Astral.build(root: @tmp)
+    assert {:ok, result} = Astral.build(root: tmp())
 
     assert Enum.map(result.site.pages, & &1.route_path) == ["/about/", "/"]
     assert read("dist/index.html") == "<main><h1>Home</h1></main>"
@@ -108,7 +104,7 @@ defmodule Astral.BuilderTest do
 
     write("layouts/page.html", "<%= @content %>")
 
-    assert {:ok, result} = Astral.build(root: @tmp)
+    assert {:ok, result} = Astral.build(root: tmp())
 
     [page] = result.site.pages
     assert page.route_path == "/about-us/"
@@ -129,7 +125,7 @@ defmodule Astral.BuilderTest do
     write("layouts/default.html", "<default><%= @content %></default>")
     write("layouts/page.html", "<page><%= @page.title %>:<%= @content %></page>")
 
-    assert {:ok, _result} = Astral.build(root: @tmp)
+    assert {:ok, _result} = Astral.build(root: tmp())
 
     assert read("dist/index.html") == "<page>Home:<h1>Home</h1></page>"
   end
@@ -144,7 +140,7 @@ defmodule Astral.BuilderTest do
 
     write("layouts/default.html", "<default><%= @content %></default>")
 
-    assert {:ok, _result} = Astral.build(root: @tmp)
+    assert {:ok, _result} = Astral.build(root: tmp())
 
     assert read("dist/index.html") == "<h1>Home</h1>"
   end
@@ -157,8 +153,8 @@ defmodule Astral.BuilderTest do
     # Home
     """)
 
-    assert {:error, {:missing_layout, path, "missing.html"}} = Astral.build(root: @tmp)
-    assert path == Path.join(@tmp, "pages/index.md")
+    assert {:error, {:missing_layout, path, "missing.html"}} = Astral.build(root: tmp())
+    assert path == Path.join(tmp(), "pages/index.md")
   end
 
   test "renders layout assigns from page metadata" do
@@ -176,7 +172,7 @@ defmodule Astral.BuilderTest do
     <main data-route="<%= @route %>" data-assets="<%= @site.config.asset_url_prefix %>"><%= @content %></main>
     """)
 
-    assert {:ok, _result} = Astral.build(root: @tmp)
+    assert {:ok, _result} = Astral.build(root: tmp())
 
     assert read("dist/index.html") == """
            <title>Home Page</title>
@@ -189,7 +185,7 @@ defmodule Astral.BuilderTest do
     write("pages/index.html", "<h1>Home</h1>")
     write("public/robots.txt", "User-agent: *")
 
-    assert {:ok, _result} = Astral.build(root: @tmp)
+    assert {:ok, _result} = Astral.build(root: tmp())
 
     assert read("dist/robots.txt") == "User-agent: *"
   end
@@ -197,13 +193,13 @@ defmodule Astral.BuilderTest do
   test "builds from an astral config file" do
     write("site_pages/index.html", "<h1>Home</h1>")
 
-    config_path = Path.join(@tmp, "astral.config.exs")
+    config_path = Path.join(tmp(), "astral.config.exs")
 
     File.write!(config_path, """
     import Astral.Config
 
     site do
-      root #{inspect(@tmp)}
+      root #{inspect(tmp())}
       pages "site_pages"
       outdir "site_dist"
     end
@@ -218,10 +214,10 @@ defmodule Astral.BuilderTest do
     write("pages/index.html", "<h1>Home</h1>")
     write("assets/app.js", "console.log('astral')")
 
-    assert {:ok, result} = Astral.build(root: @tmp)
+    assert {:ok, result} = Astral.build(root: tmp())
 
     assert result.assets != nil
-    assert File.regular?(Path.join(@tmp, "dist/assets/manifest.json"))
+    assert File.regular?(Path.join(tmp(), "dist/assets/manifest.json"))
   end
 
   test "runs plugin hooks during static builds" do
@@ -230,7 +226,7 @@ defmodule Astral.BuilderTest do
 
     assert {:ok, result} =
              Astral.build(
-               root: @tmp,
+               root: tmp(),
                plugins: [
                  {ConfigPlugin, layout: "plugin.html"},
                  SitePlugin,
@@ -262,7 +258,7 @@ defmodule Astral.BuilderTest do
 
     config =
       Astral.Config.new(
-        root: @tmp,
+        root: tmp(),
         collections: [
           [
             name: :posts,
@@ -300,7 +296,7 @@ defmodule Astral.BuilderTest do
 
     config =
       Astral.Config.new(
-        root: @tmp,
+        root: tmp(),
         plugins: [FeedPlugin],
         collections: [
           [
@@ -332,7 +328,7 @@ defmodule Astral.BuilderTest do
 
     config =
       Astral.Config.new(
-        root: @tmp,
+        root: tmp(),
         collections: [
           [
             name: :posts,
@@ -352,7 +348,7 @@ defmodule Astral.BuilderTest do
 
     config =
       Astral.Config.new(
-        root: @tmp,
+        root: tmp(),
         collections: [
           [name: :posts, dir: "content/posts", schema: schema(%{required(:title) => String.t()})]
         ]
@@ -362,18 +358,20 @@ defmodule Astral.BuilderTest do
   end
 
   test "returns an error when pages directory is missing" do
-    assert {:error, {:missing_pages_dir, path}} = Astral.build(root: @tmp)
-    assert path == Path.join(@tmp, "pages")
+    assert {:error, {:missing_pages_dir, path}} = Astral.build(root: tmp())
+    assert path == Path.join(tmp(), "pages")
   end
 
+  defp tmp, do: Process.get(:astral_test_tmp) || raise("missing tmp_dir")
+
   defp write(path, content) do
-    path = Path.join(@tmp, path)
+    path = Path.join(tmp(), path)
     File.mkdir_p!(Path.dirname(path))
     File.write!(path, content)
   end
 
   defp read(path) do
-    @tmp
+    tmp()
     |> Path.join(path)
     |> File.read!()
   end

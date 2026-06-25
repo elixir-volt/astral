@@ -75,7 +75,7 @@ defmodule Mix.Tasks.Astral.Build do
     outdir = Path.relative_to_cwd(result.site.config.outdir)
 
     Mix.shell().info("[Astral] Built #{page_count} page(s) into #{outdir}")
-    print_routes(result.site.pages)
+    print_routes(result.site.pages ++ result.site.routes)
     print_assets(result)
   end
 
@@ -87,16 +87,19 @@ defmodule Mix.Tasks.Astral.Build do
 
   defp print_routes(pages) do
     width =
-      pages |> Enum.max_by(&String.length(&1.route_path)) |> then(&String.length(&1.route_path))
+      pages |> Enum.max_by(&String.length(route_path(&1))) |> then(&String.length(route_path(&1)))
 
     Mix.shell().info("\nRoutes:")
 
     Enum.each(pages, fn page ->
-      route = String.pad_trailing(page.route_path, width)
+      route = String.pad_trailing(route_path(page), width)
       output = Path.relative_to_cwd(page.output_path)
       Mix.shell().info("  #{route}  #{output}")
     end)
   end
+
+  defp route_path(%Astral.Page{} = page), do: page.route_path
+  defp route_path(%Astral.Route{} = route), do: route.path
 
   defp print_assets(%{assets: nil}), do: :ok
 

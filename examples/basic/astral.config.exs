@@ -6,6 +6,12 @@ site do
   pages "pages"
   public "public"
 
+  plugins [
+    {Astral.Plugin.Feed,
+     site_url: "https://example.com", title: "Astral Basic", author: "Astral", collection: :posts},
+    {Astral.Plugin.Sitemap, site_url: "https://example.com"}
+  ]
+
   layouts "layouts" do
     default "default.html"
   end

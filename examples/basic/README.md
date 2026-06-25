@@ -9,6 +9,7 @@ This is a minimal Astral site that exercises the current core features:
 - Volt-managed TypeScript and CSS
 - schema-validated posts in `content/posts`
 - collection entry pages rendered at `/blog/:slug/`
+- generated `/feed.xml` and `/sitemap.xml` routes
 - Astral's development server
 - Volt JS/TS formatting and linting
 
@@ -54,3 +55,5 @@ The output is written to `dist/`.
 - `/landing/`
 - `/raw/`
 - `/robots.txt`
+- `/feed.xml`
+- `/sitemap.xml`

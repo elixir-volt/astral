@@ -20,11 +20,10 @@ defmodule Astral.DevServerTest do
     def render_route(_route, _site), do: nil
   end
 
-  @tmp Path.expand("../tmp/dev_server", __DIR__)
+  @moduletag :tmp_dir
 
-  setup do
-    File.rm_rf!(@tmp)
-    File.mkdir_p!(@tmp)
+  setup %{tmp_dir: tmp_dir} do
+    Process.put(:astral_test_tmp, tmp_dir)
     write("pages/index.md", "# Home")
     write("pages/about.md", "# About")
 
@@ -32,8 +31,6 @@ defmodule Astral.DevServerTest do
     <!doctype html>
     <html><body><main><%= @content %></main></body></html>
     """)
-
-    on_exit(fn -> File.rm_rf!(@tmp) end)
 
     :ok
   end
@@ -65,7 +62,7 @@ defmodule Astral.DevServerTest do
   end
 
   test "serves plugin generated routes" do
-    opts = Astral.DevServer.init(root: @tmp, plugins: [TextRoutePlugin])
+    opts = Astral.DevServer.init(root: tmp(), plugins: [TextRoutePlugin])
     conn = conn(:get, "/generated.txt") |> Astral.DevServer.call(opts)
 
     assert conn.status == 200
@@ -109,12 +106,14 @@ defmodule Astral.DevServerTest do
   end
 
   defp call_dev_server(path) do
-    opts = Astral.DevServer.init(root: @tmp)
+    opts = Astral.DevServer.init(root: tmp())
     conn(:get, path) |> Astral.DevServer.call(opts)
   end
 
+  defp tmp, do: Process.get(:astral_test_tmp) || raise("missing tmp_dir")
+
   defp write(path, content) do
-    path = Path.join(@tmp, path)
+    path = Path.join(tmp(), path)
     File.mkdir_p!(Path.dirname(path))
     File.write!(path, content)
   end
