@@ -21,12 +21,17 @@ defmodule Astral.Builder do
   end
 
   defp build_config(config) do
-    with {:ok, site} <- Astral.Discovery.discover(config),
+    with :ok <- Astral.PluginRunner.build_start(config.plugins, config),
+         {:ok, site} <- Astral.Discovery.discover(config),
          :ok <- prepare_outdir(config),
          :ok <- copy_public(config),
          {:ok, assets} <- build_assets(config),
          :ok <- render_pages(site) do
-      {:ok, %Astral.BuildResult{site: site, assets: assets}}
+      result = %Astral.BuildResult{site: site, assets: assets}
+
+      with :ok <- Astral.PluginRunner.build_done(config.plugins, result) do
+        {:ok, result}
+      end
     end
   end
 

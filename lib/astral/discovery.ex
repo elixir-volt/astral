@@ -11,14 +11,15 @@ defmodule Astral.Discovery do
     with {:ok, pages} <- discover_pages(config),
          {:ok, entries} <- discover_collections(config),
          {:ok, layouts} <- read_layouts(config) do
-      {:ok,
-       %Astral.Site{
-         config: config,
-         pages: pages,
-         layouts: layouts,
-         collections: config.collections,
-         entries: entries
-       }}
+      site = %Astral.Site{
+        config: config,
+        pages: pages,
+        layouts: layouts,
+        collections: config.collections,
+        entries: entries
+      }
+
+      {:ok, Astral.PluginRunner.site_discovered(config.plugins, site)}
     end
   end
 

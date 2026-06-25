@@ -18,7 +18,8 @@ defmodule Astral.Config do
           asset_url_prefix: String.t(),
           asset_hash: boolean(),
           layout: String.t(),
-          collections: [Astral.Collection.t()]
+          collections: [Astral.Collection.t()],
+          plugins: [Astral.Plugin.plugin()]
         }
 
   defstruct root: nil,
@@ -32,7 +33,8 @@ defmodule Astral.Config do
             asset_url_prefix: "/assets",
             asset_hash: true,
             layout: nil,
-            collections: []
+            collections: [],
+            plugins: []
 
   @doc "Declare an Astral site configuration."
   defmacro site(do: block) do
@@ -50,7 +52,9 @@ defmodule Astral.Config do
     outdir = path(opts, :outdir, root, "dist")
     assets = path(opts, :assets, root, "assets")
 
-    %__MODULE__{
+    plugins = Keyword.get(opts, :plugins, [])
+
+    config = %__MODULE__{
       root: root,
       pages: path(opts, :pages, root, "pages"),
       layouts: path(opts, :layouts, root, "layouts"),
@@ -62,8 +66,11 @@ defmodule Astral.Config do
       asset_url_prefix: Keyword.get(opts, :asset_url_prefix, "/assets"),
       asset_hash: Keyword.get(opts, :asset_hash, true),
       layout: Keyword.get(opts, :layout, "default.html"),
-      collections: collections(opts, root)
+      collections: collections(opts, root),
+      plugins: plugins
     }
+
+    Astral.PluginRunner.config(plugins, config)
   end
 
   defp path(opts, key, base, default) do
@@ -126,6 +133,7 @@ defmodule Astral.Config do
   defp expression_to_opts({:public, _meta, [path]}), do: [public: path]
   defp expression_to_opts({:outdir, _meta, [path]}), do: [outdir: path]
   defp expression_to_opts({:layout, _meta, [path]}), do: [layout: path]
+  defp expression_to_opts({:plugins, _meta, [plugins]}), do: [plugins: plugins]
   defp expression_to_opts({:asset_entry, _meta, [path]}), do: [asset_entry: path]
   defp expression_to_opts({:asset_outdir, _meta, [path]}), do: [asset_outdir: path]
   defp expression_to_opts({:asset_url_prefix, _meta, [prefix]}), do: [asset_url_prefix: prefix]

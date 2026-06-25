@@ -27,10 +27,11 @@ You get:
 - TypeScript/CSS/assets built and served by Volt.
 - A Plug/Bandit dev server with Volt HMR client injection and full reloads for pages/layouts/public files.
 - Igniter-powered starter scaffolding.
+- Volt-style Astral plugins for config, discovery, rendering, and build lifecycle hooks.
 
 ## Status
 
-Astral is early, but the first release is useful for small static sites and documentation prototypes. Collections, feeds, sitemap generation, and richer routing are intentionally left for follow-up releases. See [`ROADMAP.md`](ROADMAP.md) for the planned path toward an Astro-class framework.
+Astral is early, but the first release is useful for small static sites and documentation prototypes. Initial content collections and plugins have landed on `master` after v0.1.0; feeds, sitemap generation, and richer routing are intentionally left for follow-up releases. See [`ROADMAP.md`](ROADMAP.md) for the planned path toward an Astro-class framework.
 
 ## Installation
 
@@ -140,6 +141,39 @@ Collection entries are exposed to layouts as `@collections`:
 ```
 
 `post.metadata` keeps the original string-keyed frontmatter. `post.data` contains schema-normalized data.
+
+## Plugins
+
+Astral plugins mirror Volt's plugin shape: implement `Astral.Plugin`, configure modules or `{module, opts}` tuples, and optionally return `:pre` or `:post` from `enforce/0` to control ordering.
+
+```elixir
+# astral.config.exs
+import Astral.Config
+
+site do
+  plugins [
+    MySite.SEOPlugin,
+    {MySite.AnalyticsPlugin, id: "G-XXXX"}
+  ]
+end
+```
+
+```elixir
+defmodule MySite.AnalyticsPlugin do
+  @behaviour Astral.Plugin
+
+  @impl true
+  def name, do: "analytics"
+
+  @impl true
+  def render_page(html, _page, _site, opts) do
+    id = Keyword.fetch!(opts, :id)
+    {:ok, String.replace(html, "</body>", ~s(<script data-id="#{id}"></script></body>))}
+  end
+end
+```
+
+Available hooks include `config/1`, `build_start/1`, `site_discovered/1`, `render_page/3`, and `build_done/1`. Tuple options are passed to callbacks that define one extra argument, such as `render_page/4`.
 
 ## Pages and frontmatter
 

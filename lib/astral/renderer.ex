@@ -6,9 +6,9 @@ defmodule Astral.Renderer do
   @doc "Render a page from a discovered site."
   @spec render_page(Astral.Site.t(), Astral.Page.t()) :: {:ok, String.t()} | {:error, term()}
   def render_page(site, page) do
-    case page_layout(page, site) do
-      {:ok, layout} -> Astral.Layout.render(page.content.html, layout, page, site)
-      {:error, _reason} = error -> error
+    with {:ok, layout} <- page_layout(page, site),
+         {:ok, html} <- Astral.Layout.render(page.content.html, layout, page, site) do
+      Astral.PluginRunner.render_page(site.config.plugins, html, page, site)
     end
   end
 

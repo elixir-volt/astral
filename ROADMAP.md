@@ -26,7 +26,9 @@ Volt's plugin design has several properties worth preserving:
 - first-match hooks for ownership decisions,
 - pipeline hooks that transform data in sequence.
 
-Astral should implement the same shape, but with site-level hooks instead of asset-level hooks:
+Astral now has the initial plugin foundation on `master` after v0.1.0: `Astral.Plugin`, `Astral.PluginRunner`, config DSL support, Volt-style ordering, and tuple opts support. The first hooks are intentionally focused on the existing pipeline: `config/1`, `build_start/1`, `site_discovered/1`, `render_page/3`, and `build_done/1`.
+
+Future plugins should grow into richer site-level hooks instead of asset-level hooks:
 
 ```elixir
 defmodule MySite.Plugin do
@@ -41,19 +43,15 @@ defmodule MySite.Plugin do
 end
 ```
 
-Likely first plugin callbacks:
+Likely next plugin callbacks:
 
-- `name/0` — plugin name.
-- `enforce/0` — `:pre`, `:post`, or `nil` ordering.
-- `configure/1` — adjust normalized config before discovery.
 - `collections/1` — provide content collection definitions.
 - `load_content/3` — load/normalize content entries for plugin-owned formats.
 - `routes/1` — add generated routes such as feeds, sitemaps, tag pages, or pagination pages.
 - `render_route/2` — render plugin-owned generated routes.
 - `transform_markdown/3` — transform MDEx document or rendered Markdown before layout.
-- `transform_html/3` — transform rendered route HTML before writing/serving.
+- `transform_html/3` or expanded `render_page/3`/route hooks — transform rendered route HTML before writing/serving.
 - `head/2` — contribute metadata/link/script tags.
-- `build_start/1`, `build_end/2` — lifecycle hooks.
 - `dev_server/2` — optional dev-only Plug composition or route hooks.
 
 Implementation should mirror Volt's runner discipline:
@@ -87,10 +85,10 @@ Goal: make Astral useful for blogs, docs, changelogs, and small content-heavy si
 
 Goal: make content/build behavior extensible without hard-coding every SSG feature into core.
 
-- `Astral.Plugin` behaviour modeled after `Volt.Plugin`.
-- `Astral.PluginRunner` with Volt-style optional callback dispatch.
-- Config DSL support for plugins.
-- Plugin docs and examples.
+- `Astral.Plugin` behaviour modeled after `Volt.Plugin`. *(Initial foundation landed on `master` after v0.1.0.)*
+- `Astral.PluginRunner` with Volt-style optional callback dispatch. *(Initial foundation landed on `master` after v0.1.0.)*
+- Config DSL support for plugins. *(Initial foundation landed on `master` after v0.1.0.)*
+- Plugin docs and examples. *(Initial README coverage landed on `master` after v0.1.0.)*
 - Built-in feed/sitemap functionality either as internal plugins or plugin-shaped modules.
 - Compatibility story for passing Astral-generated virtual entries/modules to Volt.
 

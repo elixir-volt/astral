@@ -3,6 +3,42 @@ defmodule Astral.BuilderTest do
 
   import JSONSpec
 
+  defmodule RenderPlugin do
+    @behaviour Astral.Plugin
+
+    @impl true
+    def name, do: "render-test"
+
+    @impl true
+    def render_page(html, page, _site, opts) do
+      {:ok, html <> "<!-- #{page.route_path}:#{Keyword.fetch!(opts, :suffix)} -->"}
+    end
+  end
+
+  defmodule SitePlugin do
+    @behaviour Astral.Plugin
+
+    @impl true
+    def name, do: "site-test"
+
+    @impl true
+    def site_discovered(site) do
+      %{site | pages: Enum.map(site.pages, &%{&1 | route_path: "/plugin" <> &1.route_path})}
+    end
+  end
+
+  defmodule ConfigPlugin do
+    @behaviour Astral.Plugin
+
+    @impl true
+    def name, do: "config-test"
+
+    @impl true
+    def config(config, opts) do
+      %{config | layout: Keyword.fetch!(opts, :layout)}
+    end
+  end
+
   @tmp Path.expand("../tmp/builder", __DIR__)
 
   setup do
@@ -166,6 +202,24 @@ defmodule Astral.BuilderTest do
 
     assert result.assets != nil
     assert File.regular?(Path.join(@tmp, "dist/assets/manifest.json"))
+  end
+
+  test "runs plugin hooks during static builds" do
+    write("pages/index.html", "<h1>Home</h1>")
+    write("layouts/plugin.html", "<main><%= @content %></main>")
+
+    assert {:ok, result} =
+             Astral.build(
+               root: @tmp,
+               plugins: [
+                 {ConfigPlugin, layout: "plugin.html"},
+                 SitePlugin,
+                 {RenderPlugin, suffix: "done"}
+               ]
+             )
+
+    assert [%{route_path: "/plugin/"}] = result.site.pages
+    assert read("dist/index.html") == "<main><h1>Home</h1></main><!-- /plugin/:done -->"
   end
 
   test "discovers JSONSpec-backed collection entries" do

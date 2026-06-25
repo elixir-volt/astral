@@ -10,6 +10,7 @@ defmodule Astral.ConfigTest do
         outdir("_site")
         pages("src/pages")
         public("static")
+        plugins([String, {List, opt: true}])
 
         layouts "src/layouts" do
           default("page.html")
@@ -43,6 +44,7 @@ defmodule Astral.ConfigTest do
     assert config.asset_outdir == "/tmp/astral/_site/static/assets"
     assert config.asset_url_prefix == "/static/assets"
     refute config.asset_hash
+    assert config.plugins == [String, {List, opt: true}]
 
     assert [%Astral.Collection{} = collection] = config.collections
     assert collection.name == :posts
