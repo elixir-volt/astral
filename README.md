@@ -6,7 +6,50 @@ It is inspired by Astro's separation of responsibilities: Volt remains the gener
 
 ## Status
 
-Astral is in early development. The first milestone is a minimal static-page build pipeline on top of Volt `~> 0.14.8`.
+Astral is in early development. The first milestone supports plain HTML pages, an optional single layout, public static files, and an optional Volt asset entry.
+
+## Usage
+
+Create a small site:
+
+```text
+pages/index.html
+pages/about.html
+layouts/default.html
+assets/app.js
+public/robots.txt
+```
+
+Use `{{ content }}` in `layouts/default.html` where page HTML should be inserted:
+
+```html
+<!doctype html>
+<html>
+  <body>{{ content }}</body>
+</html>
+```
+
+Build the site:
+
+```elixir
+Astral.build(
+  root: ".",
+  pages: "pages",
+  layouts: "layouts",
+  outdir: "dist",
+  assets: "assets"
+)
+```
+
+Output routes:
+
+```text
+pages/index.html      -> dist/index.html
+pages/about.html      -> dist/about/index.html
+pages/blog/post.html  -> dist/blog/post/index.html
+```
+
+If `assets/app.js` exists, Astral builds it with Volt into `dist/assets`.
 
 ## Installation
 

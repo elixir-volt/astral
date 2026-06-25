@@ -7,6 +7,10 @@ defmodule Astral do
   routes, layouts, content, and static output.
   """
 
+  @doc "Build a static Astral site."
+  @spec build(keyword()) :: {:ok, Astral.BuildResult.t()} | {:error, term()}
+  defdelegate build(opts \\ []), to: Astral.Builder
+
   @doc "Return the package version."
   @spec version() :: String.t()
   def version do
