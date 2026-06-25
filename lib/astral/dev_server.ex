@@ -76,7 +76,7 @@ defmodule Astral.DevServer do
   end
 
   defp serve_page(conn, config) do
-    with {:ok, site} <- Astral.Discovery.discover(config),
+    with {:ok, site} <- discover_dev_site(config),
          %Astral.Page{} = page <- find_page(site, conn.request_path),
          {:ok, html} <- Astral.Renderer.render_page(site, page) do
       html = Astral.HMRClient.inject(html)
@@ -89,6 +89,12 @@ defmodule Astral.DevServer do
     else
       nil -> nil
       {:error, reason} -> server_error(conn, reason)
+    end
+  end
+
+  defp discover_dev_site(config) do
+    with {:ok, site} <- Astral.Discovery.discover(config) do
+      {:ok, %{site | mode: :dev}}
     end
   end
 

@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title><%= @page.title || "Astral Basic" %></title>
-    <script type="module" src="/assets/app.js"></script>
+    <script type="module" src="<%= Astral.asset_path(@site, "app.ts") %>"></script>
   </head>
   <body>
     <header class="site-header">

@@ -21,7 +21,7 @@ Open <http://localhost:4000>.
 
 Try editing files in `pages/`, `layouts/`, `public/`, or `assets/` while the server is running.
 
-The layout loads `/assets/app.js`; Volt resolves that request to the TypeScript entrypoint at `assets/app.ts` in dev. The example sets `hash false` in `astral.config.exs` so static builds also emit `dist/assets/app.js`.
+The layout uses `Astral.asset_path(@site, "app.ts")`; it returns `/assets/app.ts` in dev and `/assets/app.js` for this example's static build. The example sets `hash false` in `astral.config.exs` so static builds emit `dist/assets/app.js`.
 
 ## Check formatting and linting
 

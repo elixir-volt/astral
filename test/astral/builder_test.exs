@@ -115,7 +115,7 @@ defmodule Astral.BuilderTest do
     write("layouts/default.html", """
     <title><%= @page.title %></title>
     <meta name="description" content="<%= @metadata["description"] %>">
-    <main data-route="<%= @route %>"><%= @content %></main>
+    <main data-route="<%= @route %>" data-assets="<%= @site.config.asset_url_prefix %>"><%= @content %></main>
     """)
 
     assert {:ok, _result} = Astral.build(root: @tmp)
@@ -123,7 +123,7 @@ defmodule Astral.BuilderTest do
     assert read("dist/index.html") == """
            <title>Home Page</title>
            <meta name="description" content="Welcome">
-           <main data-route="/"><h1>Home</h1></main>
+           <main data-route="/" data-assets="/assets"><h1>Home</h1></main>
            """
   end
 

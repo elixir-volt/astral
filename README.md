@@ -20,7 +20,7 @@ assets/app.ts
 public/robots.txt
 ```
 
-Layouts are EEx templates. Use `@content` where page HTML should be inserted, and `@page`, `@metadata`, and `@route` for page data:
+Layouts are EEx templates. Use `@content` where page HTML should be inserted, and `@page`, `@metadata`, `@route`, and `@site` for page/site data:
 
 ```html
 <!doctype html>
@@ -28,7 +28,10 @@ Layouts are EEx templates. Use `@content` where page HTML should be inserted, an
   <head>
     <title><%= @page.title || "Astral" %></title>
   </head>
-  <body><%= @content %></body>
+  <body>
+    <%= @content %>
+    <script type="module" src="<%= Astral.asset_path(@site, "app.ts") %>"></script>
+  </body>
 </html>
 ```
 
@@ -117,7 +120,7 @@ layout: false
 # Raw Page
 ```
 
-If the configured asset entry exists, Astral builds it with Volt into `dist/assets`. Asset output uses Volt's content hashes by default; set `hash false` inside the `assets` block when a simple stable filename is better for examples or prototypes.
+If the configured asset entry exists, Astral builds it with Volt into `dist/assets`. Asset output uses Volt's content hashes by default; use `Astral.asset_path(@site, "app.ts")` in layouts so production pages reference the manifest output. Set `hash false` inside the `assets` block when a simple stable filename is better for examples or prototypes.
 
 ## Development server
 

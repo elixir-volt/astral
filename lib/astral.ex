@@ -11,6 +11,10 @@ defmodule Astral do
   @spec build(keyword() | Astral.Config.t()) :: {:ok, Astral.BuildResult.t()} | {:error, term()}
   defdelegate build(opts \\ []), to: Astral.Builder
 
+  @doc "Return the browser path for a Volt-managed source asset."
+  @spec asset_path(Astral.Site.t() | Astral.Config.t(), String.t()) :: String.t()
+  defdelegate asset_path(site_or_config, source), to: Astral.Assets, as: :path
+
   @doc "Start a supervised Astral development server."
   @spec dev(keyword()) :: Supervisor.on_start()
   defdelegate dev(opts \\ []), to: Astral.Dev, as: :start_link

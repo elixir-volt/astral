@@ -7,7 +7,7 @@ defmodule Astral.Renderer do
   @spec render_page(Astral.Site.t(), Astral.Page.t()) :: {:ok, String.t()} | {:error, term()}
   def render_page(site, page) do
     with {:ok, layout} <- page_layout(page, site) do
-      {:ok, Astral.Layout.render(page.content.html, layout, page)}
+      {:ok, Astral.Layout.render(page.content.html, layout, page, site)}
     end
   end
 

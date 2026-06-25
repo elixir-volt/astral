@@ -8,10 +8,12 @@ defmodule Astral.Site do
   @type t :: %__MODULE__{
           config: Astral.Config.t(),
           pages: [Astral.Page.t()],
-          layouts: layouts()
+          layouts: layouts(),
+          mode: :build | :dev
         }
 
   defstruct config: nil,
             pages: [],
-            layouts: %{}
+            layouts: %{},
+            mode: :build
 end
