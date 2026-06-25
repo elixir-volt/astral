@@ -53,7 +53,11 @@ defmodule Astral.Plugin.Feed do
     content_mode = Keyword.get(opts, :content, :html)
 
     document do
-      feed xmlns: "http://www.w3.org/2005/Atom" do
+      schema do
+        default("http://www.w3.org/2005/Atom")
+      end
+
+      feed do
         title(title)
         id(absolute_url(site_url, feed_path))
         updated(updated)

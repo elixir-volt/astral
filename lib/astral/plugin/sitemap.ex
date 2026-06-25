@@ -48,7 +48,13 @@ defmodule Astral.Plugin.Sitemap do
     urls = sitemap_urls(site, opts)
 
     document do
-      urlset xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" do
+      schema do
+        default("http://www.sitemaps.org/schemas/sitemap/0.9",
+          location: "https://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
+        )
+      end
+
+      urlset do
         for url <- urls do
           url do
             loc(absolute_url(site_url, url.path))

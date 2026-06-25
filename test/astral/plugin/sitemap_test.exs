@@ -19,7 +19,12 @@ defmodule Astral.Plugin.SitemapTest do
     assert {:ok, _result} = Astral.build(config)
 
     sitemap = File.read!(Path.join(root, "dist/sitemap.xml"))
-    assert sitemap =~ ~s(<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">)
+    assert sitemap =~ ~s(<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9")
+    assert sitemap =~ ~s(xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance")
+
+    assert sitemap =~
+             ~s(xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 https://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd")
+
     assert sitemap =~ "<loc>https://example.com/</loc>"
     assert sitemap =~ "<loc>https://example.com/about/</loc>"
     assert sitemap =~ "<lastmod>2026-06-25</lastmod>"
