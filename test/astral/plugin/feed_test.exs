@@ -19,7 +19,7 @@ defmodule Astral.Plugin.FeedTest do
     {:ok, root: tmp_dir}
   end
 
-  test "renders Atom feed XML through Astral.XML", %{root: root} do
+  test "renders Atom feed XML through XM", %{root: root} do
     config =
       Astral.Config.new(
         root: root,

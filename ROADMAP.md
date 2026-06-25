@@ -91,7 +91,7 @@ Goal: make content/build behavior extensible without hard-coding every SSG featu
 - Config DSL support for plugins. *(Initial foundation landed on `master` after v0.1.0.)*
 - Plugin docs and examples. *(Initial README coverage landed on `master` after v0.1.0.)*
 - Built-in feed/sitemap functionality either as internal plugins or plugin-shaped modules. *(Initial plugin-shaped modules landed on `master` after v0.1.0.)*
-- Extractable XML DSL foundation. *(Initial Saxy-backed `Astral.XML` + compiler split landed on `master` after v0.1.0.)*
+- Extractable XML DSL foundation. *(Extracted to separate `xm` package on `master` after v0.1.0.)*
 - Generated route hooks for feeds/sitemaps/pagination. *(Initial `routes/1` + `render_route/2` hooks landed on `master` after v0.1.0.)*
 - Compatibility story for passing Astral-generated virtual entries/modules to Volt.
 

@@ -2,7 +2,7 @@ defmodule Astral.Plugin.Sitemap do
   @moduledoc """
   Generated `sitemap.xml` plugin.
 
-  The plugin is intentionally implemented through `Astral.XML` so the XML DSL is
+  The plugin is intentionally implemented through `XM` so the XML DSL is
   dogfooded by a real site feature and can later be extracted into a generic
   library.
 
@@ -21,7 +21,7 @@ defmodule Astral.Plugin.Sitemap do
 
   @behaviour Astral.Plugin
 
-  import Astral.XML, only: [document: 1]
+  import XM, only: [document: 1]
 
   @impl true
   def name, do: "sitemap"

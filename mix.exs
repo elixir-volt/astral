@@ -42,7 +42,7 @@ defmodule Astral.MixProject do
       {:json_spec, "~> 1.1"},
       {:jsv, "~> 0.8"},
       {:zoi, "~> 0.18"},
-      {:saxy, "~> 1.6"},
+      {:xm, path: "../xm"},
       {:bandit, "~> 1.12"},
       {:floki, "~> 0.38"},
       {:plug, "~> 1.20"},

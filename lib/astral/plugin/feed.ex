@@ -2,7 +2,7 @@ defmodule Astral.Plugin.Feed do
   @moduledoc """
   Generated Atom feed plugin.
 
-  The plugin uses `Astral.XML` rather than hand-written XML strings. It is a
+  The plugin uses `XM` rather than hand-written XML strings. It is a
   small, plugin-shaped baseline for blogs and changelogs.
 
   ## Options
@@ -21,7 +21,7 @@ defmodule Astral.Plugin.Feed do
 
   @behaviour Astral.Plugin
 
-  import Astral.XML, only: [document: 1]
+  import XM, only: [document: 1]
 
   @impl true
   def name, do: "feed"
@@ -160,12 +160,12 @@ defmodule Astral.Plugin.Feed do
 
   @doc "Build an Atom content node for an entry."
   def entry_content(entry, :html) do
-    Astral.XML.element(:content, [type: "html"], [Astral.XML.cdata(entry.content.html)])
+    XM.element(:content, [type: "html"], [XM.cdata(entry.content.html)])
   end
 
   def entry_content(entry, :text) do
     text = entry.content.html |> Floki.parse_document!() |> Floki.text()
-    Astral.XML.element(:content, [type: "text"], [text])
+    XM.element(:content, [type: "text"], [text])
   end
 
   def entry_content(entry, _mode), do: entry_content(entry, :html)

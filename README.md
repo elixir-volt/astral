@@ -230,10 +230,10 @@ end
 
 ## XML DSL
 
-Astral ships a small XML DSL backed by Saxy. It exists for feed/sitemap plugins today, but it is deliberately generic so it can later be extracted into a standalone XML package.
+Astral uses [XM](../xm) for feed and sitemap XML. XM is a small Saxy-backed XML DSL extracted from Astral so XML generation stays generic and reusable.
 
 ```elixir
-import Astral.XML
+import XM
 
 document do
   urlset xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" do
@@ -247,7 +247,7 @@ document do
 end
 ```
 
-The DSL supports attributes, nested elements, dynamic `tag "name"` nodes, loops, conditionals, comments, text nodes, CDATA, binary rendering, and iodata rendering while Saxy handles XML escaping and encoding.
+XM supports attributes, nested elements, dynamic `tag "name"` nodes, loops, conditionals, comments, text nodes, CDATA, binary rendering, and iodata rendering while Saxy handles XML escaping and encoding.
 
 ## Pages and frontmatter
 
