@@ -122,6 +122,27 @@ defmodule Astral.BuilderTest do
     assert read("dist/index.html") =~ "Elixir"
   end
 
+  test "builds Volt assets extracted from Astral templates" do
+    write("pages/index.astral", ~S'''
+    <h1>Assets</h1>
+    <style>.asset-card { color: red }</style>
+    <script lang="ts">const answer: number = 42; console.log(answer)</script>
+    ''')
+
+    assert {:ok, result} = Astral.build(root: tmp(), layout: false, asset_hash: false)
+
+    assert result.assets != nil
+    assert read("dist/index.html") =~ "<h1>Assets</h1>"
+    refute read("dist/index.html") =~ "asset-card"
+    refute read("dist/index.html") =~ "console.log"
+
+    manifest = tmp() |> Path.join("dist/assets/manifest.json") |> File.read!() |> :json.decode()
+    assert Map.has_key?(manifest, "index.js")
+    assert Map.has_key?(manifest, "index.css")
+    assert File.read!(Path.join(tmp(), "dist/assets/index.js")) =~ "console.log(42)"
+    assert File.read!(Path.join(tmp(), "dist/assets/index.css")) =~ "color:red"
+  end
+
   test "uses MDEx frontmatter metadata for Markdown pages" do
     write("pages/about.md", """
     ---

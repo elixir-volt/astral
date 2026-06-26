@@ -62,6 +62,7 @@ defmodule Astral.Template do
 
   defp function_ast({function, %Source{} = source}) do
     {setup, template, line} = split_source(source.source)
+    template = clean_template!(template, source.path, line)
     setup_ast = setup_ast(setup, source.path)
 
     quote line: line do
@@ -72,6 +73,13 @@ defmodule Astral.Template do
         unquote(setup_ast)
         Astral.Template.HEEx.compile(unquote(template), unquote(source.path), unquote(line))
       end
+    end
+  end
+
+  defp clean_template!(template, path, line) do
+    case Astral.Template.Assets.extract(template, file: path, line: line) do
+      {:ok, %{source: source}} -> source
+      {:error, reason} -> raise CompileError, file: path, line: line, description: inspect(reason)
     end
   end
 

@@ -61,17 +61,45 @@ defmodule Astral.Builder do
   end
 
   defp build_assets(config) do
-    if File.regular?(config.asset_entry) do
+    entries = asset_entries(config)
+
+    if entries == [] do
+      {:ok, nil}
+    else
       Volt.Builder.build(
-        entry: config.asset_entry,
+        entry: entries,
         outdir: config.asset_outdir,
         asset_url_prefix: config.asset_url_prefix,
-        root: config.assets,
-        hash: config.asset_hash
+        root: config.root,
+        hash: config.asset_hash,
+        plugins: [Astral.Template.AssetPlugin]
       )
-    else
-      {:ok, nil}
     end
+  end
+
+  defp asset_entries(config) do
+    []
+    |> maybe_add_asset_entry(config)
+    |> Kernel.++(template_asset_entries(config))
+  end
+
+  defp maybe_add_asset_entry(entries, config) do
+    if File.regular?(config.asset_entry), do: [config.asset_entry | entries], else: entries
+  end
+
+  defp template_asset_entries(config) do
+    [config.pages, config.layouts, config.components]
+    |> Enum.filter(&File.dir?/1)
+    |> Enum.flat_map(fn dir -> dir |> Path.join("**/*.astral") |> Path.wildcard() end)
+    |> Enum.filter(&template_assets?/1)
+    |> Enum.sort()
+  end
+
+  defp template_assets?(path) do
+    path
+    |> File.read!()
+    |> Astral.Template.Assets.modules(file: path)
+    |> Enum.any?()
   end
 
   defp render_pages(site) do

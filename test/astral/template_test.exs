@@ -42,6 +42,29 @@ defmodule Astral.TemplateTest do
     assert html =~ "Elixir"
   end
 
+  test "extracts browser asset blocks with HEEx parser metadata" do
+    source = """
+    <.card>
+      <style>.card { color: red }</style>
+      <script lang="ts">const answer: number = 42</script>
+    </.card>
+    """
+
+    assert {:ok, result} = Astral.Template.Assets.extract(source, file: "card.astral")
+
+    assert result.source =~ "<.card>"
+    refute result.source =~ "<style>"
+    refute result.source =~ "<script"
+
+    assert [style, script] = result.modules
+    assert style.type == :style
+    assert style.extension == ".css"
+    assert style.source == ".card { color: red }"
+    assert script.type == :script
+    assert script.extension == ".ts"
+    assert script.source == "const answer: number = 42"
+  end
+
   test "supports setup blocks before HEEx" do
     write("page.astral", """
     ---
