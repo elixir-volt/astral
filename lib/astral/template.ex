@@ -65,6 +65,7 @@ defmodule Astral.Template do
      quote generated: true do
        defmodule unquote(module) do
          use Phoenix.Component
+         import Astral.Components
          import Phoenix.HTML
          require Astral.Template.HEEx
 
