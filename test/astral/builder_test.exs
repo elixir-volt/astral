@@ -482,6 +482,45 @@ defmodule Astral.BuilderTest do
     assert read("dist/feed.xml") == "<feed>Hello</feed>"
   end
 
+  test "discovers Ecto-style field schema collection entries" do
+    write("pages/index.html", "<h1>Home</h1>")
+
+    write("content/posts/hello.md", """
+    ---
+    title: Hello Fields
+    date: 2026-06-26
+    ---
+
+    # Hello
+    """)
+
+    config_path = Path.join(tmp(), "astral.config.exs")
+
+    File.write!(config_path, """
+    import Astral.Config
+
+    site do
+      root #{inspect(tmp())}
+
+      collections do
+        collection :posts, "content/posts" do
+          schema do
+            field :title, :string, required: true
+            field :date, :date, required: true
+            field :draft, :boolean, default: false
+            field :tags, {:array, :string}, default: []
+          end
+        end
+      end
+    end
+    """)
+
+    assert {:ok, result} = Astral.build(config: config_path)
+
+    assert [%{data: data}] = result.site.entries.posts
+    assert data == %{title: "Hello Fields", date: ~D[2026-06-26], draft: false, tags: []}
+  end
+
   test "discovers Zoi-backed collection entries" do
     write("pages/index.html", "<h1>Home</h1>")
 

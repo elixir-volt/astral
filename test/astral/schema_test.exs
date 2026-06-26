@@ -27,6 +27,33 @@ defmodule Astral.SchemaTest do
     assert {:error, {:invalid_metadata, _error}} = Astral.Schema.normalize(schema, %{})
   end
 
+  test "normalizes Ecto-style field schemas with defaults and casting" do
+    schema = %Astral.Schema.Fields{
+      fields: [
+        %Astral.Schema.Field{name: :title, type: :string, required?: true},
+        %Astral.Schema.Field{name: :date, type: :date, required?: true},
+        %Astral.Schema.Field{name: :draft, type: :boolean, default: false},
+        %Astral.Schema.Field{name: :tags, type: {:array, :string}, default: []}
+      ]
+    }
+
+    assert {:ok, data} =
+             Astral.Schema.normalize(schema, %{"title" => "Hello", "date" => "2026-06-26"})
+
+    assert data == %{title: "Hello", date: ~D[2026-06-26], draft: false, tags: []}
+  end
+
+  test "returns validation errors for invalid Ecto-style field schemas" do
+    schema = %Astral.Schema.Fields{
+      fields: [%Astral.Schema.Field{name: :title, type: :string, required?: true}]
+    }
+
+    assert {:error, {:invalid_metadata, %Ecto.Changeset{} = changeset}} =
+             Astral.Schema.normalize(schema, %{})
+
+    assert [title: {"can't be blank", [validation: :required]}] = changeset.errors
+  end
+
   test "normalizes Zoi schemas" do
     schema =
       Zoi.map(

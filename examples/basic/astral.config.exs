@@ -29,12 +29,12 @@ site do
       permalink "/blog/:slug/"
       layout "post.html"
 
-      schema %{
-        required(:title) => String.t(),
-        required(:date) => String.t(),
-        optional(:description) => String.t(),
-        optional(:tags) => [String.t()]
-      }
+      schema do
+        field :title, :string, required: true
+        field :date, :date, required: true
+        field :description, :string
+        field :tags, {:array, :string}, default: []
+      end
     end
   end
 end

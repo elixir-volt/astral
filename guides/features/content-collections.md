@@ -11,18 +11,18 @@ site do
       permalink "/blog/:slug/"
       layout "post.html"
 
-      schema %{
-        required(:title) => String.t(),
-        required(:date) => String.t(),
-        optional(:draft) => boolean(),
-        optional(:tags) => [String.t()]
-      }
+      schema do
+        field :title, :string, required: true
+        field :date, :date, required: true
+        field :draft, :boolean, default: false
+        field :tags, {:array, :string}, default: []
+      end
     end
   end
 end
 ```
 
-Each Markdown file in `content/posts/` becomes a validated entry and a static page at the collection permalink.
+Each Markdown file in `content/posts/` becomes a validated entry and a static page at the collection permalink. The `schema do` field DSL mirrors Ecto's field shape; Astral uses Ecto casting behind the scenes for types, required fields, and defaults.
 
 ## Entry data
 
@@ -63,7 +63,19 @@ pages/docs/[...path].md
 
 Use `@params["path"]` to read the captured path.
 
-## Zoi schemas
+## JSONSpec and Zoi schemas
+
+JSONSpec-style typespec maps are also supported:
+
+```elixir
+collection :posts, "content/posts" do
+  schema %{
+    required(:title) => String.t(),
+    required(:date) => String.t(),
+    optional(:draft) => boolean()
+  }
+end
+```
 
 Use Zoi when runtime coercion or refinements are useful:
 

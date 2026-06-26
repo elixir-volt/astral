@@ -43,6 +43,7 @@ defmodule Astral.MixProject do
       {:jsv, "~> 0.8"},
       {:zoi, "~> 0.18"},
       {:xm, "~> 0.2"},
+      {:ecto, "~> 3.13"},
       {:phoenix_live_view, "~> 1.2"},
       {:bandit, "~> 1.12"},
       {:floki, "~> 0.38"},

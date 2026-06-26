@@ -54,4 +54,30 @@ defmodule Astral.ConfigTest do
     assert collection.drafts
     assert collection.schema["type"] == "object"
   end
+
+  test "site DSL supports Ecto-style collection schema fields" do
+    config =
+      site do
+        root("/tmp/astral")
+
+        collections do
+          collection :posts, "content/posts" do
+            schema do
+              field(:title, :string, required: true)
+              field(:date, :date, required: true)
+              field(:draft, :boolean, default: false)
+              field(:tags, {:array, :string}, default: [])
+            end
+          end
+        end
+      end
+
+    assert [%Astral.Collection{schema: %Astral.Schema.Fields{} = schema}] = config.collections
+
+    assert Enum.map(schema.fields, & &1.name) == [:title, :date, :draft, :tags]
+    assert Enum.map(schema.fields, & &1.type) == [:string, :date, :boolean, {:array, :string}]
+    assert Enum.filter(schema.fields, & &1.required?) |> Enum.map(& &1.name) == [:title, :date]
+    assert Enum.find(schema.fields, &(&1.name == :draft)).default == false
+    assert Enum.find(schema.fields, &(&1.name == :tags)).default == []
+  end
 end

@@ -6,11 +6,13 @@ defmodule Astral.Schema do
   preferred collection schema format. Zoi schemas are also supported.
   """
 
-  @type schema_type :: :json_schema | :zoi | :empty | :unknown
+  @type schema_type :: :json_schema | :zoi | :fields | :empty | :unknown
 
   @doc "Detect the supported schema backend."
   @spec schema_type(term()) :: schema_type()
   def schema_type(nil), do: :empty
+
+  def schema_type(%Astral.Schema.Fields{}), do: :fields
 
   def schema_type(%{"type" => "object", "properties" => props}) when is_map(props),
     do: :json_schema
@@ -27,6 +29,7 @@ defmodule Astral.Schema do
     case schema_type(schema) do
       :json_schema -> normalize_json_schema(schema, metadata)
       :zoi -> normalize_zoi(schema, metadata)
+      :fields -> Astral.Schema.Fields.normalize(schema, metadata)
       :unknown -> {:error, {:unsupported_schema, schema}}
     end
   end
@@ -34,6 +37,7 @@ defmodule Astral.Schema do
   @doc "Convert a supported schema to JSON Schema when possible."
   @spec to_json_schema(term()) :: map() | nil
   def to_json_schema(nil), do: nil
+  def to_json_schema(%Astral.Schema.Fields{}), do: nil
   def to_json_schema(%{"type" => "object", "properties" => _} = schema), do: schema
 
   def to_json_schema(schema) do

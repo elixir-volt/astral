@@ -21,7 +21,7 @@ You get the pieces expected from a modern static site framework:
 - File-based static pages from Markdown, HTML, and `.astral` templates.
 - Dynamic file routes such as `pages/blog/[slug].astral` and `pages/docs/[...path].md`.
 - HEEx-first `.astral` pages, layouts, and local components.
-- Schema-backed content collections with JSONSpec-style typespec maps or Zoi.
+- Schema-backed content collections with Ecto-style fields, JSONSpec maps, or Zoi schemas.
 - Static pagination and generated routes for blogs, docs, and indexes.
 - Built-in feed and sitemap plugins.
 - Stable Markdown heading anchors for table-of-contents layouts.
@@ -98,12 +98,12 @@ collections do
     permalink "/blog/:slug/"
     layout "post.html"
 
-    schema %{
-      required(:title) => String.t(),
-      required(:date) => String.t(),
-      optional(:draft) => boolean(),
-      optional(:tags) => [String.t()]
-    }
+    schema do
+      field :title, :string, required: true
+      field :date, :date, required: true
+      field :draft, :boolean, default: false
+      field :tags, {:array, :string}, default: []
+    end
   end
 end
 ```

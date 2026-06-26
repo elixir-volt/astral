@@ -197,6 +197,9 @@ defmodule Astral.Config do
 
   defp collection_options_to_opts(expression), do: collection_option_to_opts(expression)
 
+  defp collection_option_to_opts({:schema, _meta, [[do: block]]}),
+    do: [schema: fields_schema_expression(block)]
+
   defp collection_option_to_opts({:schema, _meta, [schema]}),
     do: [schema: schema_expression(schema)]
 
@@ -209,4 +212,38 @@ defmodule Astral.Config do
   end
 
   defp schema_expression(schema), do: schema
+
+  defp fields_schema_expression({:__block__, _meta, expressions}) do
+    field_asts = Enum.map(expressions, &field_expression/1)
+
+    quote do
+      %Astral.Schema.Fields{fields: [unquote_splicing(field_asts)]}
+    end
+  end
+
+  defp fields_schema_expression(expression) do
+    fields_schema_expression({:__block__, [], [expression]})
+  end
+
+  defp field_expression({:field, _meta, [name]}) do
+    field_expression({:field, [], [name, :string, []]})
+  end
+
+  defp field_expression({:field, _meta, [name, type]}) do
+    field_expression({:field, [], [name, type, []]})
+  end
+
+  defp field_expression({:field, _meta, [name, type, opts]}) do
+    required = Keyword.get(opts, :required, false)
+    default = Keyword.get(opts, :default)
+
+    quote do
+      %Astral.Schema.Field{
+        name: unquote(name),
+        type: unquote(Macro.escape(type)),
+        required?: unquote(required),
+        default: unquote(default)
+      }
+    end
+  end
 end
