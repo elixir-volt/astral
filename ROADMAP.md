@@ -74,13 +74,13 @@ Goal: make Astral useful for blogs, docs, changelogs, and small content-heavy si
 - Slugs and permalinks.
 - Dynamic routes such as `pages/blog/[slug].md`.
 - Generated routes from collections. *(Initial collection entry routes landed on `master` after v0.1.0.)*
-- Pagination.
-- Tags and categories.
+- Pagination. *(Route patterns, pagination pages, route conversion, and collection pagination plugin landed on `master` after v0.1.0.)*
+- Tags and categories. Keep userland until a proven abstraction emerges; Astro treats these as ordinary dynamic routes rather than a core taxonomy API.
 - RSS/Atom feed generation. *(Initial Atom feed plugin and option polish landed on `master` after v0.1.0.)*
 - Sitemap generation. *(Initial sitemap plugin and option polish landed on `master` after v0.1.0.)*
 - Collection query helpers. *(Initial entries/published/sort/tags helpers landed on `master` after v0.1.0.)*
 - Frontmatter defaults.
-- Table of contents and heading anchors.
+- Table of contents and heading anchors. *(Initial Markdown heading extraction and anchors landed on `master` after v0.1.0.)
 
 ### v0.3 — Plugin foundation
 
@@ -92,7 +92,9 @@ Goal: make content/build behavior extensible without hard-coding every SSG featu
 - Plugin docs and examples. *(Initial README coverage landed on `master` after v0.1.0.)*
 - Built-in feed/sitemap functionality either as internal plugins or plugin-shaped modules. *(Initial plugin-shaped modules landed on `master` after v0.1.0.)*
 - Extractable XML DSL foundation. *(Extracted to separate `xm` package on `master` after v0.1.0.)*
-- Generated route hooks for feeds/sitemaps/pagination. *(Initial `routes/1` + `render_route/2` hooks landed on `master` after v0.1.0.)*
+- Generated route hooks for feeds/sitemaps/pagination. *(Initial `routes/1` + `render_route/2` hooks landed on `master` after v0.1.0.)
+- Elixir-style route patterns for generated routes, e.g. `/blog/:slug` and `/blog/*page`. *(Landed on `master` after v0.1.0.)
+- Collection pagination plugin built on generated route hooks. *(Landed on `master` after v0.1.0.)*
 - Compatibility story for passing Astral-generated virtual entries/modules to Volt.
 
 ### v0.4 — HEEx components

@@ -39,7 +39,7 @@ defmodule Astral.DevServerTest do
     conn = call_dev_server("/")
 
     assert conn.status == 200
-    assert conn.resp_body =~ "<h1>Home</h1>"
+    assert conn.resp_body =~ ~s(id="home")
     assert conn.resp_body =~ ~s(src="/@volt/client.js")
     assert get_resp_header(conn, "content-type") |> hd() =~ "text/html"
   end
@@ -48,7 +48,7 @@ defmodule Astral.DevServerTest do
     conn = call_dev_server("/about")
 
     assert conn.status == 200
-    assert conn.resp_body =~ "<h1>About</h1>"
+    assert conn.resp_body =~ ~s(id="about")
   end
 
   test "serves public files before page fallback" do

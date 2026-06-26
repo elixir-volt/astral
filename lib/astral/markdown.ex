@@ -6,13 +6,14 @@ defmodule Astral.Markdown do
   delegates frontmatter decoding to `YamlElixir`.
   """
 
-  @mdex_options [extension: [front_matter_delimiter: "---"]]
+  @mdex_options [extension: [front_matter_delimiter: "---", header_id_prefix: ""]]
 
   @doc "Render Markdown source to HTML and page metadata."
   @spec render(String.t()) :: {:ok, Astral.Content.t()} | {:error, term()}
   def render(source) do
     with {:ok, document} <- parse_document(source),
          {:ok, metadata} <- metadata(document),
+         headings = headings(document),
          {:ok, html} <- to_html(document) do
       {:ok,
        %Astral.Content{
@@ -20,7 +21,8 @@ defmodule Astral.Markdown do
          metadata: metadata,
          title: string_field(metadata, "title"),
          layout: layout_field(metadata),
-         permalink: string_field(metadata, "permalink")
+         permalink: string_field(metadata, "permalink"),
+         headings: headings
        }}
     end
   end
@@ -59,6 +61,37 @@ defmodule Astral.Markdown do
     |> Enum.reject(&(&1 == delimiter))
     |> Enum.join("\n")
   end
+
+  defp headings(document) do
+    {headings, _seen} =
+      document
+      |> Enum.filter(&match?(%MDEx.Heading{}, &1))
+      |> Enum.map_reduce(%{}, &heading/2)
+
+    headings
+  end
+
+  defp heading(%MDEx.Heading{level: level, nodes: nodes}, seen) do
+    text = nodes |> heading_text() |> String.trim()
+    {id, seen} = heading_id(text, seen)
+    {%Astral.Heading{level: level, id: id, text: text}, seen}
+  end
+
+  defp heading_id(text, seen) do
+    base = MDEx.anchorize(text)
+    count = Map.get(seen, base, 0)
+    id = if count == 0, do: base, else: "#{base}-#{count}"
+    {id, Map.put(seen, base, count + 1)}
+  end
+
+  defp heading_text(nodes) when is_list(nodes) do
+    Enum.map_join(nodes, &heading_text/1)
+  end
+
+  defp heading_text(%MDEx.Text{literal: literal}), do: literal
+  defp heading_text(%MDEx.Code{literal: literal}), do: literal
+  defp heading_text(%{nodes: nodes}) when is_list(nodes), do: heading_text(nodes)
+  defp heading_text(_node), do: ""
 
   defp to_html(document) do
     {:ok, MDEx.to_html!(document)}

@@ -31,7 +31,7 @@ You get:
 
 ## Status
 
-Astral is early, but the first release is useful for small static sites and documentation prototypes. Initial content collections and plugins have landed on `master` after v0.1.0; feeds, sitemap generation, and richer routing are intentionally left for follow-up releases. See [`ROADMAP.md`](ROADMAP.md) for the planned path toward an Astro-class framework.
+Astral is early, but the first release is useful for small static sites and documentation prototypes. Content collections, plugin-generated routes, feed/sitemap plugins, and collection pagination have landed on `master` after v0.1.0. See [`ROADMAP.md`](ROADMAP.md) for the planned path toward an Astro-class framework.
 
 ## Installation
 
@@ -142,6 +142,18 @@ Collection entries are validated, exposed to layouts as `@collections`, and rend
 
 `post.metadata` keeps the original string-keyed frontmatter. `post.data` contains schema-normalized data. Entry layouts also receive `@entry` for the current collection entry.
 
+Markdown pages also expose headings for table-of-contents layouts. Astral renders stable heading anchors and stores heading metadata on `@page.headings`:
+
+```eex
+<nav>
+  <%= for heading <- @page.headings do %>
+    <a href="#<%= heading.id %>"><%= heading.text %></a>
+  <% end %>
+</nav>
+```
+
+Each heading is an `%Astral.Heading{level, id, text}`.
+
 Collection helpers are available for layouts and plugins:
 
 ```elixir
@@ -152,6 +164,121 @@ posts =
   |> Astral.Collection.sort_by_date(:desc)
 
 tags = Astral.Collection.tags(posts)
+```
+
+## Collection pagination
+
+Astral includes a small collection pagination plugin built from generic route and pagination primitives. It keeps tags/categories userland instead of inventing a taxonomy API.
+
+```elixir
+site do
+  plugins [
+    {Astral.Plugin.CollectionPages,
+     collection: :posts,
+     pattern: "/blog/*page",
+     page_size: 10,
+     layout: "blog.html"}
+  ]
+end
+```
+
+The `*page` route parameter omits page one, producing routes such as:
+
+```text
+/blog/
+/blog/2/
+/blog/3/
+```
+
+The pagination layout receives `@page`, `@collection`, `@site`, `@collections`, `@routes`, and `@route` assigns:
+
+```eex
+<h1>Blog</h1>
+
+<%= for entry <- @page.entries do %>
+  <article>
+    <h2><a href="<%= entry.route_path %>"><%= entry.data.title %></a></h2>
+  </article>
+<% end %>
+
+<nav>
+  <%= if @page.urls.previous do %>
+    <a href="<%= @page.urls.previous %>">Previous</a>
+  <% end %>
+
+  <%= if @page.urls.next do %>
+    <a href="<%= @page.urls.next %>">Next</a>
+  <% end %>
+</nav>
+```
+
+For custom generated indexes, use the lower-level helpers directly:
+
+```elixir
+entries
+|> Astral.Pagination.pages(pattern: "/blog/*page", page_size: 10)
+|> Astral.Pagination.routes(site.config, assigns: %{collection: :posts})
+```
+
+### Userland tag pages
+
+Astro treats tag pages as userland dynamic routes. Astral follows the same approach: use ordinary Elixir with the pagination primitives instead of a built-in taxonomy abstraction.
+
+```elixir
+defmodule MySite.TagPages do
+  @behaviour Astral.Plugin
+
+  def name, do: "tag-pages"
+
+  def routes(site) do
+    entries =
+      site
+      |> Astral.Collection.entries(:posts)
+      |> Astral.Collection.published()
+      |> Astral.Collection.sort_by_date(:desc)
+
+    entries
+    |> all_tags()
+    |> Enum.flat_map(fn tag ->
+      tagged_entries = Enum.filter(entries, &(tag in Map.get(&1.data, :tags, [])))
+
+      tagged_entries
+      |> Astral.Pagination.pages(
+        pattern: "/tags/:tag/*page",
+        params: %{tag: tag},
+        page_size: 10
+      )
+      |> Astral.Pagination.routes(site.config,
+        kind: :tag_pages,
+        assigns: %{tag: tag, collection: :posts}
+      )
+    end)
+  end
+
+  def render_route(%Astral.Route{kind: :tag_pages} = route, site) do
+    layout = Map.fetch!(site.layouts, "tag.html")
+    Astral.Layout.render_route("", layout, route, site)
+  end
+
+  def render_route(_route, _site), do: nil
+
+  defp all_tags(entries) do
+    entries
+    |> Enum.flat_map(&Map.get(&1.data, :tags, []))
+    |> Enum.uniq()
+    |> Enum.sort()
+  end
+end
+```
+
+A tag layout can use both `@tag` and the normal pagination assigns:
+
+```eex
+<h1>Posts tagged <%= @tag %></h1>
+
+<%= for entry <- @page.entries do %>
+  <a href="<%= entry.route_path %>"><%= entry.data.title %></a>
+<% end %>
 ```
 
 ## Plugins

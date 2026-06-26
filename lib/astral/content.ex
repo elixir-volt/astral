@@ -11,12 +11,14 @@ defmodule Astral.Content do
           metadata: metadata(),
           title: String.t() | nil,
           layout: layout(),
-          permalink: String.t() | nil
+          permalink: String.t() | nil,
+          headings: [Astral.Heading.t()]
         }
 
   defstruct html: "",
             metadata: %{},
             title: nil,
             layout: nil,
-            permalink: nil
+            permalink: nil,
+            headings: []
 end

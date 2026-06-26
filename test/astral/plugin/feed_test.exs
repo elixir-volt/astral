@@ -53,7 +53,9 @@ defmodule Astral.Plugin.FeedTest do
     assert feed =~ "<title>Example Feed</title>"
     assert feed =~ "<title>Hello &amp; XML</title>"
     assert feed =~ "<id>https://example.com/blog/hello/</id>"
-    assert feed =~ "<![CDATA[<h1>Hello</h1>]]>"
+
+    assert feed =~
+             ~s(<![CDATA[<h1><a href="#hello" aria-hidden="true" class="anchor" id="hello"></a>Hello</h1>]]>)
   end
 
   test "supports summary, author, and text content options", %{root: root} do

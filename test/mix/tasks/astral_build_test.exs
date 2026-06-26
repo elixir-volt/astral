@@ -23,7 +23,7 @@ defmodule Mix.Tasks.Astral.BuildTest do
     assert output =~ "[Astral] Built 1 page(s) into dist"
     assert output =~ "Routes:"
     assert output =~ "/  dist/index.html"
-    assert File.read!(Path.join(tmp(), "dist/index.html")) == "<h1>Home</h1>"
+    assert File.read!(Path.join(tmp(), "dist/index.html")) == heading("Home", "home")
   end
 
   test "builds from root option when no config file exists" do
@@ -34,6 +34,10 @@ defmodule Mix.Tasks.Astral.BuildTest do
     assert output =~ "[Astral] Built 1 page(s) into"
     assert output =~ "Routes:"
     assert File.read!(Path.join(tmp(), "dist/index.html")) == "<h1>Home</h1>"
+  end
+
+  defp heading(text, id) do
+    ~s(<h1><a href="##{id}" aria-hidden="true" class="anchor" id="#{id}"></a>#{text}</h1>)
   end
 
   defp in_tmp(fun) do

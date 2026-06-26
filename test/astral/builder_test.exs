@@ -88,8 +88,8 @@ defmodule Astral.BuilderTest do
     assert {:ok, result} = Astral.build(root: tmp())
 
     assert Enum.map(result.site.pages, & &1.route_path) == ["/about/", "/"]
-    assert read("dist/index.html") == "<main><h1>Home</h1></main>"
-    assert read("dist/about/index.html") == "<main><h1>About</h1></main>"
+    assert read("dist/index.html") == "<main>#{heading("Home", "home")}</main>"
+    assert read("dist/about/index.html") == "<main>#{heading("About", "about")}</main>"
   end
 
   test "uses MDEx frontmatter metadata for Markdown pages" do
@@ -127,7 +127,7 @@ defmodule Astral.BuilderTest do
 
     assert {:ok, _result} = Astral.build(root: tmp())
 
-    assert read("dist/index.html") == "<page>Home:<h1>Home</h1></page>"
+    assert read("dist/index.html") == "<page>Home:#{heading("Home", "home")}</page>"
   end
 
   test "supports disabling layout from page frontmatter" do
@@ -142,7 +142,7 @@ defmodule Astral.BuilderTest do
 
     assert {:ok, _result} = Astral.build(root: tmp())
 
-    assert read("dist/index.html") == "<h1>Home</h1>"
+    assert read("dist/index.html") == heading("Home", "home")
   end
 
   test "returns an error for missing frontmatter layout" do
@@ -177,7 +177,7 @@ defmodule Astral.BuilderTest do
     assert read("dist/index.html") == """
            <title>Home Page</title>
            <meta name="description" content="Welcome">
-           <main data-route="/" data-assets="/assets"><h1>Home</h1></main>
+           <main data-route="/" data-assets="/assets">#{heading("Home", "home")}</main>
            """
   end
 
@@ -235,6 +235,7 @@ defmodule Astral.BuilderTest do
              )
 
     assert [%{route_path: "/plugin/"}] = result.site.pages
+
     assert read("dist/index.html") == "<main><h1>Home</h1></main><!-- /plugin/:done -->"
   end
 
@@ -360,6 +361,10 @@ defmodule Astral.BuilderTest do
   test "returns an error when pages directory is missing" do
     assert {:error, {:missing_pages_dir, path}} = Astral.build(root: tmp())
     assert path == Path.join(tmp(), "pages")
+  end
+
+  defp heading(text, id) do
+    ~s(<h1><a href="##{id}" aria-hidden="true" class="anchor" id="#{id}"></a>#{text}</h1>)
   end
 
   defp tmp, do: Process.get(:astral_test_tmp) || raise("missing tmp_dir")
