@@ -25,12 +25,17 @@ defmodule Astral.Image do
   def get_image(%Astral.Site{mode: :dev} = site, opts) do
     opts = opts_map(opts)
     source = Map.fetch!(opts, :src)
-    {:ok, path} = resolve_source(site.config, source)
-    {:ok, metadata} = Metadata.read(path)
 
-    site.config
-    |> transform(metadata, opts)
-    |> Astral.Image.Dev.prepare(site.config)
+    if Astral.Image.Remote.remote?(source) do
+      remote_dev_transform(site.config, source, opts)
+    else
+      {:ok, path} = resolve_source(site.config, source)
+      {:ok, metadata} = Metadata.read(path)
+
+      site.config
+      |> transform(metadata, opts)
+      |> Astral.Image.Dev.prepare(site.config)
+    end
   end
 
   def get_image(%Astral.Site{} = site, opts) do
@@ -89,6 +94,53 @@ defmodule Astral.Image do
   @spec image?(String.t()) :: boolean()
   def image?(path),
     do: (path |> Path.extname() |> String.downcase()) in Astral.Image.Format.extensions()
+
+  defp remote_dev_transform(config, source, opts) do
+    unless Astral.Image.Remote.allowed?(source, config.image) do
+      raise ArgumentError, "remote image is not allowed: #{source}"
+    end
+
+    {width, height} = remote_dev_dimensions(opts)
+
+    format = Map.get(opts, :format, config.image.default_format) |> Astral.Image.Format.output!()
+    quality = Map.get(opts, :quality, config.image.quality)
+    fit = Map.get(opts, :fit, :contain)
+
+    metadata = %Metadata{
+      path: source,
+      width: width,
+      height: height,
+      format: remote_source_format(source),
+      content_hash: remote_source_hash(source)
+    }
+
+    hash = transform_hash(metadata, width, height, format, quality, fit)
+    filename = filename(source, width, height, format, hash)
+
+    %Transform{
+      source: source,
+      output_path: Path.join(config.image.cache_dir, filename),
+      url: "",
+      width: width,
+      height: height,
+      format: format,
+      quality: quality,
+      fit: fit,
+      metadata: metadata
+    }
+    |> Astral.Image.Dev.prepare(config)
+  end
+
+  defp remote_dev_dimensions(opts) do
+    case {maybe_integer(Map.get(opts, :width)), maybe_integer(Map.get(opts, :height))} do
+      {width, height} when is_integer(width) and is_integer(height) ->
+        {width, height}
+
+      _other ->
+        raise ArgumentError,
+              "remote dev images require both width and height to avoid fetching during page render"
+    end
+  end
 
   defp transform(config, %Metadata{} = metadata, opts) do
     {width, height} = dimensions(metadata, opts)
@@ -176,6 +228,17 @@ defmodule Astral.Image do
         path -> {:ok, path}
       end
     end
+  end
+
+  defp remote_source_format(source) do
+    Astral.Image.Format.from_path(URI.parse(source).path || source)
+  end
+
+  defp remote_source_hash(source) do
+    :sha256
+    |> :crypto.hash(source)
+    |> Base.url_encode64(padding: false)
+    |> binary_part(0, 16)
   end
 
   defp opts_map(opts) when is_map(opts), do: opts

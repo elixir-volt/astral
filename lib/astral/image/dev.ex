@@ -78,7 +78,20 @@ defmodule Astral.Image.Dev do
       :ok
     else
       File.mkdir_p!(Path.dirname(transform.output_path))
-      Vips.transform(transform, config.image)
+
+      with {:ok, transform} <- resolve_remote_source(transform, config) do
+        Vips.transform(transform, config.image)
+      end
+    end
+  end
+
+  defp resolve_remote_source(%Transform{source: source} = transform, config) do
+    if Astral.Image.Remote.remote?(source) do
+      with {:ok, cached} <- Astral.Image.Remote.resolve(source, config.image) do
+        {:ok, %{transform | source: cached.path}}
+      end
+    else
+      {:ok, transform}
     end
   end
 
@@ -105,7 +118,11 @@ defmodule Astral.Image.Dev do
   end
 
   defp safe_source_path?(path, config) do
-    Enum.any?(config.image.source_dirs, &inside?(Path.expand(path), Path.expand(&1)))
+    if Astral.Image.Remote.remote?(path) do
+      Astral.Image.Remote.allowed?(path, config.image)
+    else
+      Enum.any?(config.image.source_dirs, &inside?(Path.expand(path), Path.expand(&1)))
+    end
   end
 
   defp inside?(path, root) do

@@ -86,6 +86,8 @@ Remote pattern wildcards follow Astro's model:
 
 Remote redirects are followed only when every destination also matches an `allow_remote` pattern. Astral caches the downloaded original in the image cache and reuses response validators such as `ETag` and `Last-Modified` when available.
 
+Static builds fetch allowed remote originals during generation. Development mirrors Astro's endpoint model: page rendering emits `/_astral/image/...` without downloading the remote original, and the remote request happens when the browser asks for that optimized image. In dev, specify both `width` and `height` for remote images so Astral can avoid fetching during page render.
+
 ## Volt browser assets
 
 Astral delegates browser assets to Volt.

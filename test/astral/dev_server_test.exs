@@ -4,6 +4,27 @@ defmodule Astral.DevServerTest do
   import Plug.Conn
   import Plug.Test
 
+  defmodule RemoteImageServer do
+    use Plug.Router
+
+    plug(:match)
+    plug(:dispatch)
+
+    get "/hero.svg" do
+      Agent.update(Astral.DevServerTest.RemoteHits, &(&1 + 1))
+
+      Plug.Conn.send_resp(
+        conn,
+        200,
+        ~s(<svg xmlns="http://www.w3.org/2000/svg" width="100" height="50"><rect width="100" height="50" fill="red"/></svg>)
+      )
+    end
+
+    match _ do
+      Plug.Conn.send_resp(conn, 404, "not found")
+    end
+  end
+
   defmodule TextRoutePlugin do
     @behaviour Astral.Plugin
 
@@ -95,6 +116,46 @@ defmodule Astral.DevServerTest do
     assert get_resp_header(image_conn, "cache-control") == ["no-cache, no-store, must-revalidate"]
   end
 
+  test "defers remote dev image fetches until image requests" do
+    File.rm!(Path.join(tmp(), "pages/index.md"))
+    port = unused_port()
+    {:ok, _agent} = Agent.start_link(fn -> 0 end, name: Astral.DevServerTest.RemoteHits)
+    {:ok, server} = Bandit.start_link(plug: RemoteImageServer, port: port)
+
+    on_exit(fn ->
+      Process.exit(server, :normal)
+
+      if Process.whereis(Astral.DevServerTest.RemoteHits),
+        do: Agent.stop(Astral.DevServerTest.RemoteHits)
+    end)
+
+    write("pages/index.astral", ~s'''
+    <.image src="http://127.0.0.1:#{port}/hero.svg" alt="Hero" width={50} height={25} />
+    ''')
+
+    opts =
+      Astral.DevServer.init(
+        root: tmp(),
+        image: [allow_remote: ["http://127.0.0.1:#{port}/**"]]
+      )
+
+    page_conn = conn(:get, "/") |> Astral.DevServer.call(opts)
+
+    assert page_conn.status == 200
+    assert Agent.get(Astral.DevServerTest.RemoteHits, & &1) == 0
+
+    assert [url] =
+             Regex.run(~r/src="(\/_astral\/image\/hero-50x25-[^"]+\.webp)"/, page_conn.resp_body,
+               capture: :all_but_first
+             )
+
+    image_conn = conn(:get, url) |> Astral.DevServer.call(opts)
+
+    assert image_conn.status == 200
+    assert Agent.get(Astral.DevServerTest.RemoteHits, & &1) == 1
+    assert get_resp_header(image_conn, "content-type") |> hd() =~ "image/webp"
+  end
+
   test "delegates asset requests to Volt.DevServer" do
     write("assets/app.js", "export const value = 1")
 
@@ -133,6 +194,13 @@ defmodule Astral.DevServerTest do
   defp call_dev_server(path) do
     opts = Astral.DevServer.init(root: tmp())
     conn(:get, path) |> Astral.DevServer.call(opts)
+  end
+
+  defp unused_port do
+    {:ok, socket} = :gen_tcp.listen(0, [:binary, active: false, reuseaddr: true])
+    {:ok, port} = :inet.port(socket)
+    :gen_tcp.close(socket)
+    port
   end
 
   defp svg_image(width, height, color) do
