@@ -406,7 +406,7 @@ end
 
 ## XML DSL
 
-Astral uses [XM](../xm) for feed and sitemap XML. XM is a small Saxy-backed XML DSL extracted from Astral so XML generation stays generic and reusable.
+Astral uses [XM](https://github.com/elixir-volt/xm) for feed and sitemap XML. XM is a small Saxy-backed XML DSL extracted from Astral so XML generation stays generic and reusable.
 
 ```elixir
 import XM
