@@ -19,6 +19,7 @@ defmodule Astral.Config do
           asset_url_prefix: String.t(),
           asset_hash: boolean(),
           layout: String.t(),
+          image: Astral.Image.Config.t() | nil,
           collections: [Astral.Collection.t()],
           plugins: [Astral.Plugin.plugin()]
         }
@@ -35,6 +36,7 @@ defmodule Astral.Config do
             asset_url_prefix: "/assets",
             asset_hash: true,
             layout: nil,
+            image: nil,
             collections: [],
             plugins: []
 
@@ -69,9 +71,12 @@ defmodule Astral.Config do
       asset_url_prefix: Keyword.get(opts, :asset_url_prefix, "/assets"),
       asset_hash: Keyword.get(opts, :asset_hash, true),
       layout: Keyword.get(opts, :layout, "default.html"),
+      image: nil,
       collections: collections(opts, root),
       plugins: plugins
     }
+
+    config = %{config | image: image_config(opts, config)}
 
     Astral.PluginRunner.config(plugins, config)
   end
@@ -80,6 +85,12 @@ defmodule Astral.Config do
     opts
     |> Keyword.get(key, default)
     |> Path.expand(base)
+  end
+
+  defp image_config(opts, config) do
+    opts
+    |> Keyword.get(:image, [])
+    |> Astral.Image.Config.new(config)
   end
 
   defp collections(opts, root) do
@@ -136,6 +147,7 @@ defmodule Astral.Config do
   defp expression_to_opts({:public, _meta, [path]}), do: [public: path]
   defp expression_to_opts({:outdir, _meta, [path]}), do: [outdir: path]
   defp expression_to_opts({:layout, _meta, [path]}), do: [layout: path]
+  defp expression_to_opts({:image, _meta, [image]}), do: [image: image]
   defp expression_to_opts({:plugins, _meta, [plugins]}), do: [plugins: plugins]
   defp expression_to_opts({:asset_entry, _meta, [path]}), do: [asset_entry: path]
   defp expression_to_opts({:asset_outdir, _meta, [path]}), do: [asset_outdir: path]

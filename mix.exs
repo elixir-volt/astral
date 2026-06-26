@@ -44,6 +44,7 @@ defmodule Astral.MixProject do
       {:zoi, "~> 0.18"},
       {:xm, "~> 0.2"},
       {:ecto, "~> 3.13"},
+      {:image, "~> 0.68"},
       {:phoenix_live_view, "~> 1.2"},
       {:bandit, "~> 1.12"},
       {:floki, "~> 0.38"},
@@ -94,6 +95,7 @@ defmodule Astral.MixProject do
       examples/basic/.gitignore
       examples/basic/README.md
       examples/basic/assets/app.ts
+      examples/basic/assets/images/astral-mark.svg
       examples/basic/assets/styles.css
       examples/basic/astral.config.exs
       examples/basic/config/config.exs

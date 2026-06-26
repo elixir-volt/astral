@@ -78,15 +78,26 @@ defmodule Astral.DevServer do
 
   defp serve_page(conn, config) do
     with {:ok, site} <- discover_dev_site(config),
-         %Astral.Page{} = page <- find_page(site, conn.request_path),
-         {:ok, html} <- Astral.Renderer.render_page(site, page) do
-      html = Astral.HMRClient.inject(html)
+         %Astral.Page{} = page <- find_page(site, conn.request_path) do
+      Astral.Image.Registry.start(site)
 
-      conn
-      |> put_resp_content_type("text/html")
-      |> put_resp_header("cache-control", "no-cache, no-store, must-revalidate")
-      |> send_resp(200, html)
-      |> halt()
+      try do
+        case Astral.Renderer.render_page(site, page) do
+          {:ok, html} ->
+            html = Astral.HMRClient.inject(html)
+
+            conn
+            |> put_resp_content_type("text/html")
+            |> put_resp_header("cache-control", "no-cache, no-store, must-revalidate")
+            |> send_resp(200, html)
+            |> halt()
+
+          {:error, reason} ->
+            server_error(conn, reason)
+        end
+      after
+        Astral.Image.Registry.stop()
+      end
     else
       nil -> nil
       {:error, reason} -> server_error(conn, reason)
@@ -105,14 +116,27 @@ defmodule Astral.DevServer do
 
   defp serve_route(conn, config) do
     with {:ok, site} <- discover_dev_site(config),
-         %Astral.Route{} = route <- find_route(site, conn.request_path),
-         {:ok, body, content_type} <-
-           Astral.PluginRunner.render_route(config.plugins, route, site) do
-      conn
-      |> put_resp_content_type(content_type)
-      |> put_resp_header("cache-control", "no-cache, no-store, must-revalidate")
-      |> send_resp(200, body)
-      |> halt()
+         %Astral.Route{} = route <- find_route(site, conn.request_path) do
+      Astral.Image.Registry.start(site)
+
+      try do
+        case Astral.PluginRunner.render_route(config.plugins, route, site) do
+          {:ok, body, content_type} ->
+            conn
+            |> put_resp_content_type(content_type)
+            |> put_resp_header("cache-control", "no-cache, no-store, must-revalidate")
+            |> send_resp(200, body)
+            |> halt()
+
+          {:error, reason} ->
+            server_error(conn, reason)
+
+          nil ->
+            nil
+        end
+      after
+        Astral.Image.Registry.stop()
+      end
     else
       nil -> nil
       {:error, reason} -> server_error(conn, reason)

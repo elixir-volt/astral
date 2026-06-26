@@ -26,8 +26,7 @@ defmodule Astral.Builder do
          :ok <- prepare_outdir(config),
          :ok <- copy_public(config),
          {:ok, assets} <- build_assets(config),
-         :ok <- render_pages(site),
-         :ok <- render_routes(site) do
+         :ok <- render_site(site) do
       result = %Astral.BuildResult{site: site, assets: assets}
 
       with :ok <- Astral.PluginRunner.build_done(config.plugins, result) do
@@ -100,6 +99,19 @@ defmodule Astral.Builder do
     |> File.read!()
     |> Astral.Template.Assets.modules(file: path)
     |> Enum.any?()
+  end
+
+  defp render_site(site) do
+    Astral.Image.Registry.start(site)
+
+    try do
+      with :ok <- render_pages(site),
+           :ok <- render_routes(site) do
+        Astral.Image.Builder.build(site)
+      end
+    after
+      Astral.Image.Registry.stop()
+    end
   end
 
   defp render_pages(site) do
