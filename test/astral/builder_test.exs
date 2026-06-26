@@ -3,6 +3,21 @@ defmodule Astral.BuilderTest do
 
   import JSONSpec
 
+  defmodule RemoteImageServer do
+    use Plug.Router
+
+    plug(:match)
+    plug(:dispatch)
+
+    get "/hero.svg" do
+      Plug.Conn.send_resp(conn, 200, Astral.BuilderTest.svg_image(120, 60, "purple"))
+    end
+
+    match _ do
+      Plug.Conn.send_resp(conn, 404, "not found")
+    end
+  end
+
   defmodule RenderPlugin do
     @behaviour Astral.Plugin
 
@@ -143,6 +158,30 @@ defmodule Astral.BuilderTest do
 
     [image] = Path.wildcard(Path.join(tmp(), "dist/assets/hero-60x30-*.webp"))
     assert File.stat!(image).size > 0
+  end
+
+  test "infers remote image dimensions during static builds" do
+    port = unused_port()
+    {:ok, server} = Bandit.start_link(plug: RemoteImageServer, port: port)
+    on_exit(fn -> Process.exit(server, :normal) end)
+
+    write("pages/index.astral", ~s'''
+    <.image src="http://127.0.0.1:#{port}/hero.svg" alt="Remote hero" width={60} format={:webp} />
+    ''')
+
+    assert {:ok, _result} =
+             Astral.build(
+               root: tmp(),
+               layout: false,
+               image: [allow_remote: ["http://127.0.0.1:#{port}/**"]]
+             )
+
+    html = read("dist/index.html")
+    assert html =~ ~s(alt="Remote hero")
+    assert html =~ ~s(width="60")
+    assert html =~ ~s(height="30")
+    assert html =~ ~r/src="\/assets\/[^"]+-60x30-[^"]+\.webp"/
+    assert [_] = Path.wildcard(Path.join(tmp(), "dist/assets/*-60x30-*.webp"))
   end
 
   test "builds optimized images from Markdown image syntax" do
@@ -771,7 +810,14 @@ defmodule Astral.BuilderTest do
     ~s(<h1><a href="##{id}" aria-hidden="true" class="anchor" id="#{id}"></a>#{text}</h1>)
   end
 
-  defp svg_image(width, height, color) do
+  defp unused_port do
+    {:ok, socket} = :gen_tcp.listen(0, [:binary, active: false, reuseaddr: true])
+    {:ok, port} = :inet.port(socket)
+    :gen_tcp.close(socket)
+    port
+  end
+
+  def svg_image(width, height, color) do
     ~s(<svg xmlns="http://www.w3.org/2000/svg" width="#{width}" height="#{height}"><rect width="#{width}" height="#{height}" fill="#{color}"/></svg>)
   end
 
