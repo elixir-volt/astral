@@ -10,6 +10,16 @@ assigns = assign(assigns, :features, ["HEEx expressions", "local components", "P
     Astral templates use Phoenix HEEx semantics while still building a static site.
   </p>
 
+  <.picture
+    src="images/astral-mark.svg"
+    alt="Astral gradient mark"
+    widths={[160, 320]}
+    formats={[:webp]}
+    fallback_format={:png}
+    sizes="(max-width: 640px) 160px, 320px"
+    class="hero-image"
+  />
+
   <p>
     <.pill :for={feature <- @features}>{feature}</.pill>
   </p>

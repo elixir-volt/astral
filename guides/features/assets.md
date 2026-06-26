@@ -1,8 +1,60 @@
 # Assets
 
+Astral has two asset paths:
+
+- Astral owns site images rendered with `<.image>` and `<.picture>`.
+- Volt owns browser assets such as TypeScript, JavaScript, CSS, and files imported by them.
+
+## Optimized images
+
+Use built-in HEEx components from `.astral` pages, layouts, components, and component-aware Markdown:
+
+```astral
+<.image src="images/hero.jpg" alt="Hero" width={1200} format={:webp} quality={82} />
+```
+
+`src` resolves from the configured image source directories. By default, Astral looks under `assets/`, the site root, and `public/`.
+
+Static builds write compressed, content-hashed files into the configured asset output directory:
+
+```text
+assets/images/hero.jpg
+  -> dist/assets/hero-1200x800-k4L9v8B2qa.webp
+```
+
+Responsive pictures generate multiple variants and a fallback image:
+
+```astral
+<.picture
+  src="images/hero.jpg"
+  alt="Hero"
+  widths={[480, 768, 1200]}
+  formats={[:webp, :avif]}
+  fallback_format={:jpeg}
+  sizes="(max-width: 768px) 100vw, 1200px"
+/>
+```
+
+The image pipeline is backed by the Elixir `Image` package and libvips. Output filenames include source content and transform options, so changing the source, dimensions, format, quality, or fit creates a new browser URL.
+
+Configure defaults with the `image` option:
+
+```elixir
+site do
+  image quality: 82,
+        widths: [480, 768, 1200, 1600],
+        formats: [:webp],
+        fallback_format: :jpeg
+end
+```
+
+Files in `public/` are still copied as-is. Use `<.image>` or `<.picture>` when you want Astral to optimize and hash an image.
+
+## Volt browser assets
+
 Astral delegates browser assets to Volt.
 
-## Configure assets
+## Configure Volt assets
 
 ```elixir
 site do

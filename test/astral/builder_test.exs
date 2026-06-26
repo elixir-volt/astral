@@ -125,6 +125,57 @@ defmodule Astral.BuilderTest do
     assert read("dist/index.html") =~ "Elixir"
   end
 
+  test "builds optimized images from Astral pages" do
+    write("assets/images/hero.svg", svg_image(120, 60, "red"))
+
+    write("pages/index.astral", ~S'''
+    <.image src="images/hero.svg" alt="Hero" width={60} format={:webp} quality={80} class="hero" />
+    ''')
+
+    assert {:ok, _result} = Astral.build(root: tmp(), layout: false)
+
+    html = read("dist/index.html")
+    assert html =~ ~s(alt="Hero")
+    assert html =~ ~s(width="60")
+    assert html =~ ~s(height="30")
+    assert html =~ ~s(class="hero")
+    assert html =~ ~r/src="\/assets\/hero-60x30-[^"]+\.webp"/
+
+    [image] = Path.wildcard(Path.join(tmp(), "dist/assets/hero-60x30-*.webp"))
+    assert File.stat!(image).size > 0
+  end
+
+  test "builds responsive picture variants from Astral pages" do
+    write("assets/images/card.svg", svg_image(200, 100, "blue"))
+
+    write("pages/index.astral", ~S'''
+    <.picture
+      src="images/card.svg"
+      alt="Card"
+      widths={[50, 100]}
+      formats={[:webp]}
+      fallback_format={:png}
+      sizes="100vw"
+    />
+    ''')
+
+    assert {:ok, _result} = Astral.build(root: tmp(), layout: false)
+
+    html = read("dist/index.html")
+    assert html =~ ~s(<picture>)
+    assert html =~ ~s(type="image/webp")
+    assert html =~ ~s(sizes="100vw")
+
+    assert html =~
+             ~r/srcset="\/assets\/card-50x25-[^"]+\.webp 50w, \/assets\/card-100x50-[^"]+\.webp 100w"/
+
+    assert html =~ ~r/src="\/assets\/card-100x50-[^"]+\.png"/
+
+    assert [_] = Path.wildcard(Path.join(tmp(), "dist/assets/card-50x25-*.webp"))
+    assert [_] = Path.wildcard(Path.join(tmp(), "dist/assets/card-100x50-*.webp"))
+    assert [_] = Path.wildcard(Path.join(tmp(), "dist/assets/card-100x50-*.png"))
+  end
+
   test "builds HEEx-first Astral pages with local components" do
     write("components/pill.astral", ~S'''
     <div class="pill">
@@ -643,6 +694,10 @@ defmodule Astral.BuilderTest do
 
   defp heading(text, id) do
     ~s(<h1><a href="##{id}" aria-hidden="true" class="anchor" id="#{id}"></a>#{text}</h1>)
+  end
+
+  defp svg_image(width, height, color) do
+    ~s(<svg xmlns="http://www.w3.org/2000/svg" width="#{width}" height="#{height}"><rect width="#{width}" height="#{height}" fill="#{color}"/></svg>)
   end
 
   defp tmp, do: Process.get(:astral_test_tmp) || raise("missing tmp_dir")

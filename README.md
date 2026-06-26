@@ -26,6 +26,7 @@ You get the pieces expected from a modern static site framework:
 - Static pagination and generated routes for blogs, docs, and indexes.
 - Built-in feed and sitemap plugins.
 - Stable Markdown heading anchors for table-of-contents layouts.
+- Optimized build-time images with `<.image>` and `<.picture>` components.
 - Public files copied as-is.
 - TypeScript, CSS, imported assets, dev serving, and HMR through Volt.
 - Plug/Bandit dev server with full reloads for pages, layouts, components, and public files.
@@ -159,9 +160,24 @@ plugins [
 
 See [Pagination and Generated Routes](https://hexdocs.pm/astral/pagination-and-routes.html) and [Feeds and Sitemaps](https://hexdocs.pm/astral/feeds-and-sitemaps.html).
 
-## Volt-powered assets
+## Optimized images and Volt-powered assets
 
-Reference source assets from layouts:
+Render optimized images from `.astral` pages or component-aware Markdown:
+
+```astral
+<.image src="images/hero.jpg" alt="Hero" width={1200} format={:webp} />
+
+<.picture
+  src="images/hero.jpg"
+  alt="Hero"
+  widths={[480, 768, 1200]}
+  formats={[:webp, :avif]}
+/>
+```
+
+Astral writes compressed, content-hashed variants to `dist/assets/` during static builds.
+
+Reference source frontend assets from layouts:
 
 ```eex
 <script type="module" src="<%= Astral.asset_path(@site, "app.ts") %>"></script>
