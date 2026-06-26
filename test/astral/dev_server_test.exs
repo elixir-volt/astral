@@ -70,6 +70,31 @@ defmodule Astral.DevServerTest do
     assert get_resp_header(conn, "content-type") |> hd() =~ "text/plain"
   end
 
+  test "serves optimized dev images on demand" do
+    File.rm!(Path.join(tmp(), "pages/index.md"))
+    write("assets/images/hero.svg", svg_image(100, 50, "red"))
+
+    write("pages/index.astral", ~S'''
+    <.image src="images/hero.svg" alt="Hero" width={50} />
+    ''')
+
+    page_conn = call_dev_server("/")
+
+    assert page_conn.status == 200
+
+    assert [url] =
+             Regex.run(~r/src="(\/_astral\/image\/hero-50x25-[^"]+\.webp)"/, page_conn.resp_body,
+               capture: :all_but_first
+             )
+
+    image_conn = call_dev_server(url)
+
+    assert image_conn.status == 200
+    assert byte_size(image_conn.resp_body) > 0
+    assert get_resp_header(image_conn, "content-type") |> hd() =~ "image/webp"
+    assert get_resp_header(image_conn, "cache-control") == ["no-cache, no-store, must-revalidate"]
+  end
+
   test "delegates asset requests to Volt.DevServer" do
     write("assets/app.js", "export const value = 1")
 
@@ -108,6 +133,10 @@ defmodule Astral.DevServerTest do
   defp call_dev_server(path) do
     opts = Astral.DevServer.init(root: tmp())
     conn(:get, path) |> Astral.DevServer.call(opts)
+  end
+
+  defp svg_image(width, height, color) do
+    ~s(<svg xmlns="http://www.w3.org/2000/svg" width="#{width}" height="#{height}"><rect width="#{width}" height="#{height}" fill="#{color}"/></svg>)
   end
 
   defp tmp, do: Process.get(:astral_test_tmp) || raise("missing tmp_dir")

@@ -27,19 +27,10 @@ defmodule Astral.Image do
     source = Map.fetch!(opts, :src)
     {:ok, path} = resolve_source(site.config, source)
     {:ok, metadata} = Metadata.read(path)
-    {width, height} = dimensions(metadata, opts)
 
-    %Transform{
-      source: path,
-      output_path: nil,
-      url: dev_url(site.config, source),
-      width: width,
-      height: height,
-      format: metadata.format,
-      quality: site.config.image.quality,
-      fit: :contain,
-      metadata: metadata
-    }
+    site.config
+    |> transform(metadata, opts)
+    |> Astral.Image.Dev.prepare(site.config)
   end
 
   def get_image(%Astral.Site{} = site, opts) do
@@ -175,15 +166,6 @@ defmodule Astral.Image do
         path -> {:ok, path}
       end
     end
-  end
-
-  defp dev_url(config, %Astral.Image.Source{src: src}), do: dev_url(config, src)
-
-  defp dev_url(config, source) do
-    source
-    |> String.trim_leading("/")
-    |> then(&Path.join(config.asset_url_prefix, &1))
-    |> ensure_leading_slash()
   end
 
   defp opts_map(opts) when is_map(opts), do: opts

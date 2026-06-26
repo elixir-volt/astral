@@ -42,14 +42,20 @@ defmodule Astral.DevServer do
 
   defp maybe_serve_astral(%Plug.Conn{method: method} = conn, config)
        when method in ["GET", "HEAD"] do
-    serve_public(conn, config) || serve_page(conn, config) || serve_route(conn, config) ||
-      not_found(conn)
+    serve_image(conn, config) || serve_public(conn, config) || serve_page(conn, config) ||
+      serve_route(conn, config) || not_found(conn)
   end
 
   defp maybe_serve_astral(conn, _config) do
     conn
     |> send_resp(405, "method not allowed")
     |> halt()
+  end
+
+  defp serve_image(conn, config) do
+    if Astral.Image.Dev.request?(conn.request_path) do
+      Astral.Image.Dev.serve(conn, config)
+    end
   end
 
   defp serve_public(conn, config) do

@@ -56,6 +56,8 @@ end
 
 Files in `public/` are still copied as-is. Use `<.image>` or `<.picture>` when you want Astral to optimize and hash an image.
 
+During development, Astral emits `/_astral/image/...` URLs and generates optimized images on demand into the image cache. Responses use no-cache headers like Volt's dev asset server, so browser refreshes reflect source changes.
+
 ## Volt browser assets
 
 Astral delegates browser assets to Volt.
