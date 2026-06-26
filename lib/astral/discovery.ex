@@ -198,7 +198,11 @@ defmodule Astral.Discovery do
     with {:ok, source} <- File.read(path),
          {:ok, content} <- Astral.Markdown.render(source),
          false <- draft?(content) and not collection.drafts,
-         {:ok, data} <- Astral.Schema.normalize(collection.schema, content.metadata) do
+         {:ok, data} <-
+           Astral.Schema.normalize(collection.schema, content.metadata,
+             base: path,
+             source_dirs: []
+           ) do
       slug = entry_slug(path, collection)
       route_path = content.permalink || entry_route_path(collection, slug)
 

@@ -115,10 +115,13 @@ collections do
       field :date, :date, required: true
       field :draft, :boolean, default: false
       field :tags, {:array, :string}, default: []
+      field :cover, :image
     end
   end
 end
 ```
+
+Image fields resolve relative to their entry file and can be passed directly to `<.image>` or `<.picture>`.
 
 Use validated data from layouts and templates:
 

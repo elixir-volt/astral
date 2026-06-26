@@ -5,7 +5,7 @@ defmodule Astral.Components do
 
   use Phoenix.Component
 
-  attr(:src, :string, required: true)
+  attr(:src, :any, required: true)
   attr(:alt, :string, required: true)
   attr(:width, :any, default: nil)
   attr(:height, :any, default: nil)
@@ -42,7 +42,7 @@ defmodule Astral.Components do
     """
   end
 
-  attr(:src, :string, required: true)
+  attr(:src, :any, required: true)
   attr(:alt, :string, required: true)
   attr(:width, :any, default: nil)
   attr(:height, :any, default: nil)

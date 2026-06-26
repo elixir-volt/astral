@@ -161,6 +161,8 @@ defmodule Astral.Image do
     "#{base}-#{width}x#{height}-#{hash}#{ext}"
   end
 
+  defp resolve_source(_config, %Astral.Image.Source{path: path}), do: {:ok, path}
+
   defp resolve_source(config, source) when is_binary(source) do
     if Path.type(source) == :absolute and File.regular?(source) do
       {:ok, source}
@@ -174,6 +176,8 @@ defmodule Astral.Image do
       end
     end
   end
+
+  defp dev_url(config, %Astral.Image.Source{src: src}), do: dev_url(config, src)
 
   defp dev_url(config, source) do
     source

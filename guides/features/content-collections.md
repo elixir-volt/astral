@@ -16,13 +16,29 @@ site do
         field :date, :date, required: true
         field :draft, :boolean, default: false
         field :tags, {:array, :string}, default: []
+        field :cover, :image
       end
     end
   end
 end
 ```
 
-Each Markdown file in `content/posts/` becomes a validated entry and a static page at the collection permalink. The `schema do` field DSL mirrors Ecto's field shape; Astral uses Ecto casting behind the scenes for types, required fields, and defaults.
+Each Markdown file in `content/posts/` becomes a validated entry and a static page at the collection permalink. The `schema do` field DSL mirrors Ecto's field shape; Astral uses Ecto casting behind the scenes for types, required fields, defaults, and image source resolution.
+
+Image fields resolve local paths relative to the entry file and expose an `Astral.Image.Source` struct:
+
+```yaml
+---
+title: Hello
+cover: ./cover.jpg
+---
+```
+
+Use image fields directly with Astral image components:
+
+```astral
+<.image src={@entry.data.cover} alt={@entry.data.title} width={800} />
+```
 
 ## Entry data
 

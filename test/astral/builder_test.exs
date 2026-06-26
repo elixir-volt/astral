@@ -586,6 +586,61 @@ defmodule Astral.BuilderTest do
     assert read("dist/feed.xml") == "<feed>Hello</feed>"
   end
 
+  test "renders Ecto-style image fields from collection frontmatter" do
+    write("content/posts/cover.svg", svg_image(120, 60, "purple"))
+
+    write("content/posts/hello.md", ~S'''
+    ---
+    title: Image Field
+    cover: ./cover.svg
+    ---
+
+    # Hello
+    ''')
+
+    write("pages/blog/[slug].astral", ~S'''
+    <article>
+      <h1>{@entry.data.title}</h1>
+      <.image src={@entry.data.cover} alt={@entry.data.title} width={60} />
+    </article>
+    ''')
+
+    config =
+      Astral.Config.new(
+        root: tmp(),
+        layout: false,
+        collections: [
+          [
+            name: :posts,
+            dir: "content/posts",
+            permalink: "/blog/:slug/",
+            schema: %Astral.Schema.Fields{
+              fields: [
+                %Astral.Schema.Field{name: :title, type: :string, required?: true},
+                %Astral.Schema.Field{name: :cover, type: :image, required?: true}
+              ]
+            }
+          ]
+        ]
+      )
+
+    assert {:ok, result} = Astral.build(config)
+
+    assert [%{data: %{cover: %Astral.Image.Source{} = cover}}] = result.site.entries.posts
+    assert cover.src == "./cover.svg"
+    assert cover.width == 120
+    assert cover.height == 60
+    assert cover.format == :svg
+
+    html = read("dist/blog/hello/index.html")
+    assert html =~ ~s(<h1>Image Field</h1>)
+    assert html =~ ~s(alt="Image Field")
+    assert html =~ ~s(width="60")
+    assert html =~ ~s(height="30")
+    assert html =~ ~r/src="\/assets\/cover-60x30-[^"]+\.webp"/
+    assert [_] = Path.wildcard(Path.join(tmp(), "dist/assets/cover-60x30-*.webp"))
+  end
+
   test "renders collection Markdown entries with local Astral components" do
     write("components/callout.astral", ~S'''
     <aside class="callout">

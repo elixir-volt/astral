@@ -22,14 +22,16 @@ defmodule Astral.Schema do
   end
 
   @doc "Validate and normalize metadata according to the schema."
-  @spec normalize(term(), map()) :: {:ok, map()} | {:error, term()}
-  def normalize(nil, metadata), do: {:ok, metadata}
+  @spec normalize(term(), map(), keyword()) :: {:ok, map()} | {:error, term()}
+  def normalize(schema, metadata, opts \\ [])
 
-  def normalize(schema, metadata) do
+  def normalize(nil, metadata, _opts), do: {:ok, metadata}
+
+  def normalize(schema, metadata, opts) do
     case schema_type(schema) do
       :json_schema -> normalize_json_schema(schema, metadata)
       :zoi -> normalize_zoi(schema, metadata)
-      :fields -> Astral.Schema.Fields.normalize(schema, metadata)
+      :fields -> Astral.Schema.Fields.normalize(schema, metadata, opts)
       :unknown -> {:error, {:unsupported_schema, schema}}
     end
   end
