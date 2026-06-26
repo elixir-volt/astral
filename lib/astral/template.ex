@@ -32,6 +32,21 @@ defmodule Astral.Template do
     end
   end
 
+  @doc "Render a Markdown file as HEEx with project components and assigns."
+  @spec render_markdown_file(String.t(), map() | keyword(), Astral.Config.t()) ::
+          {:ok, String.t()} | {:error, term()}
+  def render_markdown_file(path, assigns, %Astral.Config{} = config) do
+    with {:ok, markdown} <- File.read(path),
+         {:ok, source} <- Astral.Markdown.to_heex_html(markdown) do
+      render_source(
+        %Source{path: path, source: source},
+        :__astral_markdown_page__,
+        assigns,
+        config
+      )
+    end
+  end
+
   defp render_source(%Source{} = source, function, assigns, config) do
     module = module_name(config, source.path)
     components = component_sources(config.components)

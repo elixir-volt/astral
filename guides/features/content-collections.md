@@ -63,6 +63,20 @@ pages/docs/[...path].md
 
 Use `@params["path"]` to read the captured path.
 
+## Components in collection Markdown
+
+Collection Markdown can use local `.astral` components with HEEx syntax:
+
+```md
+# {@entry.data.title}
+
+<.callout>
+  Rendered from collection Markdown.
+</.callout>
+```
+
+This is Astral's Markdown-component path. Use local component syntax (`<.callout>`) instead of MDX imports.
+
 ## JSONSpec and Zoi schemas
 
 JSONSpec-style typespec maps are also supported:

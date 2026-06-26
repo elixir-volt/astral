@@ -19,6 +19,7 @@ Most static site generators put your content model, routing, and build configura
 You get the pieces expected from a modern static site framework:
 
 - File-based static pages from Markdown, HTML, and `.astral` templates.
+- Markdown content with HEEx-style local components through MDEx.
 - Dynamic file routes such as `pages/blog/[slug].astral` and `pages/docs/[...path].md`.
 - HEEx-first `.astral` pages, layouts, and local components.
 - Schema-backed content collections with Ecto-style fields, JSONSpec maps, or Zoi schemas.
@@ -86,7 +87,17 @@ Browser assets inside `.astral` templates are extracted into Volt's asset graph:
 <script lang="ts">console.log("ready")</script>
 ```
 
-See the [`.astral` Templates guide](https://hexdocs.pm/astral/astral-templates.html).
+Markdown can use the same local components:
+
+```md
+# Project
+
+<.card>
+  Rendered inside Markdown by MDEx and HEEx.
+</.card>
+```
+
+See the [`.astral` Templates guide](https://hexdocs.pm/astral/astral-templates.html) and [Pages and Layouts guide](https://hexdocs.pm/astral/pages-and-layouts.html).
 
 ## Content collections
 

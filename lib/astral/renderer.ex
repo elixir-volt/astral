@@ -14,10 +14,15 @@ defmodule Astral.Renderer do
   end
 
   defp page_content(%{source_path: path} = page, site) do
-    if Astral.Template.template?(path) do
-      Astral.Template.render_file(path, page_assigns(page, site), site.config)
-    else
-      {:ok, page.content.html}
+    cond do
+      Astral.Template.template?(path) ->
+        Astral.Template.render_file(path, page_assigns(page, site), site.config)
+
+      Path.extname(path) == ".md" ->
+        Astral.Template.render_markdown_file(path, page_assigns(page, site), site.config)
+
+      true ->
+        {:ok, page.content.html}
     end
   end
 

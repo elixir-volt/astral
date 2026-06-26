@@ -92,6 +92,39 @@ defmodule Astral.BuilderTest do
     assert read("dist/about/index.html") == "<main>#{heading("About", "about")}</main>"
   end
 
+  test "builds Markdown pages with local Astral components" do
+    write("components/pill.astral", ~S'''
+    <span class="pill">
+      {render_slot(@inner_block)}
+    </span>
+    ''')
+
+    write("pages/index.md", ~S'''
+    ---
+    title: Component Markdown
+    ---
+
+    # Component Markdown
+
+    <p>{@metadata["title"]}</p>
+
+    <.pill>Elixir</.pill>
+    ''')
+
+    write("layouts/default.html", "<main><%= @content %></main>")
+
+    assert {:ok, result} = Astral.build(root: tmp())
+
+    assert Enum.map(result.site.pages, & &1.route_path) == ["/"]
+
+    assert read("dist/index.html") =~
+             ~s(<h1><a href="#component-markdown" aria-hidden="true" class="anchor" id="component-markdown"></a>Component Markdown</h1>)
+
+    assert read("dist/index.html") =~ "<p>Component Markdown</p>"
+    assert read("dist/index.html") =~ ~s(<span class="pill">)
+    assert read("dist/index.html") =~ "Elixir"
+  end
+
   test "builds HEEx-first Astral pages with local components" do
     write("components/pill.astral", ~S'''
     <div class="pill">
@@ -480,6 +513,46 @@ defmodule Astral.BuilderTest do
              result.site.routes
 
     assert read("dist/feed.xml") == "<feed>Hello</feed>"
+  end
+
+  test "renders collection Markdown entries with local Astral components" do
+    write("components/callout.astral", ~S'''
+    <aside class="callout">
+      {render_slot(@inner_block)}
+    </aside>
+    ''')
+
+    write("pages/index.html", "<h1>Home</h1>")
+
+    write("content/posts/hello.md", ~S'''
+    ---
+    title: Hello Components
+    ---
+
+    # {@entry.data.title}
+
+    <.callout>Rendered from Markdown.</.callout>
+    ''')
+
+    config =
+      Astral.Config.new(
+        root: tmp(),
+        layout: false,
+        collections: [
+          [
+            name: :posts,
+            dir: "content/posts",
+            permalink: "/blog/:slug/",
+            schema: schema(%{required(:title) => String.t()})
+          ]
+        ]
+      )
+
+    assert {:ok, _result} = Astral.build(config)
+
+    assert read("dist/blog/hello/index.html") =~ "Hello Components"
+    assert read("dist/blog/hello/index.html") =~ ~s(<aside class="callout">)
+    assert read("dist/blog/hello/index.html") =~ "Rendered from Markdown."
   end
 
   test "discovers Ecto-style field schema collection entries" do

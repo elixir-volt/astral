@@ -27,8 +27,8 @@ defmodule Astral.Markdown do
     end
   end
 
-  defp parse_document(source) do
-    {:ok, MDEx.parse_document!(source, @mdex_options)}
+  defp parse_document(source, options \\ @mdex_options) do
+    {:ok, MDEx.parse_document!(source, options)}
   rescue
     error in [MDEx.InvalidInputError] -> {:error, error}
   end
@@ -92,6 +92,18 @@ defmodule Astral.Markdown do
   defp heading_text(%MDEx.Code{literal: literal}), do: literal
   defp heading_text(%{nodes: nodes}) when is_list(nodes), do: heading_text(nodes)
   defp heading_text(_node), do: ""
+
+  @doc "Convert Markdown source to HEEx-compatible HTML while preserving component tags."
+  @spec to_heex_html(String.t()) :: {:ok, String.t()} | {:error, term()}
+  def to_heex_html(source) do
+    options = Keyword.update!(@mdex_options, :extension, &Keyword.put(&1, :phoenix_heex, true))
+
+    with {:ok, document} <- parse_document(source, options) do
+      {:ok, MDEx.to_html!(document, extension: [phoenix_heex: true], render: [unsafe: true])}
+    end
+  rescue
+    error in [MDEx.DecodeError] -> {:error, error}
+  end
 
   defp to_html(document) do
     {:ok, MDEx.to_html!(document)}
