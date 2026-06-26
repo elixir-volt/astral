@@ -73,11 +73,12 @@ defmodule Astral.Template.Assets do
     %{
       start: offset(source, open_meta.line, open_meta.column),
       stop: close_offset(source, close_meta, "style"),
-      module: %EmbeddedModule{
-        type: :style,
-        extension: style_extension(attrs),
-        source: inner_source(source, open_meta, close_meta)
-      }
+      module:
+        struct(EmbeddedModule,
+          type: :style,
+          extension: style_extension(attrs),
+          source: inner_source(source, open_meta, close_meta)
+        )
     }
   end
 
@@ -85,11 +86,12 @@ defmodule Astral.Template.Assets do
     %{
       start: offset(source, open_meta.line, open_meta.column),
       stop: close_offset(source, close_meta, "script"),
-      module: %EmbeddedModule{
-        type: :script,
-        extension: script_extension(attrs),
-        source: inner_source(source, open_meta, close_meta)
-      }
+      module:
+        struct(EmbeddedModule,
+          type: :script,
+          extension: script_extension(attrs),
+          source: inner_source(source, open_meta, close_meta)
+        )
     }
   end
 

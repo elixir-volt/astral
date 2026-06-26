@@ -27,7 +27,7 @@ defmodule Astral.Template.AssetPlugin do
     if template?(path) do
       modules = path |> embedded_modules(source, []) |> EmbeddedModule.normalize_all()
       imports = Enum.map_join(modules, "\n", &import_statement(path, &1))
-      {:ok, %Volt.Pipeline.Result{code: imports <> "\nexport default {};\n"}}
+      {:ok, struct(Volt.Pipeline.Result, code: imports <> "\nexport default {};\n")}
     end
   end
 
