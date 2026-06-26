@@ -72,6 +72,29 @@ defmodule Astral.PaginationTest do
     assert second.urls.previous == "/tags/elixir/"
   end
 
+  test "converts pagination pages into generated routes" do
+    config = Astral.Config.new(root: "/tmp/site")
+
+    routes =
+      [1, 2, 3]
+      |> Pagination.pages(pattern: "/blog/*page", page_size: 2)
+      |> Pagination.routes(config,
+        assigns: %{collection: :posts},
+        metadata: %{template: "blog.html"}
+      )
+
+    assert [first, second] = routes
+    assert first.path == "/blog"
+    assert first.output_path == Path.join(config.outdir, "blog/index.html")
+    assert first.kind == :pagination
+    assert first.assigns.collection == :posts
+    assert %Page{page_number: 1, entries: [1, 2]} = first.assigns.page
+    assert first.metadata == %{template: "blog.html"}
+
+    assert second.path == "/blog/2"
+    assert %Page{page_number: 2, entries: [3]} = second.assigns.page
+  end
+
   test "can omit trailing slashes" do
     [first, second] =
       Pagination.pages(Enum.to_list(1..2),

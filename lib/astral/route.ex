@@ -9,12 +9,18 @@ defmodule Astral.Route do
   @type t :: %__MODULE__{
           path: String.t(),
           output_path: String.t() | nil,
-          content_type: String.t()
+          content_type: String.t(),
+          kind: atom() | nil,
+          assigns: map(),
+          metadata: map()
         }
 
   defstruct path: nil,
             output_path: nil,
-            content_type: "text/html"
+            content_type: "text/html",
+            kind: nil,
+            assigns: %{},
+            metadata: %{}
 
   @doc "Build a generated route and resolve its output path under the site outdir."
   @spec new(String.t(), Astral.Config.t(), keyword()) :: t()
@@ -22,7 +28,10 @@ defmodule Astral.Route do
     %__MODULE__{
       path: normalize(path),
       output_path: Path.join(config.outdir, output_relative(path)),
-      content_type: Keyword.get(opts, :content_type, content_type(path))
+      content_type: Keyword.get(opts, :content_type, content_type(path)),
+      kind: Keyword.get(opts, :kind),
+      assigns: Keyword.get(opts, :assigns, %{}),
+      metadata: Keyword.get(opts, :metadata, %{})
     }
   end
 

@@ -43,6 +43,22 @@ defmodule Astral.Pagination do
     end
   end
 
+  @doc "Convert pagination pages into generated routes."
+  @spec routes([Page.t()], Astral.Config.t(), keyword()) :: [Astral.Route.t()]
+  def routes(pages, %Astral.Config{} = config, opts \\ []) when is_list(pages) do
+    assigns = Keyword.get(opts, :assigns, %{})
+    metadata = Keyword.get(opts, :metadata, %{})
+
+    Enum.map(pages, fn %Page{} = page ->
+      Astral.Route.new(page.urls.current, config,
+        content_type: Keyword.get(opts, :content_type, "text/html"),
+        kind: Keyword.get(opts, :kind, :pagination),
+        assigns: Map.merge(assigns, %{page: page}),
+        metadata: metadata
+      )
+    end)
+  end
+
   defp page_entries(entries, page_number, page_size) do
     Enum.slice(entries, (page_number - 1) * page_size, page_size)
   end
