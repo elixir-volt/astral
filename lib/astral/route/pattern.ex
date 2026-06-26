@@ -65,6 +65,15 @@ defmodule Astral.Route.Pattern do
   @spec match?(String.t() | t(), String.t()) :: boolean()
   def match?(pattern, path), do: match(pattern, path) != :error
 
+  @doc "Normalize route params to string keys."
+  @spec normalize_params(map() | keyword()) :: map()
+  def normalize_params(params) when is_list(params),
+    do: params |> Map.new() |> normalize_params()
+
+  def normalize_params(params) when is_map(params) do
+    Map.new(params, fn {key, value} -> {to_string(key), value} end)
+  end
+
   defp parse_segment!(":" <> name, _index, pattern), do: {:param, name!(name, pattern)}
   defp parse_segment!("*" <> name, _index, pattern), do: {:glob, name!(name, pattern)}
   defp parse_segment!(segment, _index, _pattern), do: {:static, segment}
@@ -122,13 +131,6 @@ defmodule Astral.Route.Pattern do
 
   defp match_parts([], [], params), do: {:ok, params}
   defp match_parts([], _segments, _params), do: :error
-
-  defp normalize_params(params) when is_list(params),
-    do: params |> Map.new() |> normalize_params()
-
-  defp normalize_params(params) when is_map(params) do
-    Map.new(params, fn {key, value} -> {to_string(key), value} end)
-  end
 
   defp split_param(value) when is_list(value), do: Enum.map(value, &to_string/1)
 
