@@ -1,12 +1,12 @@
-# Deployment
+# Static Builds
 
 Astral builds a fully static site into `dist/` by default.
 
-```sh
+```bash
 mix astral.build
 ```
 
-The output directory can be changed in `astral.config.exs`:
+Change the output directory in `astral.config.exs`:
 
 ```elixir
 site do
@@ -18,7 +18,7 @@ Upload the generated directory to any static host or CDN.
 
 ## Routes
 
-Each page route is written as an `index.html` file:
+Each route is written as an `index.html` file:
 
 ```text
 /                 -> dist/index.html
@@ -40,13 +40,13 @@ assets "assets" do
 end
 ```
 
-Use `Astral.asset_path/2` from EEx layouts:
+Reference the source entry from layouts:
 
 ```eex
 <script type="module" src="<%= Astral.asset_path(@site, "app.ts") %>"></script>
 ```
 
-In development this points to the source module served by Volt, for example `/assets/app.ts`. In production builds it reads Volt's `manifest.json` and returns the emitted file, for example `/assets/app-5e6f7a8b.js`.
+In static builds, `Astral.asset_path/2` reads Volt's manifest and returns emitted files such as `/assets/app-5e6f7a8b.js`.
 
 ## Content hashes
 
@@ -62,18 +62,17 @@ assets "assets" do
 end
 ```
 
-With hashing disabled, `app.ts` emits as `dist/assets/app.js`.
-
 ## Build output
 
 `mix astral.build` prints a summary, route table, and asset manifest path:
 
 ```text
-[Astral] Built 2 page(s) into dist
+[Astral] Built 6 page(s) into dist
 
 Routes:
-  /        dist/index.html
-  /about/  dist/about/index.html
+  /about/              dist/about/index.html
+  /                    dist/index.html
+  /blog/hello-astral/  dist/blog/hello-astral/index.html
 
 Assets:
   dist/assets/manifest.json

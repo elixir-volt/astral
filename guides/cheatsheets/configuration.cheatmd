@@ -1,0 +1,84 @@
+# Configuration Cheatsheet
+
+## Minimal site
+
+```elixir
+import Astral.Config
+
+site do
+  pages "pages"
+
+  layouts "layouts" do
+    default "default.html"
+  end
+end
+```
+
+## Common paths
+
+```elixir
+site do
+  root "."
+  outdir "dist"
+  pages "pages"
+  public "public"
+  components "components"
+end
+```
+
+## Layouts
+
+```elixir
+layouts "layouts" do
+  default "default.html"
+end
+```
+
+Use a `.astral` layout:
+
+```elixir
+layouts "layouts" do
+  default "site.astral"
+end
+```
+
+## Assets
+
+```elixir
+assets "assets" do
+  entry "app.ts"
+  url_prefix "/assets"
+  hash true
+end
+```
+
+## Content collections
+
+```elixir
+collections do
+  collection :posts, "content/posts" do
+    permalink "/blog/:slug/"
+    layout "post.html"
+
+    schema %{
+      required(:title) => String.t(),
+      required(:date) => String.t(),
+      optional(:draft) => boolean()
+    }
+  end
+end
+```
+
+## Plugins
+
+```elixir
+plugins [
+  {Astral.Plugin.Feed,
+   site_url: "https://example.com",
+   title: "My Blog",
+   author: "Me",
+   collection: :posts},
+  {Astral.Plugin.Sitemap,
+   site_url: "https://example.com"}
+]
+```

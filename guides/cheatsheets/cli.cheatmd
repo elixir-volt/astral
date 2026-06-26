@@ -1,0 +1,44 @@
+# CLI Cheatsheet
+
+## Install
+
+```bash
+mix igniter.install astral
+```
+
+## Scaffold starter files
+
+```bash
+mix astral.new
+```
+
+## Development server
+
+```bash
+mix astral.dev
+mix astral.dev --open
+mix astral.dev --config astral.config.exs --port 4000
+```
+
+## Static build
+
+```bash
+mix astral.build
+mix astral.build --config astral.config.exs
+```
+
+## Example site
+
+```bash
+cd examples/basic
+mix deps.get
+mix astral.dev
+mix astral.build
+mix check
+```
+
+## Project validation
+
+```bash
+mix ci
+```

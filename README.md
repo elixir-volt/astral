@@ -354,7 +354,7 @@ Assets:
   dist/assets/manifest.json
 ```
 
-Upload `dist/` to any static host or CDN. See [`guides/deployment.md`](guides/deployment.md) for production asset behavior and deployment notes.
+Upload `dist/` to any static host or CDN. See the [Static Builds guide](guides/deployment/static-builds.md) for production asset behavior and deployment notes.
 
 ## Plugins
 
@@ -402,7 +402,7 @@ It demonstrates Markdown, HTML pages, HEEx-first `.astral` pages/layouts/compone
 
 ## Documentation
 
-Full documentation is available on [HexDocs](https://hexdocs.pm/astral). For frontend asset behavior, see [Volt](https://hexdocs.pm/volt).
+Full documentation, guides, and cheatsheets are available on [HexDocs](https://hexdocs.pm/astral). For frontend asset behavior, see [Volt](https://hexdocs.pm/volt).
 
 ## Development
 

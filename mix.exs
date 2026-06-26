@@ -116,10 +116,33 @@ defmodule Astral.MixProject do
 
   defp docs do
     [
-      main: "Astral",
+      main: "readme",
       source_ref: "v#{@version}",
       source_url: @source_url,
-      extras: ["README.md", "CHANGELOG.md", "ROADMAP.md", "guides/deployment.md"]
+      extras: [
+        "README.md",
+        "CHANGELOG.md",
+        "ROADMAP.md",
+        "guides/introduction/getting-started.md",
+        "guides/introduction/why-astral.md",
+        "guides/features/pages-and-layouts.md",
+        "guides/features/astral-templates.md",
+        "guides/features/content-collections.md",
+        "guides/features/pagination-and-routes.md",
+        "guides/features/feeds-and-sitemaps.md",
+        "guides/features/assets.md",
+        "guides/features/development-server.md",
+        "guides/features/plugins.md",
+        "guides/deployment/static-builds.md",
+        "guides/cheatsheets/configuration.cheatmd",
+        "guides/cheatsheets/cli.cheatmd"
+      ],
+      groups_for_extras: [
+        Introduction: ~r/guides\/introduction\//,
+        Features: ~r/guides\/features\//,
+        Deployment: ~r/guides\/deployment\//,
+        Cheatsheets: ~r/guides\/cheatsheets\//
+      ]
     ]
   end
 end
