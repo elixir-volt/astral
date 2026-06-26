@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.1 - 2026-06-26
+
+### Added
+
+- HEEx-first `.astral` templates for pages, layouts, and local components.
+- Parser-backed `.astral` `<style>` and `<script>` extraction through Volt embedded modules.
+- Example site pages, layouts, and components that dogfood `.astral` templates.
+
 ## 0.1.0 - 2026-06-25
 
 Initial Astral development release.
