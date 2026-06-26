@@ -145,6 +145,26 @@ defmodule Astral.BuilderTest do
     assert File.stat!(image).size > 0
   end
 
+  test "builds optimized images from Markdown image syntax" do
+    write("pages/index.md", ~S'''
+    # Home
+
+    ![Hero](./hero.svg "Hero title")
+    ''')
+
+    write("pages/hero.svg", svg_image(80, 40, "green"))
+
+    assert {:ok, _result} = Astral.build(root: tmp(), layout: false)
+
+    html = read("dist/index.html")
+    assert html =~ ~s(alt="Hero")
+    assert html =~ ~s(title="Hero title")
+    assert html =~ ~s(width="80")
+    assert html =~ ~s(height="40")
+    assert html =~ ~r/src="\/assets\/hero-80x40-[^"]+\.webp"/
+    assert [_] = Path.wildcard(Path.join(tmp(), "dist/assets/hero-80x40-*.webp"))
+  end
+
   test "builds responsive picture variants from Astral pages" do
     write("assets/images/card.svg", svg_image(200, 100, "blue"))
 

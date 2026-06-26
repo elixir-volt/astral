@@ -37,7 +37,7 @@ defmodule Astral.Template do
           {:ok, String.t()} | {:error, term()}
   def render_markdown_file(path, assigns, %Astral.Config{} = config) do
     with {:ok, markdown} <- File.read(path),
-         {:ok, source} <- Astral.Markdown.to_heex_html(markdown) do
+         {:ok, source} <- Astral.Markdown.to_heex_html(markdown, file: path) do
       render_source(
         %Source{path: path, source: source},
         :__astral_markdown_page__,

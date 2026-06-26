@@ -175,7 +175,11 @@ Render optimized images from `.astral` pages or component-aware Markdown:
 />
 ```
 
-Astral writes compressed, content-hashed variants to `dist/assets/` during static builds.
+Astral writes compressed, content-hashed variants to `dist/assets/` during static builds. Local Markdown image syntax is optimized too:
+
+```md
+![Hero](./hero.jpg "Optional title")
+```
 
 Reference source frontend assets from layouts:
 

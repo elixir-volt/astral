@@ -94,11 +94,12 @@ defmodule Astral.Markdown do
   defp heading_text(_node), do: ""
 
   @doc "Convert Markdown source to HEEx-compatible HTML while preserving component tags."
-  @spec to_heex_html(String.t()) :: {:ok, String.t()} | {:error, term()}
-  def to_heex_html(source) do
+  @spec to_heex_html(String.t(), keyword()) :: {:ok, String.t()} | {:error, term()}
+  def to_heex_html(source, opts \\ []) do
     options = Keyword.update!(@mdex_options, :extension, &Keyword.put(&1, :phoenix_heex, true))
 
     with {:ok, document} <- parse_document(source, options) do
+      document = Astral.Markdown.Images.rewrite(document, opts)
       {:ok, MDEx.to_html!(document, extension: [phoenix_heex: true], render: [unsafe: true])}
     end
   rescue

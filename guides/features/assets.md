@@ -13,6 +13,12 @@ Use built-in HEEx components from `.astral` pages, layouts, components, and comp
 <.image src="images/hero.jpg" alt="Hero" width={1200} format={:webp} quality={82} />
 ```
 
+Ordinary local Markdown images are optimized too:
+
+```md
+![Hero](./hero.jpg "Optional title")
+```
+
 `src` resolves from the configured image source directories. By default, Astral looks under `assets/`, the site root, and `public/`.
 
 Static builds write compressed, content-hashed files into the configured asset output directory:
@@ -35,7 +41,7 @@ Responsive pictures generate multiple variants and a fallback image:
 />
 ```
 
-The image pipeline is backed by the Elixir `Image` package and libvips. Output filenames include source content and transform options, so changing the source, dimensions, format, quality, or fit creates a new browser URL.
+The image pipeline is backed by the Elixir `Image` package and libvips. Output filenames include source content and transform options, so changing the source, dimensions, format, quality, or fit creates a new browser URL. Markdown image syntax uses the default image format and original dimensions unless you use `<.image>`/`<.picture>` for explicit transforms.
 
 Configure defaults with the `image` option:
 
