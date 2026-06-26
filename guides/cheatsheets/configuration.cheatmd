@@ -52,6 +52,19 @@ assets "assets" do
 end
 ```
 
+## Dynamic file routes
+
+```text
+pages/blog/[slug].astral   -> /blog/:slug
+pages/docs/[...path].md    -> /docs/*path
+```
+
+Read route params from templates and layouts with string keys:
+
+```eex
+<%= @params["slug"] %>
+```
+
 ## Content collections
 
 ```elixir

@@ -1,0 +1,4 @@
+<section class="dynamic-post" data-slug={@params["slug"]}>
+  <p class="eyebrow">Rendered by <code>pages/blog/[slug].astral</code></p>
+  {Phoenix.HTML.raw(@entry.content.html)}
+</section>

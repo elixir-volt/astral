@@ -38,6 +38,30 @@ Set `layout: false` to render a page without a layout.
 
 Plain `.html` files in `pages/` are supported for pages that do not need Markdown processing.
 
+## Dynamic file routes
+
+Use bracket segments for collection-backed dynamic pages:
+
+```text
+pages/blog/[slug].astral   -> /blog/:slug
+pages/docs/[...path].md    -> /docs/*path
+```
+
+Bracket filenames are portable file-route sugar. Astral converts them to Elixir/Phoenix-style route patterns internally.
+
+Dynamic page templates render once for each collection entry whose route matches the file route pattern. Route params are exposed as string-keyed `@params` assigns:
+
+```astral
+<h1>{@entry.data.title}</h1>
+<p>Slug: {@params["slug"]}</p>
+```
+
+```eex
+<p>Path: <%= @params["path"] %></p>
+```
+
+A dynamic file route overrides the default collection entry page for the same route, letting the page template own the final HTML.
+
 ## Layouts
 
 Layouts live in the configured layouts directory. EEx layouts use `@content` where the page HTML should be inserted:
@@ -62,6 +86,7 @@ Common assigns:
 - `@page` — current `%Astral.Content{}`.
 - `@metadata` — decoded frontmatter map.
 - `@route` — route path such as `/about/`.
+- `@params` — string-keyed route params for dynamic file routes.
 - `@site` — discovered `%Astral.Site{}`.
 - `@collections` — content entries grouped by collection name.
 - `@entry` — current collection entry, otherwise `nil`.

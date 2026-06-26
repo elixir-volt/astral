@@ -81,7 +81,7 @@ defmodule Astral.MixProject do
   end
 
   defp package_files do
-    ~w[
+    ~w|
       lib
       guides
       mix.exs
@@ -105,13 +105,14 @@ defmodule Astral.MixProject do
       examples/basic/layouts/post.html
       examples/basic/mix.exs
       examples/basic/pages/about.md
+      examples/basic/pages/blog/[slug].astral
       examples/basic/pages/components.astral
       examples/basic/pages/index.md
       examples/basic/pages/landing.md
       examples/basic/pages/raw.html
       examples/basic/public/robots.txt
       examples/basic/tsconfig.json
-    ]
+    |
   end
 
   defp docs do

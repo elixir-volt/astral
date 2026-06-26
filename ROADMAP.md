@@ -44,9 +44,9 @@ Astral's long-term goal is to become an Elixir-native static site and hybrid sit
 - XM extracted as a standalone XML DSL package used by feed/sitemap plugins.
 - User guides, cheatsheets, and a Volt-style README.
 
-## Near-term priority: dynamic file routes
+## Near-term priority: dynamic content routes
 
-The next major feature should be dynamic file routes. This is the biggest missing SSG primitive for blogs, docs, and userland route generation.
+Initial collection-backed dynamic file routes landed on `master` after v0.1.1. The next priority is rounding them into a complete dynamic content route story with diagnostics, examples, and non-collection enumeration if needed.
 
 Target file shapes:
 
@@ -65,7 +65,7 @@ Route equivalents:
 /tags/:tag/*page
 ```
 
-Dynamic file routes should integrate with collections without making tags/categories a core taxonomy abstraction. A common blog detail page should be expressible as a user-owned route template backed by collection data:
+Dynamic file routes integrate with collections without making tags/categories a core taxonomy abstraction. A common blog detail page is expressible as a user-owned route template backed by collection data:
 
 ```text
 content/posts/hello.md
@@ -86,12 +86,12 @@ The page template owns the HTML while Astral provides the matching entry and rou
 
 ### Likely work
 
-- Add parser-backed file-route conversion from `[slug]` / `[...path]` filenames to `Astral.Route.Pattern`.
-- Add route params to page/layout assigns.
-- Add collection matching for route params, initially by `slug`.
+- Parser-backed file-route conversion from `[slug]` / `[...path]` filenames to `Astral.Route.Pattern`. *(Initial support landed on `master` after v0.1.1.)*
+- Route params in page/layout assigns as string-keyed `@params`. *(Initial support landed on `master` after v0.1.1.)*
+- Collection matching for route params, initially by route pattern. *(Initial support landed on `master` after v0.1.1.)*
 - Decide how `get_static_paths`-style enumeration should look in Elixir, if needed for non-collection dynamic pages.
 - Add dev/build diagnostics for dynamic routes with missing params or unmatched entries.
-- Add guide coverage and example site pages.
+- Add richer example site pages.
 
 ## Next milestones
 
@@ -99,12 +99,13 @@ The page template owns the HTML while Astral provides the matching entry and rou
 
 Goal: make Astral a practical blog/docs framework with user-owned dynamic templates.
 
-- Dynamic file routes for `.md`, `.html`, and `.astral`.
-- Collection-backed detail routes such as `pages/blog/[slug].astral`.
-- Route params available in pages and layouts.
+- Dynamic file routes for `.md`, `.html`, and `.astral`. *(Initial collection-backed support landed on `master` after v0.1.1.)*
+- Collection-backed detail routes such as `pages/blog/[slug].astral`. *(Initial support landed on `master` after v0.1.1.)*
+- Route params available in pages and layouts. *(Initial support landed on `master` after v0.1.1.)*
 - Dynamic route diagnostics.
 - Userland tag pages documented with dynamic routes and pagination.
 - Frontmatter defaults.
+- Non-collection dynamic route enumeration, if a clear Elixir API emerges.
 - More complete content collection guide examples.
 
 ### v0.3 — Metadata and document head

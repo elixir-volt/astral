@@ -8,12 +8,12 @@ defmodule Astral.Discovery do
   @doc "Discover pages and layouts for a site."
   @spec discover(Astral.Config.t()) :: {:ok, Astral.Site.t()} | {:error, term()}
   def discover(%Astral.Config{} = config) do
-    with {:ok, pages} <- discover_pages(config),
-         {:ok, entries} <- discover_collections(config),
+    with {:ok, entries} <- discover_collections(config),
+         {:ok, pages} <- discover_pages(config, entries),
          {:ok, layouts} <- read_layouts(config) do
       site = %Astral.Site{
         config: config,
-        pages: pages ++ entry_pages(entries, config),
+        pages: pages ++ entry_pages(entries, config, pages),
         layouts: layouts,
         collections: config.collections,
         entries: entries
@@ -26,11 +26,11 @@ defmodule Astral.Discovery do
     end
   end
 
-  defp discover_pages(config) do
+  defp discover_pages(config, entries) do
     if File.dir?(config.pages) do
       config.pages
       |> page_paths()
-      |> build_pages(config)
+      |> build_pages(config, entries)
     else
       {:error, {:missing_pages_dir, config.pages}}
     end
@@ -44,32 +44,66 @@ defmodule Astral.Discovery do
     |> Enum.sort()
   end
 
-  defp build_pages(paths, config) do
+  defp build_pages(paths, config, entries) do
     Enum.reduce_while(paths, {:ok, []}, fn path, {:ok, pages} ->
-      case page(path, config) do
-        {:ok, page} -> {:cont, {:ok, [page | pages]}}
+      case pages(path, config, entries) do
+        {:ok, path_pages} -> {:cont, {:ok, [path_pages | pages]}}
         {:error, _} = error -> {:halt, error}
       end
     end)
     |> case do
-      {:ok, pages} -> {:ok, Enum.reverse(pages)}
+      {:ok, pages} -> {:ok, pages |> Enum.reverse() |> List.flatten()}
       {:error, _} = error -> error
     end
   end
 
-  defp page(path, config) do
+  defp pages(path, config, entries) do
     with {:ok, content} <- read_content(path) do
       relative = Path.relative_to(path, config.pages)
-      route_path = content.permalink || route_path(relative)
-      output_path = Path.join(config.outdir, Astral.Route.output_relative(route_path))
+      file_route = Astral.Route.File.parse(relative)
 
-      {:ok,
-       %Astral.Page{
-         source_path: path,
-         route_path: route_path,
-         output_path: output_path,
-         content: content
-       }}
+      if file_route.dynamic? do
+        {:ok, dynamic_pages(path, content, file_route, entries, config)}
+      else
+        {:ok, [static_page(path, content, file_route, config)]}
+      end
+    end
+  end
+
+  defp static_page(path, content, file_route, config) do
+    route_path = content.permalink || Astral.Route.File.static_path(file_route)
+
+    %Astral.Page{
+      source_path: path,
+      route_path: route_path,
+      output_path: Path.join(config.outdir, Astral.Route.output_relative(route_path)),
+      content: content
+    }
+  end
+
+  defp dynamic_pages(path, content, file_route, entries, config) do
+    entries
+    |> Map.values()
+    |> List.flatten()
+    |> Enum.flat_map(fn entry -> dynamic_page(path, content, file_route, entry, config) end)
+  end
+
+  defp dynamic_page(path, content, file_route, entry, config) do
+    case Astral.Route.File.match(file_route, entry.route_path) do
+      {:ok, params} ->
+        [
+          %Astral.Page{
+            source_path: path,
+            route_path: entry.route_path,
+            output_path: Path.join(config.outdir, Astral.Route.output_relative(entry.route_path)),
+            content: %{content | layout: content.layout || entry.content.layout},
+            entry: entry,
+            params: params
+          }
+        ]
+
+      :error ->
+        []
     end
   end
 
@@ -173,10 +207,13 @@ defmodule Astral.Discovery do
   defp entry_route_path(%{permalink: nil}, slug), do: "/" <> slug <> "/"
   defp entry_route_path(collection, slug), do: String.replace(collection.permalink, ":slug", slug)
 
-  defp entry_pages(entries, config) do
+  defp entry_pages(entries, config, pages) do
+    dynamic_routes = MapSet.new(pages, & &1.route_path)
+
     entries
     |> Map.values()
     |> List.flatten()
+    |> Enum.reject(&MapSet.member?(dynamic_routes, &1.route_path))
     |> Enum.map(&entry_page(&1, config))
   end
 
@@ -186,7 +223,8 @@ defmodule Astral.Discovery do
       route_path: entry.route_path,
       output_path: Path.join(config.outdir, Astral.Route.output_relative(entry.route_path)),
       content: entry.content,
-      entry: entry
+      entry: entry,
+      params: %{}
     }
   end
 
@@ -223,15 +261,5 @@ defmodule Astral.Discovery do
       {:error, reason} ->
         {:halt, {:error, {:layout_read_failed, path, reason}}}
     end
-  end
-
-  defp route_path("index.html"), do: "/"
-  defp route_path("index.md"), do: "/"
-  defp route_path("index.astral"), do: "/"
-
-  defp route_path(relative) do
-    relative
-    |> Path.rootname(Path.extname(relative))
-    |> then(&("/" <> &1 <> "/"))
   end
 end

@@ -36,6 +36,33 @@ Each Markdown file in `content/posts/` becomes a validated entry and a static pa
 
 Collection entry layouts receive `@entry` for the current entry.
 
+## Dynamic detail pages
+
+By default, collection entries render their own Markdown body through the configured layout. Add a matching dynamic file route when you want a page template to own the detail page HTML:
+
+```text
+content/posts/hello.md
+pages/blog/[slug].astral
+```
+
+The dynamic page route matches the collection permalink `/blog/:slug/` and receives `@entry` plus string-keyed route params:
+
+```astral
+<article>
+  <h1>{@entry.data.title}</h1>
+  <p>Slug: {@params["slug"]}</p>
+</article>
+```
+
+Nested collection slugs can use a glob route:
+
+```text
+content/docs/guide/intro.md
+pages/docs/[...path].md
+```
+
+Use `@params["path"]` to read the captured path.
+
 ## Zoi schemas
 
 Use Zoi when runtime coercion or refinements are useful:

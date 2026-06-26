@@ -290,6 +290,81 @@ defmodule Astral.BuilderTest do
     assert read("dist/index.html") == "<main><h1>Home</h1></main><!-- /plugin/:done -->"
   end
 
+  test "renders collection entries with dynamic Astral file routes" do
+    write("pages/blog/[slug].astral", ~S'''
+    <article data-slug={@params["slug"]}>
+      <h1>{@entry.data.title}</h1>
+      <div>{@entry.slug}</div>
+    </article>
+    ''')
+
+    write("content/posts/hello.md", """
+    ---
+    title: Hello Dynamic
+    ---
+
+    # Entry Body
+    """)
+
+    config =
+      Astral.Config.new(
+        root: tmp(),
+        layout: false,
+        collections: [
+          [
+            name: :posts,
+            dir: "content/posts",
+            permalink: "/blog/:slug/",
+            schema: schema(%{required(:title) => String.t()})
+          ]
+        ]
+      )
+
+    assert {:ok, result} = Astral.build(config)
+
+    assert [%Astral.Page{route_path: "/blog/hello/", params: %{"slug" => "hello"}}] =
+             result.site.pages
+
+    assert read("dist/blog/hello/index.html") =~ ~s(<article data-slug="hello">)
+    assert read("dist/blog/hello/index.html") =~ "<h1>Hello Dynamic</h1>"
+    refute read("dist/blog/hello/index.html") =~ "Entry Body"
+  end
+
+  test "renders glob dynamic Markdown routes with params in layouts" do
+    write("pages/docs/[...path].md", "# Dynamic Doc")
+    write("layouts/doc.html", ~S(<%= @params["path"] %>:<%= @entry.data.title %>:<%= @content %>))
+
+    write("content/docs/guide/intro.md", """
+    ---
+    title: Intro Guide
+    ---
+
+    # Entry Body
+    """)
+
+    config =
+      Astral.Config.new(
+        root: tmp(),
+        layout: "doc.html",
+        collections: [
+          [
+            name: :docs,
+            dir: "content/docs",
+            permalink: "/docs/:slug/",
+            schema: schema(%{required(:title) => String.t()})
+          ]
+        ]
+      )
+
+    assert {:ok, result} = Astral.build(config)
+
+    assert [%Astral.Page{route_path: "/docs/guide/intro/", params: %{"path" => "guide/intro"}}] =
+             result.site.pages
+
+    assert read("dist/docs/guide/intro/index.html") ==
+             "guide/intro:Intro Guide:#{heading("Dynamic Doc", "dynamic-doc")}"
+  end
+
   test "discovers and renders JSONSpec-backed collection entries" do
     write("pages/index.html", "")
 

@@ -64,6 +64,7 @@ defmodule Astral.Layout do
       page: page.content,
       metadata: page.content.metadata,
       route: page.route_path,
+      params: page.params,
       site: site,
       collections: site.entries,
       entry: page.entry,

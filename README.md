@@ -19,6 +19,7 @@ Most static site generators put your content model, routing, and build configura
 You get the pieces expected from a modern static site framework:
 
 - File-based static pages from Markdown, HTML, and `.astral` templates.
+- Dynamic file routes such as `pages/blog/[slug].astral` and `pages/docs/[...path].md`.
 - HEEx-first `.astral` pages, layouts, and local components.
 - Schema-backed content collections with JSONSpec-style typespec maps or Zoi.
 - Static pagination and generated routes for blogs, docs, and indexes.
@@ -115,7 +116,14 @@ Use validated data from layouts and templates:
 <% end %>
 ```
 
-See the [Content Collections guide](https://hexdocs.pm/astral/content-collections.html).
+Collection-backed dynamic file routes let page templates own the detail page HTML:
+
+```text
+content/posts/hello.md
+pages/blog/[slug].astral
+```
+
+See the [Content Collections guide](https://hexdocs.pm/astral/content-collections.html) and [Pages and Layouts guide](https://hexdocs.pm/astral/pages-and-layouts.html).
 
 ## Pagination, feeds, and sitemaps
 
