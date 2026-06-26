@@ -123,6 +123,14 @@ end
 
 Image fields resolve relative to their entry file and can be passed directly to `<.image>` or `<.picture>`.
 
+Allow trusted remote image optimization with URL-shaped policies:
+
+```elixir
+image do
+  allow_remote "https://images.example.com/**"
+end
+```
+
 Use validated data from layouts and templates:
 
 ```eex

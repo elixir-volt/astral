@@ -15,6 +15,7 @@ defmodule Astral.Image.Config do
           widths: [pos_integer()],
           formats: [atom()],
           source_dirs: [String.t()],
+          remote_patterns: [Astral.Image.Remote.Pattern.t()],
           concurrency: pos_integer()
         }
 
@@ -25,6 +26,7 @@ defmodule Astral.Image.Config do
             widths: [480, 768, 1024, 1440],
             formats: [:webp],
             source_dirs: [],
+            remote_patterns: [],
             concurrency: System.schedulers_online()
 
   @doc "Build normalized image configuration from site options."
@@ -56,6 +58,7 @@ defmodule Astral.Image.Config do
         |> Keyword.get(:formats, [:webp])
         |> Enum.map(&Astral.Image.Format.output!/1),
       source_dirs: source_dirs,
+      remote_patterns: opts |> Keyword.get_values(:allow_remote) |> normalize_remote_patterns(),
       concurrency: max(Keyword.get(opts, :concurrency, System.schedulers_online()), 1)
     }
   end
@@ -64,6 +67,20 @@ defmodule Astral.Image.Config do
 
   defp default_source_dirs(config, _root) do
     [config.assets, config.root, config.public]
+  end
+
+  defp normalize_remote_patterns(patterns) do
+    patterns
+    |> List.flatten()
+    |> Enum.map(fn pattern ->
+      case Astral.Image.Remote.Pattern.parse(pattern) do
+        {:ok, pattern} ->
+          pattern
+
+        {:error, reason} ->
+          raise ArgumentError, "invalid remote image pattern: #{inspect(reason)}"
+      end
+    end)
   end
 
   defp normalize_widths(widths) do

@@ -147,6 +147,7 @@ defmodule Astral.Config do
   defp expression_to_opts({:public, _meta, [path]}), do: [public: path]
   defp expression_to_opts({:outdir, _meta, [path]}), do: [outdir: path]
   defp expression_to_opts({:layout, _meta, [path]}), do: [layout: path]
+  defp expression_to_opts({:image, _meta, [[do: block]]}), do: [image: image_block_to_opts(block)]
   defp expression_to_opts({:image, _meta, [image]}), do: [image: image]
   defp expression_to_opts({:plugins, _meta, [plugins]}), do: [plugins: plugins]
   defp expression_to_opts({:asset_entry, _meta, [path]}), do: [asset_entry: path]
@@ -183,6 +184,16 @@ defmodule Astral.Config do
   end
 
   defp asset_block_to_opts(expression), do: asset_expression_to_opts(expression)
+
+  defp image_block_to_opts({:__block__, _meta, expressions}) do
+    Enum.flat_map(expressions, &image_expression_to_opts/1)
+  end
+
+  defp image_block_to_opts(expression), do: image_expression_to_opts(expression)
+
+  defp image_expression_to_opts({:allow_remote, _meta, [pattern]}) do
+    [allow_remote: [pattern]]
+  end
 
   defp asset_expression_to_opts({:entry, _meta, [path]}), do: [asset_entry: path]
   defp asset_expression_to_opts({:outdir, _meta, [path]}), do: [asset_outdir: path]

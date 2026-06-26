@@ -155,6 +155,16 @@ defmodule Astral.Image do
   defp resolve_source(_config, %Astral.Image.Source{path: path}), do: {:ok, path}
 
   defp resolve_source(config, source) when is_binary(source) do
+    if Astral.Image.Remote.remote?(source) do
+      with {:ok, cached} <- Astral.Image.Remote.resolve(source, config.image) do
+        {:ok, cached.path}
+      end
+    else
+      resolve_local_source(config, source)
+    end
+  end
+
+  defp resolve_local_source(config, source) do
     if Path.type(source) == :absolute and File.regular?(source) do
       {:ok, source}
     else

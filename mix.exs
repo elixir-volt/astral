@@ -45,6 +45,7 @@ defmodule Astral.MixProject do
       {:xm, "~> 0.2"},
       {:ecto, "~> 3.13"},
       {:image, "~> 0.68"},
+      {:req, "~> 0.6"},
       {:phoenix_live_view, "~> 1.2"},
       {:bandit, "~> 1.12"},
       {:floki, "~> 0.38"},

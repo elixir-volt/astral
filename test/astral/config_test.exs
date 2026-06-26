@@ -55,6 +55,23 @@ defmodule Astral.ConfigTest do
     assert collection.schema["type"] == "object"
   end
 
+  test "site DSL supports remote image allowlist" do
+    config =
+      site do
+        root("/tmp/astral")
+
+        image do
+          allow_remote("https://images.example.com/**")
+          allow_remote("https://**.amazonaws.com/bucket/**")
+        end
+      end
+
+    assert Enum.map(config.image.remote_patterns, & &1.hostname) == [
+             "images.example.com",
+             "**.amazonaws.com"
+           ]
+  end
+
   test "site DSL supports Ecto-style collection schema fields" do
     config =
       site do

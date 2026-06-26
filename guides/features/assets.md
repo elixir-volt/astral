@@ -58,6 +58,34 @@ Files in `public/` are still copied as-is. Use `<.image>` or `<.picture>` when y
 
 During development, Astral emits `/_astral/image/...` URLs and generates optimized images on demand into the image cache. Responses use no-cache headers like Volt's dev asset server, so browser refreshes reflect source changes.
 
+## Remote images
+
+Astral does not optimize arbitrary remote URLs by default. Allow trusted remote image sources explicitly:
+
+```elixir
+site do
+  image do
+    allow_remote "https://images.example.com/**"
+    allow_remote "https://**.amazonaws.com/bucket/**"
+  end
+end
+```
+
+Allowed remote images flow through the same `<.image>` and `<.picture>` components:
+
+```astral
+<.image src="https://images.example.com/hero.jpg" alt="Hero" width={800} />
+```
+
+Remote pattern wildcards follow Astro's model:
+
+- `*.example.com` matches one subdomain level.
+- `**.example.com` matches any subdomain depth.
+- `/assets/*` matches one nested path segment.
+- `/assets/**` matches any nested path below `/assets/`.
+
+Remote redirects are followed only when every destination also matches an `allow_remote` pattern. Astral caches the downloaded original in the image cache and reuses response validators such as `ETag` and `Last-Modified` when available.
+
 ## Volt browser assets
 
 Astral delegates browser assets to Volt.
