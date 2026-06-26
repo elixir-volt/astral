@@ -9,7 +9,20 @@ defmodule Astral.Layout do
   def render(content, nil, _page, _site), do: {:ok, content}
 
   def render(content, layout, page, site) do
-    {:ok, EEx.eval_string(layout, assigns: assigns(content, page, site))}
+    eval_layout(layout, assigns(content, page, site), page.source_path)
+  end
+
+  @doc "Render generated route HTML through an optional EEx layout."
+  @spec render_route(String.t(), String.t() | nil, Astral.Route.t(), Astral.Site.t()) ::
+          {:ok, String.t()} | {:error, term()}
+  def render_route(content, nil, _route, _site), do: {:ok, content}
+
+  def render_route(content, layout, route, site) do
+    eval_layout(layout, route_assigns(content, route, site), route.path)
+  end
+
+  defp eval_layout(layout, assigns, source) do
+    {:ok, EEx.eval_string(layout, assigns: assigns)}
   rescue
     error in [
       EEx.SyntaxError,
@@ -20,7 +33,7 @@ defmodule Astral.Layout do
       KeyError,
       UndefinedFunctionError
     ] ->
-      {:error, {:layout_render_failed, page.source_path, error}}
+      {:error, {:layout_render_failed, source, error}}
   end
 
   defp assigns(content, page, site) do
@@ -34,5 +47,18 @@ defmodule Astral.Layout do
       entry: page.entry,
       routes: site.routes
     ]
+  end
+
+  defp route_assigns(content, route, site) do
+    %{
+      content: content,
+      route: route.path,
+      generated_route: route,
+      site: site,
+      collections: site.entries,
+      routes: site.routes
+    }
+    |> Map.merge(route.assigns)
+    |> Map.to_list()
   end
 end
