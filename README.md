@@ -26,7 +26,7 @@ You get the pieces expected from a modern static site framework:
 - Static pagination and generated routes for blogs, docs, and indexes.
 - Built-in feed and sitemap plugins.
 - Stable Markdown heading anchors for table-of-contents layouts.
-- Optimized build-time images with `<.image>` and `<.picture>` components.
+- Optimized build-time images with `<.image>`, `<.picture>`, and `<.figure>` components.
 - Public files copied as-is.
 - TypeScript, CSS, imported assets, dev serving, and HMR through Volt.
 - Plug/Bandit dev server with full reloads for pages, layouts, components, and public files.
@@ -121,7 +121,7 @@ collections do
 end
 ```
 
-Image fields resolve relative to their entry file and can be passed directly to `<.image>` or `<.picture>`.
+Image fields resolve relative to their entry file, expose dimensions and format, and can be passed directly to `<.image>`, `<.picture>`, or `<.figure>`.
 
 Allow trusted remote image optimization with URL-shaped policies:
 
@@ -184,6 +184,8 @@ Render optimized images from `.astral` pages or component-aware Markdown:
   widths={[480, 768, 1200]}
   formats={[:webp, :avif]}
 />
+
+<.figure src="images/hero.jpg" alt="Hero" caption="Product hero" width={1200} />
 ```
 
 Astral writes compressed, content-hashed variants to `dist/assets/` during static builds. Local Markdown image syntax is optimized too:

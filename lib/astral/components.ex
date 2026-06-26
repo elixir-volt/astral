@@ -90,6 +90,57 @@ defmodule Astral.Components do
     """
   end
 
+  attr(:src, :any, required: true)
+  attr(:alt, :string, required: true)
+  attr(:caption, :any, default: nil)
+  attr(:width, :any, default: nil)
+  attr(:height, :any, default: nil)
+  attr(:format, :any, default: nil)
+  attr(:quality, :integer, default: nil)
+  attr(:fit, :atom, default: :contain)
+  attr(:loading, :string, default: "lazy")
+  attr(:decoding, :string, default: "async")
+  attr(:image_attrs, :map, default: %{})
+  attr(:rest, :global)
+
+  slot(:inner_block)
+
+  @doc "Render an optimized image wrapped in a semantic figure."
+  def figure(assigns) do
+    result =
+      assigns
+      |> image_options()
+      |> Astral.Image.get_image()
+
+    assigns =
+      assigns
+      |> assign(:image, result)
+      |> assign(:width, result.width)
+      |> assign(:height, result.height)
+      |> assign(:caption?, caption?(assigns))
+
+    ~H"""
+    <figure {@rest}>
+      <img
+        src={@image.url}
+        width={@width}
+        height={@height}
+        alt={@alt}
+        loading={@loading}
+        decoding={@decoding}
+        {Map.to_list(@image_attrs)}
+      />
+      <figcaption :if={@caption?}>
+        <%= if @caption do %>
+          {@caption}
+        <% else %>
+          {render_slot(@inner_block)}
+        <% end %>
+      </figcaption>
+    </figure>
+    """
+  end
+
   defp image_options(assigns) do
     %{}
     |> put_present(:src, assigns.src)
@@ -99,6 +150,8 @@ defmodule Astral.Components do
     |> put_present(:quality, assigns.quality)
     |> put_present(:fit, assigns.fit)
   end
+
+  defp caption?(assigns), do: not is_nil(assigns.caption) or assigns.inner_block != []
 
   defp put_present(map, _key, nil), do: map
   defp put_present(map, _key, []), do: map

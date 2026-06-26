@@ -49,6 +49,23 @@ defmodule Astral.Image do
     registered
   end
 
+  @doc "Return source metadata for an image in the current render context."
+  @spec metadata(String.t() | Astral.Image.Source.t()) :: Metadata.t()
+  def metadata(source) do
+    site =
+      Registry.site() || raise "Astral.Image.metadata/1 must be called during Astral rendering"
+
+    metadata(site, source)
+  end
+
+  @doc "Return source metadata for an image in a site."
+  @spec metadata(Astral.Site.t(), String.t() | Astral.Image.Source.t()) :: Metadata.t()
+  def metadata(%Astral.Site{} = site, source) do
+    {:ok, path} = resolve_source(site.config, source)
+    {:ok, metadata} = Metadata.read(path)
+    metadata
+  end
+
   @doc "Return fallback and source-set results for a responsive picture."
   @spec get_picture(keyword() | map()) :: %{
           required(:fallback) => Transform.t(),

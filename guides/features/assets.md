@@ -41,7 +41,26 @@ Responsive pictures generate multiple variants and a fallback image:
 />
 ```
 
-The image pipeline is backed by the Elixir `Image` package and libvips. Output filenames include source content and transform options, so changing the source, dimensions, format, quality, or fit creates a new browser URL. Markdown image syntax uses the default image format and original dimensions unless you use `<.image>`/`<.picture>` for explicit transforms.
+The image pipeline is backed by the Elixir `Image` package and libvips. Output filenames include source content and transform options, so changing the source, dimensions, format, quality, or fit creates a new browser URL. Markdown image syntax uses the default image format and original dimensions unless you use `<.image>`, `<.picture>`, or `<.figure>` for explicit transforms.
+
+Use `<.figure>` for semantic captions:
+
+```astral
+<.figure
+  src={@entry.data.cover}
+  alt={@entry.data.title}
+  caption={@entry.data.description}
+  width={800}
+/>
+```
+
+Or pass rich caption content through the default slot:
+
+```astral
+<.figure src="images/chart.png" alt="Revenue by month" width={800}>
+  <strong>Figure 1.</strong> Monthly revenue.
+</.figure>
+```
 
 Configure defaults with the `image` option:
 
@@ -54,7 +73,22 @@ site do
 end
 ```
 
-Files in `public/` are still copied as-is. Use `<.image>` or `<.picture>` when you want Astral to optimize and hash an image.
+Files in `public/` are still copied as-is. Use `<.image>`, `<.picture>`, or `<.figure>` when you want Astral to optimize and hash an image.
+
+Resolved collection image fields expose dimensions and format:
+
+```astral
+<p>{@entry.data.cover.width} × {@entry.data.cover.height} {@entry.data.cover.format}</p>
+```
+
+Use `Astral.Image.metadata/1` when you need metadata for an image path during rendering:
+
+```astral
+---
+assigns = assign(assigns, :hero, Astral.Image.metadata("images/hero.jpg"))
+---
+<p>{@hero.width} × {@hero.height} {@hero.format}</p>
+```
 
 During development, Astral emits `/_astral/image/...` URLs and generates optimized images on demand into the image cache. Responses use no-cache headers like Volt's dev asset server, so browser refreshes reflect source changes.
 
@@ -71,7 +105,7 @@ site do
 end
 ```
 
-Allowed remote images flow through the same `<.image>` and `<.picture>` components:
+Allowed remote images flow through the same `<.image>`, `<.picture>`, and `<.figure>` components:
 
 ```astral
 <.image src="https://images.example.com/hero.jpg" alt="Hero" width={800} />

@@ -160,6 +160,41 @@ defmodule Astral.BuilderTest do
     assert File.stat!(image).size > 0
   end
 
+  test "builds semantic figures from Astral pages" do
+    write("assets/images/figure.svg", svg_image(160, 80, "orange"))
+
+    write("pages/index.astral", ~S'''
+    <.figure src="images/figure.svg" alt="Figure" width={80} caption="A useful figure" class="media" image_attrs={%{class: "media-image"}} />
+    ''')
+
+    assert {:ok, _result} = Astral.build(root: tmp(), layout: false)
+
+    html = read("dist/index.html")
+    assert html =~ ~s(<figure class="media">)
+    assert html =~ ~s(class="media-image")
+    assert html =~ ~s(alt="Figure")
+    assert html =~ ~s(width="80")
+    assert html =~ ~s(height="40")
+    assert html =~ ~s(<figcaption>)
+    assert html =~ "A useful figure"
+    assert html =~ ~r/src="\/assets\/figure-80x40-[^"]+\.webp"/
+  end
+
+  test "exposes image metadata helpers in Astral pages" do
+    write("assets/images/meta.svg", svg_image(90, 45, "black"))
+
+    write("pages/index.astral", ~S'''
+    ---
+    assigns = assign(assigns, :meta, Astral.Image.metadata("images/meta.svg"))
+    ---
+    <p>{@meta.width} × {@meta.height} {@meta.format}</p>
+    ''')
+
+    assert {:ok, _result} = Astral.build(root: tmp(), layout: false)
+
+    assert read("dist/index.html") =~ "90 × 45 svg"
+  end
+
   test "infers remote image dimensions during static builds" do
     port = unused_port()
     {:ok, server} = Bandit.start_link(plug: RemoteImageServer, port: port)
