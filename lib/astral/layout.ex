@@ -4,18 +4,40 @@ defmodule Astral.Layout do
   """
 
   @doc "Render page HTML through an optional EEx layout."
-  @spec render(String.t(), String.t() | nil, Astral.Page.t(), Astral.Site.t()) ::
+  @spec render(
+          String.t(),
+          String.t() | Astral.Template.Source.t() | nil,
+          Astral.Page.t(),
+          Astral.Site.t()
+        ) ::
           {:ok, String.t()} | {:error, term()}
   def render(content, nil, _page, _site), do: {:ok, content}
+
+  def render(content, %Astral.Template.Source{} = layout, page, site) do
+    Astral.Template.render(layout, template_assigns(assigns(content, page, site)), site.config)
+  end
 
   def render(content, layout, page, site) do
     eval_layout(layout, assigns(content, page, site), page.source_path)
   end
 
   @doc "Render generated route HTML through an optional EEx layout."
-  @spec render_route(String.t(), String.t() | nil, Astral.Route.t(), Astral.Site.t()) ::
+  @spec render_route(
+          String.t(),
+          String.t() | Astral.Template.Source.t() | nil,
+          Astral.Route.t(),
+          Astral.Site.t()
+        ) ::
           {:ok, String.t()} | {:error, term()}
   def render_route(content, nil, _route, _site), do: {:ok, content}
+
+  def render_route(content, %Astral.Template.Source{} = layout, route, site) do
+    Astral.Template.render(
+      layout,
+      template_assigns(route_assigns(content, route, site)),
+      site.config
+    )
+  end
 
   def render_route(content, layout, route, site) do
     eval_layout(layout, route_assigns(content, route, site), route.path)
@@ -47,6 +69,10 @@ defmodule Astral.Layout do
       entry: page.entry,
       routes: site.routes
     ]
+  end
+
+  defp template_assigns(assigns) do
+    Keyword.update!(assigns, :content, &Phoenix.HTML.raw/1)
   end
 
   defp route_assigns(content, route, site) do

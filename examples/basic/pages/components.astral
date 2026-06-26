@@ -1,0 +1,20 @@
+---
+assigns = assign(assigns, :features, ["HEEx expressions", "local components", "Phoenix slots"])
+---
+
+<section class="post">
+  <p class="eyebrow">HEEx-first .astral page</p>
+  <h1>Components without module boilerplate</h1>
+
+  <p>
+    Astral templates use Phoenix HEEx semantics while still building a static site.
+  </p>
+
+  <p>
+    <.pill :for={feature <- @features}>{feature}</.pill>
+  </p>
+
+  <p>
+    <a class="button" href="/">Back home</a>
+  </p>
+</section>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{@page.title || "Astral Basic"}</title>
+    <script type="module" src={Astral.asset_path(@site, "app.ts")}></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/">Astral Basic</a>
+      <nav aria-label="Main navigation">
+        <a href="/about/">About</a>
+        <a href="/blog/hello-astral/">Blog</a>
+        <a href="/components/">Components</a>
+        <a href="/landing/">Landing</a>
+      </nav>
+    </header>
+
+    <main class="page" data-route={@route}>
+      {@content}
+
+      <section :if={@route == "/"} class="post-list" aria-labelledby="posts-heading">
+        <h2 id="posts-heading">Posts collection</h2>
+        <article :for={post <- Map.get(@collections, :posts, [])}>
+          <h3><a href={post.route_path}>{post.data.title}</a></h3>
+          <p>{post.data.description}</p>
+          <small><.formatted_date date={post.data.date} /></small>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      Built with Astral and Volt.
+    </footer>
+  </body>
+</html>

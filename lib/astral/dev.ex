@@ -14,7 +14,12 @@ defmodule Astral.Dev do
       {Volt.Watcher,
        root: config.assets,
        reload_dirs:
-         existing_dirs([config.pages, config.layouts, config.public | collection_dirs(config)]),
+         existing_dirs([
+           config.pages,
+           config.layouts,
+           config.components,
+           config.public | collection_dirs(config)
+         ]),
        name: Keyword.get(opts, :watcher_name, Astral.Dev.Watcher)},
       {Bandit,
        plug: {Astral.DevServer, dev_config},

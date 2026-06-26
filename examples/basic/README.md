@@ -4,7 +4,8 @@ This is a minimal Astral site that exercises the current core features:
 
 - Markdown pages with MDEx frontmatter
 - plain HTML pages
-- default and per-page EEx layouts
+- HEEx-first `.astral` pages, layouts, and local components
+- default `.astral` and per-page EEx layouts
 - public static files
 - Volt-managed TypeScript and CSS
 - schema-validated posts in `content/posts`
@@ -22,7 +23,7 @@ mix astral.dev
 
 Open <http://localhost:4000>.
 
-Try editing files in `pages/`, `content/posts/`, `layouts/`, `public/`, or `assets/` while the server is running.
+Try editing files in `pages/`, `components/`, `content/posts/`, `layouts/`, `public/`, or `assets/` while the server is running.
 
 The layout uses `Astral.asset_path(@site, "app.ts")`; it returns `/assets/app.ts` in dev and `/assets/app.js` for this example's static build. The example sets `hash false` in `astral.config.exs` so static builds emit `dist/assets/app.js`.
 
@@ -52,6 +53,7 @@ The output is written to `dist/`.
 - `/`
 - `/about/`
 - `/blog/hello-astral/` from `content/posts/hello-astral.md`
+- `/components/`
 - `/landing/`
 - `/raw/`
 - `/robots.txt`

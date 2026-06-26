@@ -75,6 +75,55 @@ public/
   robots.txt
 ```
 
+## `.astral` HEEx templates
+
+Astral can render `.astral` pages, layouts, and local components. The format is HEEx-first: interpolation, attributes, `:if`/`:for`, function components, and slots use Phoenix's HEEx semantics, but the output is static HTML for SSG.
+
+```text
+components/
+  pill.astral
+pages/
+  index.astral
+layouts/
+  default.astral
+```
+
+```astral
+<!-- components/pill.astral -->
+<div class="pill">
+  {render_slot(@inner_block)}
+</div>
+```
+
+```astral
+<!-- pages/index.astral -->
+---
+assigns = assign(assigns, :title, "Home")
+---
+
+<h1>{@title}</h1>
+<.pill>Elixir</.pill>
+```
+
+```astral
+<!-- layouts/default.astral -->
+<!doctype html>
+<html lang="en">
+  <body>
+    <main data-route={@route}>{@content}</main>
+  </body>
+</html>
+```
+
+Configure the component directory if you do not use the default `components/`:
+
+```elixir
+site do
+  components "ui"
+  layout "default.astral"
+end
+```
+
 ## Configuration
 
 Astral config is real Elixir and returns an `%Astral.Config{}` struct. No global app env is required for site settings.
@@ -502,7 +551,7 @@ mix astral.build
 mix check
 ```
 
-It demonstrates Markdown, HTML pages, layouts, public files, Volt TypeScript/CSS assets, and Volt JS/TS formatting/linting.
+It demonstrates Markdown, HTML pages, HEEx-first `.astral` pages/layouts/components, public files, Volt TypeScript/CSS assets, and Volt JS/TS formatting/linting.
 
 ## Programmatic API
 

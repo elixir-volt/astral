@@ -10,6 +10,7 @@ defmodule Astral.Config do
           root: String.t(),
           pages: String.t(),
           layouts: String.t(),
+          components: String.t(),
           public: String.t(),
           assets: String.t(),
           outdir: String.t(),
@@ -25,6 +26,7 @@ defmodule Astral.Config do
   defstruct root: nil,
             pages: nil,
             layouts: nil,
+            components: nil,
             public: nil,
             assets: nil,
             outdir: nil,
@@ -58,6 +60,7 @@ defmodule Astral.Config do
       root: root,
       pages: path(opts, :pages, root, "pages"),
       layouts: path(opts, :layouts, root, "layouts"),
+      components: path(opts, :components, root, "components"),
       public: path(opts, :public, root, "public"),
       assets: assets,
       outdir: outdir,
@@ -139,6 +142,7 @@ defmodule Astral.Config do
   defp expression_to_opts({:asset_url_prefix, _meta, [prefix]}), do: [asset_url_prefix: prefix]
 
   defp expression_to_opts({:layouts, _meta, [path]}), do: [layouts: path]
+  defp expression_to_opts({:components, _meta, [path]}), do: [components: path]
 
   defp expression_to_opts({:layouts, _meta, [path, [do: block]]}) do
     [layouts: path] ++ layout_block_to_opts(block)

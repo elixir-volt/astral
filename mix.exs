@@ -43,6 +43,7 @@ defmodule Astral.MixProject do
       {:jsv, "~> 0.8"},
       {:zoi, "~> 0.18"},
       {:xm, "~> 0.2"},
+      {:phoenix_live_view, "~> 1.2"},
       {:bandit, "~> 1.12"},
       {:floki, "~> 0.38"},
       {:plug, "~> 1.20"},
@@ -95,12 +96,16 @@ defmodule Astral.MixProject do
       examples/basic/assets/styles.css
       examples/basic/astral.config.exs
       examples/basic/config/config.exs
+      examples/basic/components/formatted_date.astral
+      examples/basic/components/pill.astral
       examples/basic/content/posts/hello-astral.md
+      examples/basic/layouts/astral.astral
       examples/basic/layouts/default.html
       examples/basic/layouts/marketing.html
       examples/basic/layouts/post.html
       examples/basic/mix.exs
       examples/basic/pages/about.md
+      examples/basic/pages/components.astral
       examples/basic/pages/index.md
       examples/basic/pages/landing.md
       examples/basic/pages/raw.html

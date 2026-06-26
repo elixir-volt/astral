@@ -1,0 +1,3 @@
+<time datetime={@date}>
+  {@date}
+</time>

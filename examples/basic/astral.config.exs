@@ -12,8 +12,10 @@ site do
     {Astral.Plugin.Sitemap, site_url: "https://example.com"}
   ]
 
+  components "components"
+
   layouts "layouts" do
-    default "default.html"
+    default "astral.astral"
   end
 
   assets "assets" do

@@ -1,0 +1,3 @@
+<span class="pill">
+  {render_slot(@inner_block)}
+</span>

@@ -3,7 +3,7 @@ defmodule Astral.Discovery do
   Discovers pages and layouts in an Astral project.
   """
 
-  @page_extensions ~w(.html .md)
+  @page_extensions ~w(.html .md .astral)
 
   @doc "Discover pages and layouts for a site."
   @spec discover(Astral.Config.t()) :: {:ok, Astral.Site.t()} | {:error, term()}
@@ -77,6 +77,7 @@ defmodule Astral.Discovery do
     case Path.extname(path) do
       ".md" -> read_markdown(path)
       ".html" -> read_html(path)
+      ".astral" -> read_astral(path)
     end
   end
 
@@ -87,6 +88,12 @@ defmodule Astral.Discovery do
   end
 
   defp read_html(path) do
+    with {:ok, source} <- File.read(path) do
+      {:ok, %Astral.Content{html: source}}
+    end
+  end
+
+  defp read_astral(path) do
     with {:ok, source} <- File.read(path) do
       {:ok, %Astral.Content{html: source}}
     end
@@ -186,8 +193,7 @@ defmodule Astral.Discovery do
   defp read_layouts(config) do
     if File.dir?(config.layouts) do
       config.layouts
-      |> Path.join("**/*.html")
-      |> Path.wildcard()
+      |> layout_paths()
       |> Enum.sort()
       |> Enum.reduce_while({:ok, %{}}, &read_layout_file(&1, &2, config))
     else
@@ -195,10 +201,24 @@ defmodule Astral.Discovery do
     end
   end
 
+  defp layout_paths(layouts_dir) do
+    layouts_dir
+    |> Path.join("**/*")
+    |> Path.wildcard()
+    |> Enum.filter(&(Path.extname(&1) in [".html", ".astral"]))
+  end
+
   defp read_layout_file(path, {:ok, layouts}, config) do
     case File.read(path) do
       {:ok, source} ->
-        {:cont, {:ok, Map.put(layouts, Path.relative_to(path, config.layouts), source)}}
+        layout =
+          if Astral.Template.template?(path) do
+            %Astral.Template.Source{path: path, source: source}
+          else
+            source
+          end
+
+        {:cont, {:ok, Map.put(layouts, Path.relative_to(path, config.layouts), layout)}}
 
       {:error, reason} ->
         {:halt, {:error, {:layout_read_failed, path, reason}}}
@@ -207,6 +227,7 @@ defmodule Astral.Discovery do
 
   defp route_path("index.html"), do: "/"
   defp route_path("index.md"), do: "/"
+  defp route_path("index.astral"), do: "/"
 
   defp route_path(relative) do
     relative

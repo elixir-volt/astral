@@ -66,6 +66,15 @@ h1 {
   color: #b7c3d8;
 }
 
+.pill {
+  display: inline-flex;
+  margin: 0.25rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid #8bd3ff;
+  border-radius: 999px;
+  color: #8bd3ff;
+}
+
 .button {
   display: inline-block;
   padding: 0.75rem 1rem;

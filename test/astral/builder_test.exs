@@ -92,6 +92,36 @@ defmodule Astral.BuilderTest do
     assert read("dist/about/index.html") == "<main>#{heading("About", "about")}</main>"
   end
 
+  test "builds HEEx-first Astral pages with local components" do
+    write("components/pill.astral", ~S'''
+    <div class="pill">
+      {render_slot(@inner_block)}
+    </div>
+    ''')
+
+    write("pages/index.astral", ~S'''
+    ---
+    assigns = assign(assigns, :title, "Home")
+    ---
+    <h1>{@title}</h1>
+    <.pill>Elixir</.pill>
+    ''')
+
+    write("layouts/default.astral", ~S'''
+    <main data-route={@route}>
+      {@content}
+    </main>
+    ''')
+
+    assert {:ok, result} = Astral.build(root: tmp(), layout: "default.astral")
+
+    assert Enum.map(result.site.pages, & &1.route_path) == ["/"]
+    assert read("dist/index.html") =~ ~s(<main data-route="/">)
+    assert read("dist/index.html") =~ "<h1>Home</h1>"
+    assert read("dist/index.html") =~ ~s(<div class="pill">)
+    assert read("dist/index.html") =~ "Elixir"
+  end
+
   test "uses MDEx frontmatter metadata for Markdown pages" do
     write("pages/about.md", """
     ---
