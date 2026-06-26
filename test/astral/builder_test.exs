@@ -365,6 +365,46 @@ defmodule Astral.BuilderTest do
              "guide/intro:Intro Guide:#{heading("Dynamic Doc", "dynamic-doc")}"
   end
 
+  test "returns an error when a dynamic file route matches no collection entries" do
+    write("pages/blog/[slug].astral", "<h1>{@params[\"slug\"]}</h1>")
+
+    write("content/posts/hello.md", """
+    ---
+    title: Hello
+    ---
+
+    # Hello
+    """)
+
+    config =
+      Astral.Config.new(
+        root: tmp(),
+        collections: [
+          [
+            name: :posts,
+            dir: "content/posts",
+            permalink: "/posts/:slug/",
+            schema: schema(%{required(:title) => String.t()})
+          ]
+        ]
+      )
+
+    assert {:error, {:unmatched_dynamic_route, path, "/blog/:slug"}} = Astral.build(config)
+    assert path == Path.join(tmp(), "pages/blog/[slug].astral")
+  end
+
+  test "returns an error for duplicate page routes" do
+    write("pages/about.md", "# About")
+    write("pages/about.html", "<h1>About</h1>")
+
+    assert {:error, {:duplicate_page_route, "/about/", sources}} = Astral.build(root: tmp())
+
+    assert sources == [
+             Path.join(tmp(), "pages/about.html"),
+             Path.join(tmp(), "pages/about.md")
+           ]
+  end
+
   test "discovers and renders JSONSpec-backed collection entries" do
     write("pages/index.html", "")
 

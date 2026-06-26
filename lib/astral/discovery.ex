@@ -20,9 +20,12 @@ defmodule Astral.Discovery do
       }
 
       site = Astral.PluginRunner.site_discovered(config.plugins, site)
-      routes = Astral.PluginRunner.routes(config.plugins, site)
 
-      {:ok, %{site | routes: routes}}
+      with :ok <- validate_unique_page_routes(site.pages) do
+        routes = Astral.PluginRunner.routes(config.plugins, site)
+
+        {:ok, %{site | routes: routes}}
+      end
     end
   end
 
@@ -63,7 +66,7 @@ defmodule Astral.Discovery do
       file_route = Astral.Route.File.parse(relative)
 
       if file_route.dynamic? do
-        {:ok, dynamic_pages(path, content, file_route, entries, config)}
+        dynamic_pages(path, content, file_route, entries, config)
       else
         {:ok, [static_page(path, content, file_route, config)]}
       end
@@ -82,10 +85,17 @@ defmodule Astral.Discovery do
   end
 
   defp dynamic_pages(path, content, file_route, entries, config) do
-    entries
-    |> Map.values()
-    |> List.flatten()
-    |> Enum.flat_map(fn entry -> dynamic_page(path, content, file_route, entry, config) end)
+    pages =
+      entries
+      |> Map.values()
+      |> List.flatten()
+      |> Enum.flat_map(fn entry -> dynamic_page(path, content, file_route, entry, config) end)
+
+    if pages == [] do
+      {:error, {:unmatched_dynamic_route, path, file_route.pattern.source}}
+    else
+      {:ok, pages}
+    end
   end
 
   defp dynamic_page(path, content, file_route, entry, config) do
@@ -104,6 +114,20 @@ defmodule Astral.Discovery do
 
       :error ->
         []
+    end
+  end
+
+  defp validate_unique_page_routes(pages) do
+    pages
+    |> Enum.group_by(& &1.route_path)
+    |> Enum.find(fn {_route_path, pages} -> match?([_, _ | _], pages) end)
+    |> case do
+      nil ->
+        :ok
+
+      {route_path, pages} ->
+        sources = pages |> Enum.map(& &1.source_path) |> Enum.sort()
+        {:error, {:duplicate_page_route, route_path, sources}}
     end
   end
 
