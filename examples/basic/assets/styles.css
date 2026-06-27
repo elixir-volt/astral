@@ -95,3 +95,20 @@ h1 {
   background: #23304a;
   color: #f5f7fb;
 }
+
+.island-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.island-card {
+  padding: 1rem;
+  border: 1px solid #2d3445;
+  border-radius: 1rem;
+}
+
+.island-button {
+  cursor: pointer;
+}

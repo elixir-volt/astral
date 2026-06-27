@@ -33,7 +33,7 @@ This example follows Volt's formatting and linting setup:
 
 - `.formatter.exs` installs `Volt.Formatter` so `mix format` formats TypeScript too.
 - `config/config.exs` configures `config :volt, :format` and `config :volt, :lint`.
-- `mix check` runs `mix format --check-formatted` and `mix volt.js.check`.
+- `mix check` runs `mix format --check-formatted` and `mix volt.js.check --type-aware --type-check`.
 
 ```sh
 mix check

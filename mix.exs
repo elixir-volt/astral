@@ -98,7 +98,10 @@ defmodule Astral.MixProject do
       examples/basic/.gitignore
       examples/basic/README.md
       examples/basic/assets/app.ts
+      examples/basic/assets/env.d.ts
       examples/basic/assets/images/astral-mark.svg
+      examples/basic/assets/islands/Gallery.vue
+      examples/basic/assets/islands/ReactCounter.jsx
       examples/basic/assets/styles.css
       examples/basic/astral.config.exs
       examples/basic/config/config.exs
@@ -110,6 +113,8 @@ defmodule Astral.MixProject do
       examples/basic/layouts/marketing.html
       examples/basic/layouts/post.html
       examples/basic/mix.exs
+      examples/basic/package-lock.json
+      examples/basic/package.json
       examples/basic/pages/about.md
       examples/basic/pages/blog/[slug].astral
       examples/basic/pages/components.astral

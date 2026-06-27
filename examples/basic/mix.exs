@@ -24,7 +24,7 @@ defmodule AstralBasic.MixProject do
 
   defp aliases do
     [
-      check: ["format --check-formatted", "volt.js.check"]
+      check: ["format --check-formatted", "volt.js.check --type-aware --type-check"]
     ]
   end
 end

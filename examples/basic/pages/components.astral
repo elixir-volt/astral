@@ -24,6 +24,16 @@ assigns = assign(assigns, :features, ["HEEx expressions", "local components", "P
     <.pill :for={feature <- @features}>{feature}</.pill>
   </p>
 
+  <div class="island-grid">
+    <.vue
+      component="islands/Gallery.vue"
+      client={:visible}
+      props={%{title: "Interactive gallery", images: ["Astral", "Volt", "XM"]}}
+    />
+
+    <.react component="islands/ReactCounter.jsx" client={:media} media="(min-width: 640px)" props={%{initial: 2}} />
+  </div>
+
   <p>
     <a class="button" href="/">Back home</a>
   </p>

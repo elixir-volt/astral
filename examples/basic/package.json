@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "dependencies": {
+    "@vitejs/plugin-vue": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "vue": "latest"
+  },
+  "devDependencies": {
+    "oxlint-tsgolint": "0.22.1"
+  },
+  "scripts": {
+    "postinstall": "chmod +x node_modules/@oxlint-tsgolint/*/tsgolint 2>/dev/null || true"
+  }
+}
