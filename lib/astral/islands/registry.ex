@@ -53,7 +53,9 @@ defmodule Astral.Islands.Registry do
 
     component = Keyword.fetch!(opts, :component)
     props = Keyword.get(opts, :props, %{})
-    id = Keyword.get(opts, :id) || island_id(adapter, component, client, props)
+    props = Astral.Islands.Props.normalize!(props, component: component)
+    props_json = Jason.encode!(props)
+    id = Keyword.get(opts, :id) || island_id(adapter, component, client, props_json)
     component_path = resolve_component!(site.config, component)
     entry_source = Path.join([".astral", "islands", "#{id}.ts"])
     entry_path = Path.join(site.config.assets, entry_source)
@@ -65,6 +67,7 @@ defmodule Astral.Islands.Registry do
       component_path: component_path,
       client: client,
       props: props,
+      props_json: props_json,
       entry_source: entry_source,
       entry_path: entry_path
     }
@@ -93,8 +96,8 @@ defmodule Astral.Islands.Registry do
     end
   end
 
-  defp island_id(adapter, component, client, props) do
-    term = {adapter, component, client, props}
+  defp island_id(adapter, component, client, props_json) do
+    term = {adapter, component, client, props_json}
 
     hash =
       :sha256
@@ -105,20 +108,25 @@ defmodule Astral.Islands.Registry do
     "astral-island-#{hash}"
   end
 
-  defp normalize_adapter!(:vue), do: :vue
-  defp normalize_adapter!("vue"), do: :vue
+  defp normalize_adapter!(adapter) when is_atom(adapter) do
+    if Astral.Islands.Adapter.supported?(adapter) do
+      adapter
+    else
+      raise ArgumentError, "unsupported island adapter: #{inspect(adapter)}"
+    end
+  end
 
-  defp normalize_adapter!(adapter),
-    do: raise(ArgumentError, "unsupported island adapter: #{inspect(adapter)}")
+  defp normalize_adapter!(adapter) do
+    raise ArgumentError, "island adapters must be atoms, got: #{inspect(adapter)}"
+  end
 
-  defp normalize_client!(:load), do: :load
-  defp normalize_client!("load"), do: :load
-  defp normalize_client!(:idle), do: :idle
-  defp normalize_client!("idle"), do: :idle
-  defp normalize_client!(:visible), do: :visible
-  defp normalize_client!("visible"), do: :visible
+  defp normalize_client!(client) when client in [:load, :idle, :visible], do: client
+
+  defp normalize_client!(client) when is_atom(client) do
+    raise ArgumentError, "unsupported island client directive: #{inspect(client)}"
+  end
 
   defp normalize_client!(client) do
-    raise ArgumentError, "unsupported island client directive: #{inspect(client)}"
+    raise ArgumentError, "island client directives must be atoms, got: #{inspect(client)}"
   end
 end

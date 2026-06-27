@@ -4,7 +4,7 @@ defmodule Astral.Islands.Island do
   """
 
   @type client :: :load | :idle | :visible
-  @type adapter :: :vue
+  @type adapter :: Astral.Islands.Adapter.t()
 
   @type t :: %__MODULE__{
           id: String.t(),
@@ -12,7 +12,8 @@ defmodule Astral.Islands.Island do
           component: String.t(),
           component_path: String.t(),
           client: client(),
-          props: map(),
+          props: term(),
+          props_json: String.t(),
           entry_source: String.t(),
           entry_path: String.t()
         }
@@ -24,6 +25,7 @@ defmodule Astral.Islands.Island do
     :component_path,
     :client,
     :props,
+    :props_json,
     :entry_source,
     :entry_path
   ]

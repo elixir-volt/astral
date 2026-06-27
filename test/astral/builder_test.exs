@@ -169,7 +169,7 @@ defmodule Astral.BuilderTest do
     ''')
 
     write("pages/index.astral", ~S'''
-    <.island component="islands/Gallery.vue" adapter={:vue} client={:load} props={%{label: "Open"}} class="gallery-shell" />
+    <.vue component="islands/Gallery.vue" client={:load} props={%{label: "Open"}} class="gallery-shell" />
     ''')
 
     assert {:ok, _result} =

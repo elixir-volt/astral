@@ -5,8 +5,8 @@ defmodule Astral.Islands.Writer do
 
   alias Astral.Islands.Island
 
-  @islands {:astral, "islands"}
   @component_specifier "astral:island-component"
+  @runtime_specifier "astral:island-runtime"
 
   @doc "Write the generated browser entry module for an island."
   @spec write!(Island.t()) :: :ok
@@ -15,14 +15,17 @@ defmodule Astral.Islands.Writer do
     File.write!(island.entry_path, source(island))
   end
 
-  defp source(%Island{adapter: :vue} = island) do
-    component_specifier = Volt.Path.relative_import(island.entry_path, island.component_path)
+  defp source(%Island{} = island) do
+    entry = Astral.Islands.Entry.new(island)
 
     Volt.Priv.js!(
-      @islands,
-      "entry.ts",
-      [id: island.id, props: island.props, client: Atom.to_string(island.client)],
-      rewrite_specifiers: %{@component_specifier => component_specifier}
+      :astral,
+      "islands/entry.ts",
+      [id: entry.id, props: island.props, client: entry.client],
+      rewrite_specifiers: %{
+        @component_specifier => entry.component,
+        @runtime_specifier => entry.runtime
+      }
     )
   end
 end

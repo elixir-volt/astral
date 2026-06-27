@@ -62,10 +62,11 @@ defmodule Astral.ConfigTest do
 
         islands do
           adapter(:vue)
+          adapter([:svelte, :react, :solid])
         end
       end
 
-    assert config.islands.adapters == [:vue]
+    assert config.islands.adapters == [:vue, :svelte, :react, :solid]
   end
 
   test "site DSL supports remote image allowlist" do

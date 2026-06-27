@@ -1,7 +1,7 @@
 import Component from "astral:island-component";
-import { mountVueIsland } from "astral:islands/vue";
+import { mountIslandComponent } from "astral:island-runtime";
 
-mountVueIsland({
+mountIslandComponent({
   id: $id,
   component: Component,
   props: $props,

@@ -10,3 +10,5 @@ export function mountVueIsland({ id, component, props, client }) {
     },
   });
 }
+
+export const mountIslandComponent = mountVueIsland;

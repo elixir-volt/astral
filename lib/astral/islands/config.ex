@@ -3,7 +3,9 @@ defmodule Astral.Islands.Config do
   Configuration for client-side Astral islands.
   """
 
-  @type adapter :: :vue
+  alias Astral.Islands.Adapter
+
+  @type adapter :: Adapter.t()
 
   @type t :: %__MODULE__{
           adapters: [adapter()]
@@ -28,10 +30,15 @@ defmodule Astral.Islands.Config do
   @spec adapter?(t(), adapter()) :: boolean()
   def adapter?(%__MODULE__{adapters: adapters}, adapter), do: adapter in adapters
 
-  defp normalize_adapter!(:vue), do: :vue
-  defp normalize_adapter!("vue"), do: :vue
+  defp normalize_adapter!(adapter) when is_atom(adapter) do
+    if Adapter.supported?(adapter) do
+      adapter
+    else
+      raise ArgumentError, "unsupported Astral island adapter: #{inspect(adapter)}"
+    end
+  end
 
   defp normalize_adapter!(adapter) do
-    raise ArgumentError, "unsupported Astral island adapter: #{inspect(adapter)}"
+    raise ArgumentError, "Astral island adapters must be atoms, got: #{inspect(adapter)}"
   end
 end

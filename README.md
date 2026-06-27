@@ -213,20 +213,20 @@ Enable an island adapter and mount a browser component from your Volt assets:
 site do
   islands do
     adapter :vue
+    # also supported: :svelte, :react, :solid
   end
 end
 ```
 
 ```astral
-<.island
+<.vue
   component="islands/Gallery.vue"
-  adapter={:vue}
   client={:visible}
   props={%{images: @images}}
 />
 ```
 
-The first island milestone is client-only: Astral renders a container and generated entry module, while Volt compiles the imported framework component.
+Astral provides framework-specific island components for every framework Volt supports: `<.vue>`, `<.svelte>`, `<.react>`, and `<.solid>`. The first island milestone is client-only: Astral renders a container and generated entry module, while Volt compiles the imported framework component.
 
 ## Development and builds
 

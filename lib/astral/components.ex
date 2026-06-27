@@ -93,7 +93,7 @@ defmodule Astral.Components do
   attr(:component, :string, required: true)
   attr(:adapter, :atom, required: true)
   attr(:client, :atom, default: :load)
-  attr(:props, :map, default: %{})
+  attr(:props, :any, default: %{})
   attr(:id, :string, default: nil)
   attr(:rest, :global)
 
@@ -121,6 +121,48 @@ defmodule Astral.Components do
     <div id={@island.id} data-astral-island={@island.adapter} data-astral-client={@island.client} {@rest}></div>
     <script type="module" src={@entry_path}></script>
     """
+  end
+
+  attr(:component, :string, required: true)
+  attr(:client, :atom, default: :load)
+  attr(:props, :any, default: %{})
+  attr(:id, :string, default: nil)
+  attr(:rest, :global)
+
+  @doc "Render a Vue client-side island."
+  def vue(assigns), do: framework_island(assigns, :vue)
+
+  attr(:component, :string, required: true)
+  attr(:client, :atom, default: :load)
+  attr(:props, :any, default: %{})
+  attr(:id, :string, default: nil)
+  attr(:rest, :global)
+
+  @doc "Render a Svelte client-side island."
+  def svelte(assigns), do: framework_island(assigns, :svelte)
+
+  attr(:component, :string, required: true)
+  attr(:client, :atom, default: :load)
+  attr(:props, :any, default: %{})
+  attr(:id, :string, default: nil)
+  attr(:rest, :global)
+
+  @doc "Render a React client-side island."
+  def react(assigns), do: framework_island(assigns, :react)
+
+  attr(:component, :string, required: true)
+  attr(:client, :atom, default: :load)
+  attr(:props, :any, default: %{})
+  attr(:id, :string, default: nil)
+  attr(:rest, :global)
+
+  @doc "Render a Solid client-side island."
+  def solid(assigns), do: framework_island(assigns, :solid)
+
+  defp framework_island(assigns, adapter) do
+    assigns
+    |> assign(:adapter, adapter)
+    |> island()
   end
 
   attr(:src, :any, required: true)

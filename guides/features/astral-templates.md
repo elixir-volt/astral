@@ -77,6 +77,7 @@ Astral can mount client-only framework components from Volt-managed assets. Enab
 site do
   islands do
     adapter :vue
+    # also supported: :svelte, :react, :solid
   end
 end
 ```
@@ -90,15 +91,14 @@ assets/islands/Gallery.vue
 Then mount it from a `.astral` page or component:
 
 ```astral
-<.island
+<.vue
   component="islands/Gallery.vue"
-  adapter={:vue}
   client={:load}
   props={%{images: @images}}
 />
 ```
 
-Supported client directives in the first milestone are `:load`, `:idle`, and `:visible`. Astral writes a generated island entry module and Volt compiles the imported framework component, so Vue/Svelte/React compilation remains Volt-owned. The initial implementation is client-only; SSR hydration can be layered on later.
+Use `<.vue>`, `<.svelte>`, `<.react>`, or `<.solid>` for framework-specific islands. Supported client directives in the first milestone are `:load`, `:idle`, and `:visible`. Astral writes a generated island entry module and Volt compiles the imported framework component, so framework compilation remains Volt-owned. The initial implementation is client-only; SSR hydration can be layered on later.
 
 ## Browser assets
 

@@ -5,20 +5,33 @@ defmodule Astral.Islands.RuntimePlugin do
 
   @behaviour Volt.Plugin
 
+  alias Astral.Islands.Adapter
+
   @runtime_id "astral:islands/runtime"
-  @vue_id "astral:islands/vue"
-  @islands {:astral, "islands"}
+  @islands :astral
 
   @impl true
   def name, do: "astral-islands-runtime"
 
   @impl true
   def resolve(@runtime_id, _importer), do: {:ok, @runtime_id}
-  def resolve(@vue_id, _importer), do: {:ok, @vue_id}
-  def resolve(_specifier, _importer), do: nil
+
+  def resolve(specifier, _importer) do
+    if specifier in Enum.map(Adapter.all(), &Adapter.runtime_id/1), do: {:ok, specifier}
+  end
 
   @impl true
-  def load(@runtime_id), do: {:ok, Volt.Priv.js!(@islands, "runtime.ts")}
-  def load(@vue_id), do: {:ok, Volt.Priv.js!(@islands, "vue.ts")}
-  def load(_id), do: nil
+  def load(@runtime_id), do: {:ok, Volt.Priv.js!(@islands, "islands/runtime.ts")}
+
+  def load(id) do
+    Adapter.all()
+    |> Enum.find(&(Adapter.runtime_id(&1) == id))
+    |> case do
+      nil ->
+        nil
+
+      adapter ->
+        {:ok, Volt.Priv.js!(@islands, Path.join("islands", Adapter.runtime_asset(adapter)))}
+    end
+  end
 end

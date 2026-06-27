@@ -127,7 +127,7 @@ defmodule Astral.DevServerTest do
     ''')
 
     write("pages/index.astral", ~S'''
-    <.island component="islands/Gallery.vue" adapter={:vue} client={:idle} props={%{label: "Open"}} />
+    <.vue component="islands/Gallery.vue" client={:idle} props={%{label: "Open"}} />
     ''')
 
     opts = Astral.DevServer.init(root: tmp(), islands: [adapter: :vue])
@@ -147,9 +147,34 @@ defmodule Astral.DevServerTest do
     entry_conn = conn(:get, entry_path) |> Astral.DevServer.call(opts)
 
     assert entry_conn.status == 200
-    assert entry_conn.resp_body =~ "mountVueIsland"
+    assert entry_conn.resp_body =~ "mountIslandComponent"
     assert entry_conn.resp_body =~ "/@volt/virtual/astral:islands__slash__vue"
     assert entry_conn.resp_body =~ "Open"
+  end
+
+  test "renders framework-specific island components" do
+    File.rm!(Path.join(tmp(), "pages/index.md"))
+
+    write("assets/islands/Widget.vue", "<template><div>Vue</div></template>")
+    write("assets/islands/Widget.svelte", "<script>export let label</script><div>{label}</div>")
+    write("assets/islands/Widget.jsx", "export default function Widget(){ return null }")
+    write("assets/islands/Widget.tsx", "export default function Widget(){ return null }")
+
+    write("pages/index.astral", ~S'''
+    <.vue component="islands/Widget.vue" props={%{label: "Vue"}} />
+    <.svelte component="islands/Widget.svelte" props={%{label: "Svelte"}} />
+    <.react component="islands/Widget.jsx" props={%{label: "React"}} />
+    <.solid component="islands/Widget.tsx" props={%{label: "Solid"}} />
+    ''')
+
+    opts = Astral.DevServer.init(root: tmp(), islands: [adapter: [:vue, :svelte, :react, :solid]])
+    page_conn = conn(:get, "/") |> Astral.DevServer.call(opts)
+
+    assert page_conn.status == 200
+    assert page_conn.resp_body =~ ~s(data-astral-island="vue")
+    assert page_conn.resp_body =~ ~s(data-astral-island="svelte")
+    assert page_conn.resp_body =~ ~s(data-astral-island="react")
+    assert page_conn.resp_body =~ ~s(data-astral-island="solid")
   end
 
   test "defers remote dev image fetches until image requests" do
