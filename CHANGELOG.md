@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.1.2 - 2026-06-26
+
+### Added
+
+- Dynamic file routes with route diagnostics.
+- Ecto-style content collection schema fields.
+- Markdown rendering with Astral HEEx components.
+- Optimized local and remote image pipeline with image, picture, figure, metadata, Markdown image, dev-server, and collection image field support.
+- Client-only islands for Vue, Svelte, React, and Solid with framework-specific HEEx components.
+- Island client directives for `:load`, `:idle`, `:visible`, and `:media`.
+- JSON-safe island props handling through JSON-shaped values, JSONCodec structs, and Jason encoders.
+- Type-aware Volt JavaScript checks for Astral island runtime assets.
+- Vue and React islands in the basic example site.
+
+### Changed
+
+- All Volt-supported island adapters are enabled by default.
+- Astral island runtime assets are maintained as TypeScript files under `priv/islands`.
+
 ## 0.1.1 - 2026-06-26
 
 ### Added
