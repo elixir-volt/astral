@@ -13,7 +13,7 @@ defmodule Astral.Islands.Writer do
   end
 
   defp source(%Island{adapter: :vue} = island) do
-    component_specifier = relative_import(island.entry_path, island.component_path)
+    component_specifier = Volt.Path.relative_import(island.entry_path, island.component_path)
     props = Jason.encode!(island.props)
 
     """
@@ -55,23 +55,4 @@ defmodule Astral.Islands.Writer do
     hydrate();
     """
   end
-
-  defp relative_import(from, to) do
-    from_parts = from |> Path.dirname() |> Path.expand() |> Path.split()
-    to_parts = to |> Path.expand() |> Path.split()
-    {from_rest, to_rest} = trim_common_parts(from_parts, to_parts)
-
-    relative =
-      List.duplicate("..", length(from_rest))
-      |> Kernel.++(to_rest)
-      |> Enum.join("/")
-
-    ensure_relative_import(relative)
-  end
-
-  defp trim_common_parts([part | left], [part | right]), do: trim_common_parts(left, right)
-  defp trim_common_parts(left, right), do: {left, right}
-
-  defp ensure_relative_import("." <> _ = path), do: path
-  defp ensure_relative_import(path), do: "./" <> path
 end
