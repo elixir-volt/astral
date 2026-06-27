@@ -137,12 +137,7 @@ defmodule Astral.DevServerTest do
     assert page_conn.resp_body =~ ~s(data-astral-island="vue")
     assert page_conn.resp_body =~ ~s(data-astral-client="idle")
 
-    assert [entry_path] =
-             Regex.run(
-               ~r/src="(\/assets\/.astral\/islands\/astral-island-[^"]+\.ts)"/,
-               page_conn.resp_body,
-               capture: :all_but_first
-             )
+    assert [entry_path] = island_entry_path(page_conn.resp_body)
 
     entry_conn = conn(:get, entry_path) |> Astral.DevServer.call(opts)
 
@@ -150,6 +145,30 @@ defmodule Astral.DevServerTest do
     assert entry_conn.resp_body =~ "mountIslandComponent"
     assert entry_conn.resp_body =~ "/@volt/virtual/astral:islands__slash__vue"
     assert entry_conn.resp_body =~ "Open"
+  end
+
+  test "renders media-gated islands" do
+    File.rm!(Path.join(tmp(), "pages/index.md"))
+
+    write("assets/islands/Gallery.vue", "<template><button>{{ label }}</button></template>")
+
+    write("pages/index.astral", ~S'''
+    <.vue component="islands/Gallery.vue" client={:media} media="(min-width: 768px)" props={%{label: "Open"}} />
+    ''')
+
+    opts = Astral.DevServer.init(root: tmp())
+    page_conn = conn(:get, "/") |> Astral.DevServer.call(opts)
+
+    assert page_conn.status == 200
+    assert page_conn.resp_body =~ ~s(data-astral-client="media")
+    assert page_conn.resp_body =~ "data-astral-media=\"(min-width: 768px)\""
+
+    assert [entry_path] = island_entry_path(page_conn.resp_body)
+
+    entry_conn = conn(:get, entry_path) |> Astral.DevServer.call(opts)
+
+    assert entry_conn.status == 200
+    assert entry_conn.resp_body =~ "(min-width: 768px)"
   end
 
   test "renders framework-specific island components" do
@@ -255,6 +274,14 @@ defmodule Astral.DevServerTest do
   defp call_dev_server(path) do
     opts = Astral.DevServer.init(root: tmp())
     conn(:get, path) |> Astral.DevServer.call(opts)
+  end
+
+  defp island_entry_path(html) do
+    Regex.run(
+      Regex.compile!("src=\"(/assets/.astral/islands/astral-island-[^\"]+\\.ts)\""),
+      html,
+      capture: :all_but_first
+    )
   end
 
   defp unused_port do

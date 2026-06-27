@@ -93,6 +93,7 @@ defmodule Astral.Components do
   attr(:component, :string, required: true)
   attr(:adapter, :atom, required: true)
   attr(:client, :atom, default: :load)
+  attr(:media, :string, default: nil)
   attr(:props, :any, default: %{})
   attr(:id, :string, default: nil)
   attr(:rest, :global)
@@ -104,6 +105,7 @@ defmodule Astral.Components do
         component: assigns.component,
         adapter: assigns.adapter,
         client: assigns.client,
+        media: assigns.media,
         props: assigns.props,
         id: assigns.id
       ]
@@ -118,13 +120,21 @@ defmodule Astral.Components do
       |> assign(:entry_path, Astral.Assets.path(site, island.entry_source))
 
     ~H"""
-    <div id={@island.id} data-astral-island={@island.adapter} data-astral-client={@island.client} {@rest}></div>
+    <div
+      id={@island.id}
+      data-astral-island={@island.adapter}
+      data-astral-client={@island.client}
+      data-astral-media={@island.media}
+      {@rest}
+    >
+    </div>
     <script type="module" src={@entry_path}></script>
     """
   end
 
   attr(:component, :string, required: true)
   attr(:client, :atom, default: :load)
+  attr(:media, :string, default: nil)
   attr(:props, :any, default: %{})
   attr(:id, :string, default: nil)
   attr(:rest, :global)
@@ -134,6 +144,7 @@ defmodule Astral.Components do
 
   attr(:component, :string, required: true)
   attr(:client, :atom, default: :load)
+  attr(:media, :string, default: nil)
   attr(:props, :any, default: %{})
   attr(:id, :string, default: nil)
   attr(:rest, :global)
@@ -143,6 +154,7 @@ defmodule Astral.Components do
 
   attr(:component, :string, required: true)
   attr(:client, :atom, default: :load)
+  attr(:media, :string, default: nil)
   attr(:props, :any, default: %{})
   attr(:id, :string, default: nil)
   attr(:rest, :global)
@@ -152,6 +164,7 @@ defmodule Astral.Components do
 
   attr(:component, :string, required: true)
   attr(:client, :atom, default: :load)
+  attr(:media, :string, default: nil)
   attr(:props, :any, default: %{})
   attr(:id, :string, default: nil)
   attr(:rest, :global)

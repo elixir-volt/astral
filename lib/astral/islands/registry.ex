@@ -46,6 +46,7 @@ defmodule Astral.Islands.Registry do
     site = state.site
     adapter = normalize_adapter!(Keyword.fetch!(opts, :adapter))
     client = normalize_client!(Keyword.get(opts, :client, :load))
+    media = normalize_media!(client, Keyword.get(opts, :media))
 
     unless Astral.Islands.Config.adapter?(site.config.islands, adapter) do
       raise ArgumentError, "Astral island adapter is not enabled: #{inspect(adapter)}"
@@ -55,7 +56,7 @@ defmodule Astral.Islands.Registry do
     props = Keyword.get(opts, :props, %{})
     props = Astral.Islands.Props.normalize!(props, component: component)
     props_json = Jason.encode!(props)
-    id = Keyword.get(opts, :id) || island_id(adapter, component, client, props_json)
+    id = Keyword.get(opts, :id) || island_id(adapter, component, client, media, props_json)
     component_path = resolve_component!(site.config, component)
     entry_source = Path.join([".astral", "islands", "#{id}.ts"])
     entry_path = Path.join(site.config.assets, entry_source)
@@ -66,6 +67,7 @@ defmodule Astral.Islands.Registry do
       component: component,
       component_path: component_path,
       client: client,
+      media: media,
       props: props,
       props_json: props_json,
       entry_source: entry_source,
@@ -96,8 +98,8 @@ defmodule Astral.Islands.Registry do
     end
   end
 
-  defp island_id(adapter, component, client, props_json) do
-    term = {adapter, component, client, props_json}
+  defp island_id(adapter, component, client, media, props_json) do
+    term = {adapter, component, client, media, props_json}
 
     hash =
       :sha256
@@ -120,7 +122,7 @@ defmodule Astral.Islands.Registry do
     raise ArgumentError, "island adapters must be atoms, got: #{inspect(adapter)}"
   end
 
-  defp normalize_client!(client) when client in [:load, :idle, :visible], do: client
+  defp normalize_client!(client) when client in [:load, :idle, :visible, :media], do: client
 
   defp normalize_client!(client) when is_atom(client) do
     raise ArgumentError, "unsupported island client directive: #{inspect(client)}"
@@ -128,5 +130,19 @@ defmodule Astral.Islands.Registry do
 
   defp normalize_client!(client) do
     raise ArgumentError, "island client directives must be atoms, got: #{inspect(client)}"
+  end
+
+  defp normalize_media!(:media, media) when is_binary(media) and media != "", do: media
+
+  defp normalize_media!(:media, media) do
+    raise ArgumentError,
+          "client :media islands require a non-empty media query string, got: #{inspect(media)}"
+  end
+
+  defp normalize_media!(_client, nil), do: nil
+
+  defp normalize_media!(client, media) do
+    raise ArgumentError,
+          "media queries are only supported for client :media islands, got client: #{inspect(client)}, media: #{inspect(media)}"
   end
 end

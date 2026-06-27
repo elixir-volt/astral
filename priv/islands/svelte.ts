@@ -6,12 +6,14 @@ export type FrameworkIsland<Props extends Record<string, unknown> = Record<strin
   component: Component<Props>
   props: Props
   client: ClientDirective
+  media: string | null
 }
 
-export function mountSvelteIsland({ id, component, props, client }: FrameworkIsland): void {
+export function mountSvelteIsland({ id, component, props, client, media }: FrameworkIsland): void {
   mountIsland({
     id,
     client,
+    media,
     mount(island) {
       mount(component, { target: island, props })
     }

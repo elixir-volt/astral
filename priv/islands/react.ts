@@ -10,12 +10,14 @@ export type FrameworkIsland<
   component: Component
   props: Props
   client: ClientDirective
+  media: string | null
 }
 
-export function mountReactIsland({ id, component, props, client }: FrameworkIsland): void {
+export function mountReactIsland({ id, component, props, client, media }: FrameworkIsland): void {
   mountIsland({
     id,
     client,
+    media,
     mount(island) {
       createRoot(island).render(React.createElement(component, props))
     }

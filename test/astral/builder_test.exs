@@ -191,6 +191,38 @@ defmodule Astral.BuilderTest do
     assert code =~ "Open"
   end
 
+  test "builds client-only Svelte island entries with Volt" do
+    write("assets/islands/Counter.svelte", ~S'''
+    <script>
+    export let label = "Count"
+    </script>
+    <button>{label}</button>
+    ''')
+
+    write("pages/index.astral", ~S'''
+    <.svelte component="islands/Counter.svelte" client={:media} media="(min-width: 768px)" props={%{label: "Count"}} />
+    ''')
+
+    assert {:ok, _result} =
+             Astral.build(
+               root: tmp(),
+               layout: false,
+               asset_hash: false
+             )
+
+    html = read("dist/index.html")
+    assert html =~ ~s(data-astral-island="svelte")
+    assert html =~ ~s(data-astral-client="media")
+    assert html =~ "data-astral-media=\"(min-width: 768px)\""
+    assert html =~ "<script type=\"module\" src=\"/assets/astral-island-"
+    assert html =~ ".js\"></script>"
+
+    [entry] = Path.wildcard(Path.join(tmp(), "dist/assets/astral-island-*.js"))
+    code = File.read!(entry)
+    assert code =~ "svelte"
+    assert code =~ "Count"
+  end
+
   test "builds semantic figures from Astral pages" do
     write("assets/images/figure.svg", svg_image(160, 80, "orange"))
 

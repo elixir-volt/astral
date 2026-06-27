@@ -3,7 +3,7 @@ defmodule Astral.Islands.Island do
   A client-side island requested while rendering Astral content.
   """
 
-  @type client :: :load | :idle | :visible
+  @type client :: :load | :idle | :visible | :media
   @type adapter :: Astral.Islands.Adapter.t()
 
   @type t :: %__MODULE__{
@@ -12,6 +12,7 @@ defmodule Astral.Islands.Island do
           component: String.t(),
           component_path: String.t(),
           client: client(),
+          media: String.t() | nil,
           props: term(),
           props_json: String.t(),
           entry_source: String.t(),
@@ -24,6 +25,7 @@ defmodule Astral.Islands.Island do
     :component,
     :component_path,
     :client,
+    :media,
     :props,
     :props_json,
     :entry_source,

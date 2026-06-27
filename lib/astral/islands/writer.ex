@@ -21,7 +21,12 @@ defmodule Astral.Islands.Writer do
     Volt.Priv.js!(
       :astral,
       "islands/entry.ts",
-      [astral_id: entry.id, astral_props: island.props, astral_client: entry.client],
+      [
+        astral_id: entry.id,
+        astral_props: island.props,
+        astral_client: entry.client,
+        astral_media: entry.media
+      ],
       rewrite_specifiers: %{
         @component_specifier => entry.component,
         @runtime_specifier => entry.runtime

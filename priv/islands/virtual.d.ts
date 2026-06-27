@@ -1,6 +1,7 @@
 declare const $astral_id: string
 declare const $astral_props: Record<string, unknown>
-declare const $astral_client: 'load' | 'idle' | 'visible'
+declare const $astral_client: 'load' | 'idle' | 'visible' | 'media'
+declare const $astral_media: string | null
 
 declare module 'astral:island-component' {
   const component: unknown
@@ -12,6 +13,7 @@ declare module 'astral:island-runtime' {
     id: string
     component: unknown
     props: Record<string, unknown>
-    client: 'load' | 'idle' | 'visible'
+    client: 'load' | 'idle' | 'visible' | 'media'
+    media: string | null
   }): void
 }

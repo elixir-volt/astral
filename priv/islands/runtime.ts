@@ -1,12 +1,13 @@
-export type ClientDirective = 'load' | 'idle' | 'visible'
+export type ClientDirective = 'load' | 'idle' | 'visible' | 'media'
 
 export type IslandMount = {
   id: string
   client: ClientDirective
+  media: string | null
   mount: (island: HTMLElement) => unknown | Promise<unknown>
 }
 
-export function mountIsland({ id, client, mount }: IslandMount): void {
+export function mountIsland({ id, client, media, mount }: IslandMount): void {
   const island = document.getElementById(id)
   if (!island || island.dataset.astralMounted === 'true') return
 
@@ -30,6 +31,10 @@ export function mountIsland({ id, client, mount }: IslandMount): void {
       }
     })
     observer.observe(island)
+  } else if (client === 'media') {
+    if (media && window.matchMedia(media).matches) {
+      void run()
+    }
   } else {
     void run()
   }

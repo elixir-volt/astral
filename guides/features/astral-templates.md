@@ -89,7 +89,25 @@ Then mount it from a `.astral` page or component:
 />
 ```
 
-Use `<.vue>`, `<.svelte>`, `<.react>`, or `<.solid>` for framework-specific islands. Supported client directives in the first milestone are `:load`, `:idle`, and `:visible`. Astral writes a generated island entry module and Volt compiles the imported framework component, so framework compilation remains Volt-owned. The initial implementation is client-only; SSR hydration can be layered on later.
+Use `<.vue>`, `<.svelte>`, `<.react>`, or `<.solid>` for framework-specific islands. Supported client directives are:
+
+- `:load` — mount as soon as the entry module runs.
+- `:idle` — mount from `requestIdleCallback`, falling back to a short timeout.
+- `:visible` — mount when the island enters the viewport.
+- `:media` — mount only when a media query matches:
+
+```astral
+<.vue
+  component="islands/Gallery.vue"
+  client={:media}
+  media="(min-width: 768px)"
+  props={%{images: @images}}
+/>
+```
+
+Props must be JSON-shaped data. Maps, lists, strings, numbers, booleans, nil, and atoms are accepted. Structs should either use `JSONCodec` or explicitly implement `Jason.Encoder`; unsupported values such as PIDs, references, and functions raise errors that include the component and prop path.
+
+Astral writes a generated island entry module and Volt compiles the imported framework component, so framework compilation remains Volt-owned. The initial implementation is client-only; SSR hydration can be layered on later.
 
 ## Browser assets
 

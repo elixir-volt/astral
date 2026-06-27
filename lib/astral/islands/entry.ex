@@ -4,14 +4,15 @@ defmodule Astral.Islands.Entry do
   """
 
   @enforce_keys [:component, :runtime, :id, :props, :client]
-  defstruct [:component, :runtime, :id, :props, :client]
+  defstruct [:component, :runtime, :id, :props, :client, :media]
 
   @type t :: %__MODULE__{
           component: String.t(),
           runtime: String.t(),
           id: String.t(),
           props: String.t(),
-          client: String.t()
+          client: String.t(),
+          media: String.t() | nil
         }
 
   @doc "Builds entry bindings for an island."
@@ -22,7 +23,8 @@ defmodule Astral.Islands.Entry do
       runtime: Astral.Islands.Adapter.runtime_id(island.adapter),
       id: island.id,
       props: island.props_json,
-      client: Atom.to_string(island.client)
+      client: Atom.to_string(island.client),
+      media: island.media
     }
   end
 end

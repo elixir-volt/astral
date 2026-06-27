@@ -5,5 +5,6 @@ mountIslandComponent({
   id: $astral_id,
   component: Component,
   props: $astral_props,
-  client: $astral_client
+  client: $astral_client,
+  media: $astral_media
 })
