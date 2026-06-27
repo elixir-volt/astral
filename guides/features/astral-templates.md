@@ -69,6 +69,37 @@ Slots use HEEx slot rendering:
 </div>
 ```
 
+## Client islands
+
+Astral can mount client-only framework components from Volt-managed assets. Enable an adapter in `astral.config.exs`:
+
+```elixir
+site do
+  islands do
+    adapter :vue
+  end
+end
+```
+
+Place the browser component under your assets directory:
+
+```text
+assets/islands/Gallery.vue
+```
+
+Then mount it from a `.astral` page or component:
+
+```astral
+<.island
+  component="islands/Gallery.vue"
+  adapter={:vue}
+  client={:load}
+  props={%{images: @images}}
+/>
+```
+
+Supported client directives in the first milestone are `:load`, `:idle`, and `:visible`. Astral writes a generated island entry module and Volt compiles the imported framework component, so Vue/Svelte/React compilation remains Volt-owned. The initial implementation is client-only; SSR hydration can be layered on later.
+
 ## Browser assets
 
 `<style>` and `<script>` blocks are extracted into Volt's asset graph:

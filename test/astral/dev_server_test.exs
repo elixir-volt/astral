@@ -116,6 +116,41 @@ defmodule Astral.DevServerTest do
     assert get_resp_header(image_conn, "cache-control") == ["no-cache, no-store, must-revalidate"]
   end
 
+  test "serves generated island entries in development" do
+    File.rm!(Path.join(tmp(), "pages/index.md"))
+
+    write("assets/islands/Gallery.vue", ~S'''
+    <template><button>{{ label }}</button></template>
+    <script setup>
+    defineProps({ label: String })
+    </script>
+    ''')
+
+    write("pages/index.astral", ~S'''
+    <.island component="islands/Gallery.vue" adapter={:vue} client={:idle} props={%{label: "Open"}} />
+    ''')
+
+    opts = Astral.DevServer.init(root: tmp(), islands: [adapter: :vue])
+    page_conn = conn(:get, "/") |> Astral.DevServer.call(opts)
+
+    assert page_conn.status == 200
+    assert page_conn.resp_body =~ ~s(data-astral-island="vue")
+    assert page_conn.resp_body =~ ~s(data-astral-client="idle")
+
+    assert [entry_path] =
+             Regex.run(
+               ~r/src="(\/assets\/.astral\/islands\/astral-island-[^"]+\.ts)"/,
+               page_conn.resp_body,
+               capture: :all_but_first
+             )
+
+    entry_conn = conn(:get, entry_path) |> Astral.DevServer.call(opts)
+
+    assert entry_conn.status == 200
+    assert entry_conn.resp_body =~ "createApp"
+    assert entry_conn.resp_body =~ "Open"
+  end
+
   test "defers remote dev image fetches until image requests" do
     File.rm!(Path.join(tmp(), "pages/index.md"))
     port = unused_port()

@@ -86,6 +86,7 @@ defmodule Astral.DevServer do
     with {:ok, site} <- discover_dev_site(config),
          %Astral.Page{} = page <- find_page(site, conn.request_path) do
       Astral.Image.Registry.start(site)
+      Astral.Islands.Registry.start(site)
 
       try do
         case Astral.Renderer.render_page(site, page) do
@@ -103,6 +104,7 @@ defmodule Astral.DevServer do
         end
       after
         Astral.Image.Registry.stop()
+        Astral.Islands.Registry.stop()
       end
     else
       nil -> nil
@@ -124,6 +126,7 @@ defmodule Astral.DevServer do
     with {:ok, site} <- discover_dev_site(config),
          %Astral.Route{} = route <- find_route(site, conn.request_path) do
       Astral.Image.Registry.start(site)
+      Astral.Islands.Registry.start(site)
 
       try do
         case Astral.PluginRunner.render_route(config.plugins, route, site) do
@@ -142,6 +145,7 @@ defmodule Astral.DevServer do
         end
       after
         Astral.Image.Registry.stop()
+        Astral.Islands.Registry.stop()
       end
     else
       nil -> nil

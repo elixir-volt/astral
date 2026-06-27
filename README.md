@@ -27,6 +27,7 @@ You get the pieces expected from a modern static site framework:
 - Built-in feed and sitemap plugins.
 - Stable Markdown heading anchors for table-of-contents layouts.
 - Optimized build-time images with `<.image>`, `<.picture>`, and `<.figure>` components.
+- Client-only islands for Volt-powered framework components.
 - Public files copied as-is.
 - TypeScript, CSS, imported assets, dev serving, and HMR through Volt.
 - Plug/Bandit dev server with full reloads for pages, layouts, components, and public files.
@@ -203,6 +204,29 @@ Reference source frontend assets from layouts:
 In development this points to Volt's dev server. In static builds it resolves through Volt's manifest to content-hashed output files.
 
 See the [Assets guide](https://hexdocs.pm/astral/assets.html) and the [Volt documentation](https://hexdocs.pm/volt) for frontend tooling details.
+
+## Client islands
+
+Enable an island adapter and mount a browser component from your Volt assets:
+
+```elixir
+site do
+  islands do
+    adapter :vue
+  end
+end
+```
+
+```astral
+<.island
+  component="islands/Gallery.vue"
+  adapter={:vue}
+  client={:visible}
+  props={%{images: @images}}
+/>
+```
+
+The first island milestone is client-only: Astral renders a container and generated entry module, while Volt compiles the imported framework component.
 
 ## Development and builds
 

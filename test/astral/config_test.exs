@@ -55,6 +55,19 @@ defmodule Astral.ConfigTest do
     assert collection.schema["type"] == "object"
   end
 
+  test "site DSL supports island adapters" do
+    config =
+      site do
+        root("/tmp/astral")
+
+        islands do
+          adapter(:vue)
+        end
+      end
+
+    assert config.islands.adapters == [:vue]
+  end
+
   test "site DSL supports remote image allowlist" do
     config =
       site do

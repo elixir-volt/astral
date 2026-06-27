@@ -90,6 +90,39 @@ defmodule Astral.Components do
     """
   end
 
+  attr(:component, :string, required: true)
+  attr(:adapter, :atom, required: true)
+  attr(:client, :atom, default: :load)
+  attr(:props, :map, default: %{})
+  attr(:id, :string, default: nil)
+  attr(:rest, :global)
+
+  @doc "Render a client-side island mounted by Volt-managed framework code."
+  def island(assigns) do
+    island =
+      [
+        component: assigns.component,
+        adapter: assigns.adapter,
+        client: assigns.client,
+        props: assigns.props,
+        id: assigns.id
+      ]
+      |> Enum.reject(fn {_key, value} -> is_nil(value) end)
+      |> Astral.Islands.Registry.register()
+
+    site = Astral.Islands.Registry.site()
+
+    assigns =
+      assigns
+      |> assign(:island, island)
+      |> assign(:entry_path, Astral.Assets.path(site, island.entry_source))
+
+    ~H"""
+    <div id={@island.id} data-astral-island={@island.adapter} data-astral-client={@island.client} {@rest}></div>
+    <script type="module" src={@entry_path}></script>
+    """
+  end
+
   attr(:src, :any, required: true)
   attr(:alt, :string, required: true)
   attr(:caption, :any, default: nil)

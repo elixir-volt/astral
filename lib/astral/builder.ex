@@ -26,7 +26,9 @@ defmodule Astral.Builder do
          :ok <- prepare_outdir(config),
          :ok <- copy_public(config),
          {:ok, assets} <- build_assets(config),
-         :ok <- render_site(site) do
+         {:ok, islands} <- render_site(site),
+         {:ok, assets} <- maybe_build_island_assets(config, islands, assets),
+         {:ok, _islands} <- maybe_render_final_site(site, islands) do
       result = %Astral.BuildResult{site: site, assets: assets}
 
       with :ok <- Astral.PluginRunner.build_done(config.plugins, result) do
@@ -59,8 +61,8 @@ defmodule Astral.Builder do
     :ok
   end
 
-  defp build_assets(config) do
-    entries = asset_entries(config)
+  defp build_assets(config, island_entries \\ []) do
+    entries = asset_entries(config) ++ island_entries
 
     if entries == [] do
       {:ok, nil}
@@ -101,16 +103,29 @@ defmodule Astral.Builder do
     |> Enum.any?()
   end
 
+  defp maybe_build_island_assets(_config, [], assets), do: {:ok, assets}
+
+  defp maybe_build_island_assets(config, islands, _assets) do
+    island_entries = Enum.map(islands, & &1.entry_path)
+    build_assets(config, island_entries)
+  end
+
+  defp maybe_render_final_site(_site, []), do: {:ok, []}
+  defp maybe_render_final_site(site, _islands), do: render_site(site)
+
   defp render_site(site) do
     Astral.Image.Registry.start(site)
+    Astral.Islands.Registry.start(site)
 
     try do
       with :ok <- render_pages(site),
-           :ok <- render_routes(site) do
-        Astral.Image.Builder.build(site)
+           :ok <- render_routes(site),
+           :ok <- Astral.Image.Builder.build(site) do
+        {:ok, Astral.Islands.Registry.islands()}
       end
     after
       Astral.Image.Registry.stop()
+      Astral.Islands.Registry.stop()
     end
   end
 

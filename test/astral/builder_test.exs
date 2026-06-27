@@ -160,6 +160,38 @@ defmodule Astral.BuilderTest do
     assert File.stat!(image).size > 0
   end
 
+  test "builds client-only Vue island entries with Volt" do
+    write("assets/islands/Gallery.vue", ~S'''
+    <template><button>{{ label }}</button></template>
+    <script setup>
+    defineProps({ label: String })
+    </script>
+    ''')
+
+    write("pages/index.astral", ~S'''
+    <.island component="islands/Gallery.vue" adapter={:vue} client={:load} props={%{label: "Open"}} class="gallery-shell" />
+    ''')
+
+    assert {:ok, _result} =
+             Astral.build(
+               root: tmp(),
+               layout: false,
+               islands: [adapter: :vue],
+               asset_hash: false
+             )
+
+    html = read("dist/index.html")
+    assert html =~ ~s(data-astral-island="vue")
+    assert html =~ ~s(data-astral-client="load")
+    assert html =~ ~s(class="gallery-shell")
+    assert html =~ ~r/<script type="module" src="\/assets\/astral-island-[^"]+\.js"><\/script>/
+
+    [entry] = Path.wildcard(Path.join(tmp(), "dist/assets/astral-island-*.js"))
+    code = File.read!(entry)
+    assert code =~ "createApp"
+    assert code =~ "Open"
+  end
+
   test "builds semantic figures from Astral pages" do
     write("assets/images/figure.svg", svg_image(160, 80, "orange"))
 

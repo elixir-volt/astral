@@ -20,6 +20,7 @@ defmodule Astral.Config do
           asset_hash: boolean(),
           layout: String.t(),
           image: Astral.Image.Config.t() | nil,
+          islands: Astral.Islands.Config.t(),
           collections: [Astral.Collection.t()],
           plugins: [Astral.Plugin.plugin()]
         }
@@ -37,6 +38,7 @@ defmodule Astral.Config do
             asset_hash: true,
             layout: nil,
             image: nil,
+            islands: %Astral.Islands.Config{},
             collections: [],
             plugins: []
 
@@ -72,6 +74,7 @@ defmodule Astral.Config do
       asset_hash: Keyword.get(opts, :asset_hash, true),
       layout: Keyword.get(opts, :layout, "default.html"),
       image: nil,
+      islands: islands_config(opts),
       collections: collections(opts, root),
       plugins: plugins
     }
@@ -85,6 +88,12 @@ defmodule Astral.Config do
     opts
     |> Keyword.get(key, default)
     |> Path.expand(base)
+  end
+
+  defp islands_config(opts) do
+    opts
+    |> Keyword.get(:islands, [])
+    |> Astral.Islands.Config.new()
   end
 
   defp image_config(opts, config) do
@@ -149,6 +158,10 @@ defmodule Astral.Config do
   defp expression_to_opts({:layout, _meta, [path]}), do: [layout: path]
   defp expression_to_opts({:image, _meta, [[do: block]]}), do: [image: image_block_to_opts(block)]
   defp expression_to_opts({:image, _meta, [image]}), do: [image: image]
+
+  defp expression_to_opts({:islands, _meta, [[do: block]]}),
+    do: [islands: islands_block_to_opts(block)]
+
   defp expression_to_opts({:plugins, _meta, [plugins]}), do: [plugins: plugins]
   defp expression_to_opts({:asset_entry, _meta, [path]}), do: [asset_entry: path]
   defp expression_to_opts({:asset_outdir, _meta, [path]}), do: [asset_outdir: path]
@@ -194,6 +207,14 @@ defmodule Astral.Config do
   defp image_expression_to_opts({:allow_remote, _meta, [pattern]}) do
     [allow_remote: [pattern]]
   end
+
+  defp islands_block_to_opts({:__block__, _meta, expressions}) do
+    Enum.flat_map(expressions, &island_expression_to_opts/1)
+  end
+
+  defp islands_block_to_opts(expression), do: island_expression_to_opts(expression)
+
+  defp island_expression_to_opts({:adapter, _meta, [adapter]}), do: [adapter: adapter]
 
   defp asset_expression_to_opts({:entry, _meta, [path]}), do: [asset_entry: path]
   defp asset_expression_to_opts({:outdir, _meta, [path]}), do: [asset_outdir: path]
