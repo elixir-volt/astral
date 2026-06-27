@@ -207,16 +207,7 @@ See the [Assets guide](https://hexdocs.pm/astral/assets.html) and the [Volt docu
 
 ## Client islands
 
-Enable an island adapter and mount a browser component from your Volt assets:
-
-```elixir
-site do
-  islands do
-    adapter :vue
-    # also supported: :svelte, :react, :solid
-  end
-end
-```
+Mount a browser component from your Volt assets:
 
 ```astral
 <.vue
@@ -226,7 +217,7 @@ end
 />
 ```
 
-Astral provides framework-specific island components for every framework Volt supports: `<.vue>`, `<.svelte>`, `<.react>`, and `<.solid>`. The first island milestone is client-only: Astral renders a container and generated entry module, while Volt compiles the imported framework component.
+Astral provides framework-specific island components for every framework Volt supports: `<.vue>`, `<.svelte>`, `<.react>`, and `<.solid>`. All adapters are enabled by default; configure `islands do adapter :vue end` only if you want to restrict the allowed set. The first island milestone is client-only: Astral renders a container and generated entry module, while Volt compiles the imported framework component.
 
 ## Development and builds
 

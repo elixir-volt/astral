@@ -1,14 +1,21 @@
-import { mount } from "svelte";
-import { mountIsland } from "astral:islands/runtime";
+import { mount, type Component } from 'svelte'
+import { mountIsland, type ClientDirective } from 'astral:islands/runtime'
 
-export function mountSvelteIsland({ id, component, props, client }) {
+export type FrameworkIsland<Props extends Record<string, unknown> = Record<string, unknown>> = {
+  id: string
+  component: Component<Props>
+  props: Props
+  client: ClientDirective
+}
+
+export function mountSvelteIsland({ id, component, props, client }: FrameworkIsland): void {
   mountIsland({
     id,
     client,
     mount(island) {
-      mount(component, { target: island, props });
-    },
-  });
+      mount(component, { target: island, props })
+    }
+  })
 }
 
-export const mountIslandComponent = mountSvelteIsland;
+export const mountIslandComponent = mountSvelteIsland

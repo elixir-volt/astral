@@ -71,16 +71,7 @@ Slots use HEEx slot rendering:
 
 ## Client islands
 
-Astral can mount client-only framework components from Volt-managed assets. Enable an adapter in `astral.config.exs`:
-
-```elixir
-site do
-  islands do
-    adapter :vue
-    # also supported: :svelte, :react, :solid
-  end
-end
-```
+Astral can mount client-only framework components from Volt-managed assets. All Volt framework adapters are enabled by default; configure `islands do adapter :vue end` only when you want to restrict the allowed set.
 
 Place the browser component under your assets directory:
 

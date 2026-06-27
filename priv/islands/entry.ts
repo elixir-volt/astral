@@ -1,9 +1,9 @@
-import Component from "astral:island-component";
-import { mountIslandComponent } from "astral:island-runtime";
+import Component from 'astral:island-component'
+import { mountIslandComponent } from 'astral:island-runtime'
 
 mountIslandComponent({
-  id: $id,
+  id: $astral_id,
   component: Component,
-  props: $props,
-  client: $client,
-});
+  props: $astral_props,
+  client: $astral_client
+})

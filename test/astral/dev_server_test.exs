@@ -130,7 +130,7 @@ defmodule Astral.DevServerTest do
     <.vue component="islands/Gallery.vue" client={:idle} props={%{label: "Open"}} />
     ''')
 
-    opts = Astral.DevServer.init(root: tmp(), islands: [adapter: :vue])
+    opts = Astral.DevServer.init(root: tmp())
     page_conn = conn(:get, "/") |> Astral.DevServer.call(opts)
 
     assert page_conn.status == 200
@@ -167,7 +167,7 @@ defmodule Astral.DevServerTest do
     <.solid component="islands/Widget.tsx" props={%{label: "Solid"}} />
     ''')
 
-    opts = Astral.DevServer.init(root: tmp(), islands: [adapter: [:vue, :svelte, :react, :solid]])
+    opts = Astral.DevServer.init(root: tmp())
     page_conn = conn(:get, "/") |> Astral.DevServer.call(opts)
 
     assert page_conn.status == 200

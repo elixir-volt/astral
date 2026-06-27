@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "devDependencies": {
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "oxlint-tsgolint": "0.22.1",
+    "react": "latest",
+    "react-dom": "latest",
+    "solid-js": "latest",
+    "svelte": "latest",
+    "vue": "latest"
+  },
+  "scripts": {
+    "postinstall": "chmod +x node_modules/@oxlint-tsgolint/*/tsgolint 2>/dev/null || true"
+  }
+}

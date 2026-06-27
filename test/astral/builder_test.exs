@@ -176,7 +176,6 @@ defmodule Astral.BuilderTest do
              Astral.build(
                root: tmp(),
                layout: false,
-               islands: [adapter: :vue],
                asset_hash: false
              )
 

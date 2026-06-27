@@ -1,6 +1,10 @@
 defmodule Astral.Islands.ConfigTest do
   use ExUnit.Case, async: true
 
+  test "enables every Volt framework adapter by default" do
+    assert Astral.Islands.Config.new().adapters == [:vue, :svelte, :react, :solid]
+  end
+
   test "accepts every Volt framework adapter as atoms" do
     config = Astral.Islands.Config.new(adapter: [:vue, :svelte, :react, :solid])
 

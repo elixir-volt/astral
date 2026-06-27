@@ -66,6 +66,7 @@ defmodule Astral.MixProject do
         "format",
         "compile --warnings-as-errors",
         "format --check-formatted",
+        "volt.js.check --type-aware --type-check",
         "test",
         "credo --strict",
         "dialyzer",
