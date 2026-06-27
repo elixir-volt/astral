@@ -116,7 +116,7 @@ defmodule Astral.MixProject do
       examples/basic/package-lock.json
       examples/basic/package.json
       examples/basic/pages/about.md
-      examples/basic/pages/blog/[slug].astral
+      examples/basic/pages/blog
       examples/basic/pages/components.astral
       examples/basic/pages/index.md
       examples/basic/pages/landing.md
