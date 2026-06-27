@@ -147,7 +147,8 @@ defmodule Astral.DevServerTest do
     entry_conn = conn(:get, entry_path) |> Astral.DevServer.call(opts)
 
     assert entry_conn.status == 200
-    assert entry_conn.resp_body =~ "createApp"
+    assert entry_conn.resp_body =~ "mountVueIsland"
+    assert entry_conn.resp_body =~ "/@volt/virtual/astral:islands__slash__vue"
     assert entry_conn.resp_body =~ "Open"
   end
 

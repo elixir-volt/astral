@@ -5,6 +5,9 @@ defmodule Astral.Islands.Writer do
 
   alias Astral.Islands.Island
 
+  @islands {:astral, "islands"}
+  @component_specifier "astral:island-component"
+
   @doc "Write the generated browser entry module for an island."
   @spec write!(Island.t()) :: :ok
   def write!(%Island{} = island) do
@@ -14,45 +17,12 @@ defmodule Astral.Islands.Writer do
 
   defp source(%Island{adapter: :vue} = island) do
     component_specifier = Volt.Path.relative_import(island.entry_path, island.component_path)
-    props = Jason.encode!(island.props)
 
-    """
-    import { createApp } from "vue";
-    import Component from #{inspect(component_specifier)};
-
-    const island = document.getElementById(#{inspect(island.id)});
-    const props = #{props};
-
-    async function mount() {
-      if (!island || island.dataset.astralMounted === "true") return;
-      island.dataset.astralMounted = "true";
-      createApp(Component, props).mount(island);
-    }
-
-    function hydrate() {
-      const client = island?.dataset.astralClient || "load";
-
-      if (client === "idle") {
-        const run = () => mount();
-        if ("requestIdleCallback" in window) {
-          window.requestIdleCallback(run);
-        } else {
-          setTimeout(run, 200);
-        }
-      } else if (client === "visible") {
-        const observer = new IntersectionObserver((entries) => {
-          if (entries.some((entry) => entry.isIntersecting)) {
-            observer.disconnect();
-            mount();
-          }
-        });
-        observer.observe(island);
-      } else {
-        mount();
-      }
-    }
-
-    hydrate();
-    """
+    Volt.Priv.js!(
+      @islands,
+      "entry.ts",
+      [id: island.id, props: island.props, client: Atom.to_string(island.client)],
+      rewrite_specifiers: %{@component_specifier => component_specifier}
+    )
   end
 end

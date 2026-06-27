@@ -23,7 +23,8 @@ defmodule Astral.DevServer do
         Volt.DevServer.init(
           root: config.assets,
           prefix: config.asset_url_prefix,
-          public_dir: false
+          public_dir: false,
+          plugins: [Astral.Template.AssetPlugin, Astral.Islands.RuntimePlugin]
         )
     }
   end

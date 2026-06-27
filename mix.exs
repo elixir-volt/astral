@@ -36,7 +36,7 @@ defmodule Astral.MixProject do
 
   defp deps do
     [
-      {:volt, "~> 0.14.10"},
+      {:volt, "~> 0.14.11"},
       {:mdex, "~> 0.13"},
       {:yaml_elixir, "~> 2.12"},
       {:json_spec, "~> 1.1"},
@@ -86,6 +86,7 @@ defmodule Astral.MixProject do
   defp package_files do
     ~w|
       lib
+      priv
       guides
       mix.exs
       README.md
