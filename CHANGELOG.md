@@ -20,6 +20,7 @@
 - Clearer routing, static endpoint, and middleware-scope documentation after auditing Astro's routing/endpoints/middleware guides.
 - Navigation documentation covering current i18n, prefetch, and view-transition boundaries.
 - Styling and browser-code documentation covering current CSS, font, syntax-highlighting, script, and framework-island boundaries.
+- Markdown, content, and data-fetching documentation covering current MDX, Markdown import, content loader, and live collection boundaries.
 
 ### Changed
 

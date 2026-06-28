@@ -1,6 +1,6 @@
 # Content Collections
 
-Collections group Markdown entries such as posts, docs, changelog items, or authors.
+Collections group Markdown entries such as posts, docs, changelog items, or authors. See the Markdown, content, and data guide for the broader boundary around Astro-style Markdown imports, loaders, data fetching, and live collections.
 
 ## Define a collection
 
@@ -23,7 +23,7 @@ site do
 end
 ```
 
-Each Markdown file in `content/posts/` becomes a validated entry and a static page at the collection permalink. The `schema do` field DSL mirrors Ecto's field shape; Astral uses Ecto casting behind the scenes for types, required fields, defaults, and image source resolution.
+Each Markdown file in `content/posts/` becomes a validated entry and a static page at the collection permalink. The `schema do` field DSL mirrors Ecto's field shape; Astral uses Ecto casting behind the scenes for types, required fields, defaults, and image source resolution. Astral's current collections are local Markdown collections; Astro-style content loaders, single-file JSON/YAML/TOML loaders, collection references, generated TypeScript types, and live collections are not implemented yet.
 
 ## Schema defaults
 
@@ -51,7 +51,7 @@ is exposed as normalized data with defaults:
 %{title: "Hello", draft: false, tags: []}
 ```
 
-`entry.metadata` remains the original string-keyed frontmatter map. Use `entry.data` in layouts, pages, feeds, and generated routes when you want cast values and defaults.
+`entry.metadata` remains the original string-keyed frontmatter map. Use `entry.data` in layouts, pages, feeds, and generated routes when you want cast values and defaults. Note that current collection helpers are mixed: `tags/1` reads normalized `entry.data[:tags]`, while `published/1` and `sort_by_date/2` currently read raw metadata fields.
 
 Image fields resolve local paths relative to the entry file and expose an `Astral.Image.Source` struct:
 

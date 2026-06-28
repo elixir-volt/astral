@@ -73,6 +73,7 @@ Astral's long-term goal is to become an Elixir-native static and hybrid site fra
 - Setup-declared dynamic `.astral` pages for userland route enumeration such as tag pages, backed by strict `Astral.Route.Path` contracts.
 - Documentation classifying current i18n, prefetch, and view-transition boundaries after auditing Astro's navigation features.
 - Documentation classifying current CSS, font, syntax-highlighting, script, and framework-island boundaries after auditing Astro's UI-building features.
+- Documentation classifying current Markdown, content collection, data-fetching, and live-content boundaries after auditing Astro's content guides.
 
 ## Current priorities
 
@@ -88,6 +89,7 @@ Goal: make Astral feel complete for practical blogs, docs, and marketing sites.
 - Improve route diagnostics beyond the existing unmatched dynamic route and duplicate route errors, especially ambiguous collection matches and output conflicts.
 - Decide and document first-class redirect support for static hosts.
 - More complete content collection guide examples, including schema field defaults.
+- Decide whether local data-file collections such as JSON/YAML belong in core, or whether they should be expressed as plugins/userland loaders.
 - Static multilingual site examples using localized folders, locale fields, and site-owned link helpers, without adding first-class i18n config prematurely.
 
 ### v0.3 — Metadata and document head
@@ -136,6 +138,7 @@ Goal: move beyond static-only without making Volt responsible for site semantics
 - Hybrid prerender plus dynamic routes.
 - Runtime route manifest.
 - Runtime/live endpoints beyond static generated routes.
+- Runtime/live content collection shape for CMS/API-backed data that should not require a static rebuild.
 - Full page/request middleware with per-request locals for runtime modes, if it fits Elixir/Phoenix idioms.
 - First-class i18n routing decisions for locale prefixes, fallbacks, domain mapping, link helpers, route verification, and browser-language detection.
 - Deployment adapter shape for common static and server targets.
