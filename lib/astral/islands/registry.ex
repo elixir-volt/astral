@@ -105,6 +105,11 @@ defmodule Astral.Islands.Registry do
     {explicit_id, state.ids}
   end
 
+  defp allocate_id!(_state, explicit_id, _adapter, _component, _client, _media, _props_json)
+       when not is_nil(explicit_id) do
+    raise ArgumentError, "island ids must be strings, got: #{inspect(explicit_id)}"
+  end
+
   defp allocate_id!(state, nil, adapter, component, client, media, props_json) do
     base_id = island_id(adapter, component, client, media, props_json)
 
