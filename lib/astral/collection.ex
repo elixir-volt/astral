@@ -37,7 +37,7 @@ defmodule Astral.Collection do
     Enum.sort_by(entries, &entry_datetime/1, {direction, DateTime})
   end
 
-  @doc "Return unique string tags from entry data or metadata."
+  @doc "Return unique string tags from schema-normalized entry data."
   @spec tags([Astral.Entry.t()]) :: [String.t()]
   def tags(entries) when is_list(entries) do
     entries
@@ -56,7 +56,7 @@ defmodule Astral.Collection do
   end
 
   defp entry_tags(entry) do
-    case Map.get(entry.data, :tags, Map.get(entry.metadata, "tags", [])) do
+    case Map.get(entry.data, :tags, []) do
       tags when is_list(tags) -> tags
       nil -> []
       tag -> [tag]

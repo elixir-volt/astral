@@ -158,7 +158,7 @@ defmodule Astral.Plugin.Feed do
     case Keyword.get(opts, :entry_author) do
       fun when is_function(fun, 1) -> fun.(entry)
       author when is_binary(author) -> author
-      nil -> Map.get(entry.data, :author, Map.get(entry.metadata, "author"))
+      nil -> Map.get(entry.data, :author)
     end
   end
 

@@ -159,7 +159,7 @@ posts =
   |> Astral.Collection.sort_by_date(:desc)
 ```
 
-Tags and categories are userland. If your site needs tag pages, build them from collection data and generated routes instead of waiting for a core taxonomy abstraction.
+Tags and categories are userland. If your site needs tag pages, build them from schema-normalized `entry.data` and generated routes instead of waiting for a core taxonomy abstraction. Declare fields such as `tags` in your collection schema so helpers can use normalized atom-keyed data.
 
 For a tag index page, ordinary `.astral` pages can read collection data directly:
 
