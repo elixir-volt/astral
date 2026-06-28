@@ -4,18 +4,17 @@ Astral is a static site generator for Elixir projects. It keeps the site layer i
 
 ## Elixir site configuration
 
-Astral uses `astral.config.exs` instead of a JavaScript config file:
+Astral project configuration lives in `astral.config.exs`:
 
 ```elixir
 import Astral.Config
 
-site do
-  pages "pages"
-  public "public"
+layouts do
+  default "default.html"
+end
 
-  layouts "layouts" do
-    default "default.html"
-  end
+assets do
+  entry "app.ts"
 end
 ```
 

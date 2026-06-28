@@ -5,15 +5,13 @@ Astral includes plugin-shaped feed and sitemap generators for static sites.
 ## Feed
 
 ```elixir
-site do
-  plugins [
-    {Astral.Plugin.Feed,
-     site_url: "https://example.com",
-     title: "My Blog",
-     author: "Astral",
-     collection: :posts}
-  ]
-end
+plugins [
+  {Astral.Plugin.Feed,
+   site_url: "https://example.com",
+   title: "My Blog",
+   author: "Astral",
+   collection: :posts}
+]
 ```
 
 The feed plugin renders a generated route, usually `/feed.xml`, from collection entries. It reads entry titles, dates, descriptions, authors, and draft status from schema-normalized `entry.data`, so declare those fields in the collection schema when you want them in feeds.
@@ -21,14 +19,12 @@ The feed plugin renders a generated route, usually `/feed.xml`, from collection 
 ## Sitemap
 
 ```elixir
-site do
-  plugins [
-    {Astral.Plugin.Sitemap,
-     site_url: "https://example.com",
-     changefreq: :weekly,
-     priority: fn page -> if page.route_path == "/", do: 1.0, else: 0.7 end}
-  ]
-end
+plugins [
+  {Astral.Plugin.Sitemap,
+   site_url: "https://example.com",
+   changefreq: :weekly,
+   priority: fn page -> if page.route_path == "/", do: 1.0, else: 0.7 end}
+]
 ```
 
 The sitemap plugin renders `/sitemap.xml` from discovered and generated routes. For collection entry pages, default `<lastmod>` uses schema-normalized `entry.data[:updated]` or `entry.data[:date]`; standalone pages use their page frontmatter metadata.

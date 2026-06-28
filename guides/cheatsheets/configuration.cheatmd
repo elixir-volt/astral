@@ -5,31 +5,25 @@
 ```elixir
 import Astral.Config
 
-site do
-  pages "pages"
-
-  layouts "layouts" do
-    default "default.html"
-  end
+layouts do
+  default "default.html"
 end
 ```
 
 ## Common paths
 
 ```elixir
-site do
-  root "."
-  outdir "dist"
-  pages "pages"
-  public "public"
-  components "components"
-end
+root "."
+outdir "dist"
+pages "pages"
+public "public"
+components "components"
 ```
 
 ## Layouts
 
 ```elixir
-layouts "layouts" do
+layouts do
   default "default.html"
 end
 ```
@@ -37,7 +31,7 @@ end
 Use a `.astral` layout:
 
 ```elixir
-layouts "layouts" do
+layouts do
   default "site.astral"
 end
 ```
@@ -45,7 +39,7 @@ end
 ## Assets
 
 ```elixir
-assets "assets" do
+assets do
   entry "app.ts"
   url_prefix "/assets"
   hash true

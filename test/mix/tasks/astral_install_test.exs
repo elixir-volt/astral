@@ -9,7 +9,10 @@ defmodule Mix.Tasks.Astral.InstallTest do
       |> Mix.Tasks.Astral.Install.igniter()
 
     igniter
-    |> assert_creates("astral.config.exs", &assert(&1 =~ "entry(\"app.ts\")"))
+    |> assert_creates("astral.config.exs", fn content ->
+      assert content =~ "entry(\"app.ts\")"
+      refute content =~ "site do"
+    end)
     |> assert_creates("pages/index.md", &assert(&1 =~ "# Welcome to Astral"))
     |> assert_creates("pages/about.md", &assert(&1 =~ "# About"))
     |> assert_creates(

@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## 0.1.4 - 2026-06-28
+
+### Added
+
+- Top-level `astral.config.exs` declarations for site configuration, preserving legacy `site do ... end` support.
+
+### Changed
+
+- Starter scaffolding, the basic example, and documentation now use the top-level config style.
+
 ## 0.1.3 - 2026-06-28
 
 ### Added

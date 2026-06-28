@@ -9,9 +9,7 @@ mix astral.build
 Change the output directory in `astral.config.exs`:
 
 ```elixir
-site do
-  outdir "dist"
-end
+outdir "dist"
 ```
 
 Upload the generated directory to any static host or CDN. Common host settings are:
@@ -45,7 +43,7 @@ For generated host files that depend on site data, use config `get` routes or pl
 Astral delegates JavaScript, TypeScript, CSS, and referenced asset processing to Volt. Configure the source entry in `astral.config.exs`:
 
 ```elixir
-assets "assets" do
+assets do
   entry "app.ts"
   url_prefix "/assets"
 end
@@ -66,7 +64,7 @@ Volt emits content-hashed assets by default. This is the recommended deployment 
 For simple prototypes or examples, disable hashing:
 
 ```elixir
-assets "assets" do
+assets do
   entry "app.ts"
   url_prefix "/assets"
   hash false

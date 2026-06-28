@@ -151,20 +151,16 @@ if Code.ensure_loaded?(Igniter) do
       """
       import Astral.Config
 
-      site do
-        root "."
-        outdir "dist"
-        pages "pages"
-        public "public"
+      root "."
+      outdir "dist"
 
-        layouts "layouts" do
-          default "default.html"
-        end
+      layouts do
+        default "default.html"
+      end
 
-        assets "assets" do
-          entry "app.ts"
-          url_prefix "/assets"
-        end
+      assets do
+        entry "app.ts"
+        url_prefix "/assets"
       end
       """
     end

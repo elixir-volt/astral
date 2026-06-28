@@ -20,12 +20,10 @@ Use a **Volt plugin** or Volt config for browser assets:
 ## Configure plugins
 
 ```elixir
-site do
-  plugins [
-    MySite.SEOPlugin,
-    {MySite.AnalyticsPlugin, id: "G-XXXX"}
-  ]
-end
+plugins [
+  MySite.SEOPlugin,
+  {MySite.AnalyticsPlugin, id: "G-XXXX"}
+]
 ```
 
 Plugins are modules implementing `Astral.Plugin`. Tuple options are passed to callbacks that define an extra argument.
@@ -76,23 +74,19 @@ end
 For one-off static outputs, prefer top-level `get` declarations in `astral.config.exs` instead of writing a reusable plugin:
 
 ```elixir
-site do
-  get "/robots.txt", content_type: "text/plain" do
-    "User-agent: *\nAllow: /\n"
-  end
+get "/robots.txt", content_type: "text/plain" do
+  "User-agent: *\nAllow: /\n"
+end
 
-  get "/search-index.json", content_type: "application/json" do
-    Jason.encode!(MySite.Search.index(site))
-  end
+get "/search-index.json", content_type: "application/json" do
+  Jason.encode!(MySite.Search.index(site))
 end
 ```
 
 Use `plug` for middleware around these generated responses:
 
 ```elixir
-site do
-  plug MySite.GeneratedHeaders, cache: "public, max-age=3600"
-end
+plug MySite.GeneratedHeaders, cache: "public, max-age=3600"
 ```
 
 ## Framework and asset integrations

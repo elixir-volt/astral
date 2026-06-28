@@ -72,16 +72,15 @@ Add Markdown or `.astral` files under `pages/`. Add layouts under `layouts/`. Co
 ```elixir
 import Astral.Config
 
-site do
-  root "."
-  outdir "dist"
-  pages "pages"
-  public "public"
-  components "components"
+root "."
+outdir "dist"
 
-  layouts "layouts" do
-    default "default.html"
-  end
+layouts do
+  default "default.html"
+end
+
+assets do
+  entry "app.ts"
 end
 ```
 

@@ -81,20 +81,18 @@ The setup `paths` list is evaluated during discovery. Each `path/1` item carries
 For static data files and endpoint-like outputs, declare one-off generated routes directly in `astral.config.exs`:
 
 ```elixir
-site do
-  get "/robots.txt", content_type: "text/plain" do
-    "User-agent: *\nAllow: /\n"
-  end
+get "/robots.txt", content_type: "text/plain" do
+  "User-agent: *\nAllow: /\n"
+end
 
-  get "/search-index.json", content_type: "application/json" do
-    site
-    |> MySite.Search.index()
-    |> Jason.encode!()
-  end
+get "/search-index.json", content_type: "application/json" do
+  site
+  |> MySite.Search.index()
+  |> Jason.encode!()
+end
 
-  get "/social-image.png", content_type: "image/png" do
-    MySite.SocialImage.render_png!(site)
-  end
+get "/social-image.png", content_type: "image/png" do
+  MySite.SocialImage.render_png!(site)
 end
 ```
 
@@ -105,12 +103,10 @@ Generated routes are static-build endpoints: they produce files such as `/search
 Use `plug` declarations for Plug-compatible middleware around generated responses:
 
 ```elixir
-site do
-  plug MySite.GeneratedRouteHeaders, cache: "public, max-age=3600"
+plug MySite.GeneratedRouteHeaders, cache: "public, max-age=3600"
 
-  get "/data.json", content_type: "application/json" do
-    Jason.encode!(%{ok: true})
-  end
+get "/data.json", content_type: "application/json" do
+  Jason.encode!(%{ok: true})
 end
 ```
 
@@ -119,15 +115,13 @@ This `plug` support is intentionally scoped to config-generated routes. It is no
 ## Collection pagination plugin
 
 ```elixir
-site do
-  plugins [
-    {Astral.Plugin.CollectionPages,
-     collection: :posts,
-     pattern: "/blog/*page",
-     page_size: 10,
-     layout: "blog.html"}
-  ]
-end
+plugins [
+  {Astral.Plugin.CollectionPages,
+   collection: :posts,
+   pattern: "/blog/*page",
+   page_size: 10,
+   layout: "blog.html"}
+]
 ```
 
 The `*page` route parameter omits page one:

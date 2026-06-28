@@ -35,6 +35,59 @@ defmodule Astral.Config.ReaderTest do
     assert config.asset_url_prefix == "/ui"
   end
 
+  test "reads top-level astral.config.exs declarations", %{tmp_dir: tmp_dir} do
+    config_path = Path.join(tmp_dir, "astral.config.exs")
+
+    File.write!(config_path, """
+    import Astral.Config
+
+    root #{inspect(tmp_dir)}
+    outdir "public_site"
+
+    layouts do
+      default "base.html"
+    end
+
+    assets do
+      entry "client.js"
+      url_prefix "/ui"
+    end
+
+    image do
+      allow_remote "https://images.example.com/**"
+    end
+
+    collections do
+      collection :posts, "content/posts" do
+        permalink "/blog/:slug/"
+
+        schema do
+          field :title, :string, required: true
+          field :cover, :image
+        end
+      end
+    end
+
+    get "/robots.txt", content_type: "text/plain" do
+      "User-agent: *\\nAllow: /\\n"
+    end
+    """)
+
+    assert {:ok, config} = Astral.Config.Reader.read(config_path)
+    assert config.root == tmp_dir
+    assert config.pages == Path.join(tmp_dir, "pages")
+    assert config.outdir == Path.join(tmp_dir, "public_site")
+    assert config.layouts == Path.join(tmp_dir, "layouts")
+    assert config.layout == "base.html"
+    assert config.asset_entry == Path.join(tmp_dir, "assets/client.js")
+    assert config.asset_url_prefix == "/ui"
+    assert [collection] = config.collections
+    assert collection.name == :posts
+    assert collection.dir == Path.join(tmp_dir, "content/posts")
+    assert Enum.any?(config.image.remote_patterns, &(&1.hostname == "images.example.com"))
+    assert Enum.any?(config.plugins, &match?({Astral.Plugin.GeneratedRoutes, _opts}, &1))
+  end
+
   test "returns an error when the file does not return config", %{tmp_dir: tmp_dir} do
     config_path = Path.join(tmp_dir, "bad.config.exs")
     File.write!(config_path, ":not_config")

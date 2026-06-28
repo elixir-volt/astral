@@ -3,8 +3,9 @@ defmodule Astral.Config.Reader do
   Reads Astral configuration files.
 
   Config files are ordinary Elixir scripts. They typically `import
-  Astral.Config` and return a `%Astral.Config{}` from a `site do ... end`
-  declaration.
+  Astral.Config` and declare site settings with top-level configuration macros.
+  Returning a `%Astral.Config{}` from a legacy `site do ... end` declaration is
+  still supported.
   """
 
   @doc "Read an Astral config file."
@@ -28,13 +29,19 @@ defmodule Astral.Config.Reader do
   @doc "Read an Astral config file, raising on errors."
   @spec read!(String.t()) :: Astral.Config.t()
   def read!(path) do
-    path
-    |> Code.eval_file()
-    |> elem(0)
-    |> validate!(path)
-  end
+    Astral.Config.__reset_top_level__()
 
-  defp validate!(%Astral.Config{} = config, _path), do: config
+    result =
+      path
+      |> Code.eval_file()
+      |> elem(0)
+
+    case {result, Astral.Config.__flush_top_level__()} do
+      {%Astral.Config{} = config, []} -> config
+      {_result, opts} when opts != [] -> Astral.Config.new(opts)
+      {other, []} -> validate!(other, path)
+    end
+  end
 
   defp validate!(other, path) do
     raise ArgumentError,

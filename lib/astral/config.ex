@@ -42,6 +42,8 @@ defmodule Astral.Config do
             collections: [],
             plugins: []
 
+  @top_level_key {__MODULE__, :top_level_opts}
+
   @doc "Declare an Astral site configuration."
   defmacro site(do: block) do
     opts = block_to_opts(block)
@@ -51,6 +53,107 @@ defmodule Astral.Config do
     end
   end
 
+  @doc false
+  defmacro root(path), do: put_opts_ast(root: path)
+
+  @doc false
+  defmacro pages(path), do: put_opts_ast(pages: path)
+
+  @doc false
+  defmacro public(path), do: put_opts_ast(public: path)
+
+  @doc false
+  defmacro outdir(path), do: put_opts_ast(outdir: path)
+
+  @doc false
+  defmacro layout(path), do: put_opts_ast(layout: path)
+
+  @doc false
+  defmacro components(path), do: put_opts_ast(components: path)
+
+  @doc false
+  defmacro plugins(plugins), do: put_opts_ast(plugins: plugins)
+
+  @doc false
+  defmacro plug(module), do: put_opts_ast(plugs: [plug_ast(module, [])])
+
+  @doc false
+  defmacro plug(module, opts), do: put_opts_ast(plugs: [plug_ast(module, opts)])
+
+  @doc false
+  defmacro get(path, do: block),
+    do: put_opts_ast(generated_routes: [generated_route_ast(path, [], block)])
+
+  @doc false
+  defmacro get(path, opts, do: block),
+    do: put_opts_ast(generated_routes: [generated_route_ast(path, opts, block)])
+
+  @doc false
+  defmacro asset_entry(path), do: put_opts_ast(asset_entry: path)
+
+  @doc false
+  defmacro asset_outdir(path), do: put_opts_ast(asset_outdir: path)
+
+  @doc false
+  defmacro asset_url_prefix(prefix), do: put_opts_ast(asset_url_prefix: prefix)
+
+  @doc false
+  defmacro image(do: block), do: put_opts_ast(image: image_block_to_opts(block))
+
+  @doc false
+  defmacro image(opts), do: put_opts_ast(image: opts)
+
+  @doc false
+  defmacro islands(do: block), do: put_opts_ast(islands: islands_block_to_opts(block))
+
+  @doc false
+  defmacro layouts(), do: put_opts_ast(layouts: "layouts")
+
+  @doc false
+  defmacro layouts(do: block),
+    do: put_opts_ast([layouts: "layouts"] ++ layout_block_to_opts(block))
+
+  @doc false
+  defmacro layouts(path), do: put_opts_ast(layouts: path)
+
+  @doc false
+  defmacro layouts(path, do: block),
+    do: put_opts_ast([layouts: path] ++ layout_block_to_opts(block))
+
+  @doc false
+  defmacro assets(), do: put_opts_ast(assets: "assets")
+
+  @doc false
+  defmacro assets(do: block), do: put_opts_ast([assets: "assets"] ++ asset_block_to_opts(block))
+
+  @doc false
+  defmacro assets(path), do: put_opts_ast(assets: path)
+
+  @doc false
+  defmacro assets(path, do: block), do: put_opts_ast([assets: path] ++ asset_block_to_opts(block))
+
+  @doc false
+  defmacro collections(do: block), do: put_opts_ast(collections: collection_block_to_opts(block))
+
+  @doc false
+  def __reset_top_level__ do
+    Process.delete(@top_level_key)
+    :ok
+  end
+
+  @doc false
+  def __put_top_level__(opts) do
+    Process.put(@top_level_key, Process.get(@top_level_key, []) ++ opts)
+    :ok
+  end
+
+  @doc false
+  def __flush_top_level__ do
+    opts = Process.get(@top_level_key, [])
+    Process.delete(@top_level_key)
+    opts
+  end
+
   @doc "Build a normalized config from keyword options."
   @spec new(keyword()) :: t()
   def new(opts \\ []) do
@@ -58,7 +161,7 @@ defmodule Astral.Config do
     outdir = path(opts, :outdir, root, "dist")
     assets = path(opts, :assets, root, "assets")
 
-    plugins = plugins(opts)
+    plugins = configured_plugins(opts)
 
     config = %__MODULE__{
       root: root,
@@ -90,7 +193,7 @@ defmodule Astral.Config do
     |> Path.expand(base)
   end
 
-  defp plugins(opts) do
+  defp configured_plugins(opts) do
     plugins = Keyword.get(opts, :plugins, [])
     generated_routes = opts |> Keyword.get_values(:generated_routes) |> List.flatten()
     plugs = opts |> Keyword.get_values(:plugs) |> List.flatten()
@@ -127,6 +230,12 @@ defmodule Astral.Config do
         drafts: Keyword.get(opts, :drafts, false)
       }
     end)
+  end
+
+  defp put_opts_ast(opts) do
+    quote do
+      Astral.Config.__put_top_level__(unquote(keyword_ast(opts)))
+    end
   end
 
   defp keyword_ast(opts) do
@@ -205,11 +314,19 @@ defmodule Astral.Config do
   defp expression_to_opts({:layouts, _meta, [path]}), do: [layouts: path]
   defp expression_to_opts({:components, _meta, [path]}), do: [components: path]
 
+  defp expression_to_opts({:layouts, _meta, [[do: block]]}) do
+    [layouts: "layouts"] ++ layout_block_to_opts(block)
+  end
+
   defp expression_to_opts({:layouts, _meta, [path, [do: block]]}) do
     [layouts: path] ++ layout_block_to_opts(block)
   end
 
   defp expression_to_opts({:assets, _meta, [path]}), do: [assets: path]
+
+  defp expression_to_opts({:assets, _meta, [[do: block]]}) do
+    [assets: "assets"] ++ asset_block_to_opts(block)
+  end
 
   defp expression_to_opts({:assets, _meta, [path, [do: block]]}) do
     [assets: path] ++ asset_block_to_opts(block)

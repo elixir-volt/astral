@@ -65,12 +65,10 @@ Or pass rich caption content through the default slot:
 Configure defaults with the `image` option:
 
 ```elixir
-site do
-  image quality: 82,
-        widths: [480, 768, 1200, 1600],
-        formats: [:webp],
-        fallback_format: :jpeg
-end
+image quality: 82,
+      widths: [480, 768, 1200, 1600],
+      formats: [:webp],
+      fallback_format: :jpeg
 ```
 
 Files in `public/` are still copied as-is. Use `<.image>`, `<.picture>`, or `<.figure>` when you want Astral to optimize and hash an image.
@@ -121,11 +119,9 @@ During development, Astral emits `/_astral/image/...` URLs and generates optimiz
 Astral does not optimize arbitrary remote URLs by default. Allow trusted remote image sources explicitly:
 
 ```elixir
-site do
-  image do
-    allow_remote "https://images.example.com/**"
-    allow_remote "https://**.amazonaws.com/bucket/**"
-  end
+image do
+  allow_remote "https://images.example.com/**"
+  allow_remote "https://**.amazonaws.com/bucket/**"
 end
 ```
 
@@ -172,11 +168,9 @@ Astral delegates browser assets to Volt.
 ## Configure Volt assets
 
 ```elixir
-site do
-  assets "assets" do
-    entry "app.ts"
-    url_prefix "/assets"
-  end
+assets do
+  entry "app.ts"
+  url_prefix "/assets"
 end
 ```
 
@@ -204,7 +198,7 @@ styles.css -> styles-1a2b3c4d.css
 Disable hashes for examples or prototypes that need stable filenames:
 
 ```elixir
-assets "assets" do
+assets do
   entry "app.ts"
   hash false
 end

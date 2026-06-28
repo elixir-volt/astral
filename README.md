@@ -42,19 +42,13 @@ Astral is early but usable for small static sites, documentation prototypes, and
 ```elixir
 import Astral.Config
 
-site do
-  pages "pages"
-  public "public"
-  components "components"
+layouts do
+  default "site.astral"
+end
 
-  layouts "layouts" do
-    default "site.astral"
-  end
-
-  assets "assets" do
-    entry "app.ts"
-    url_prefix "/assets"
-  end
+assets do
+  entry "app.ts"
+  url_prefix "/assets"
 end
 ```
 

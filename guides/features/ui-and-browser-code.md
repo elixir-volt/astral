@@ -7,11 +7,9 @@ Astral keeps document rendering in Elixir and delegates browser assets to Volt. 
 Use Volt-managed CSS for site-wide styles:
 
 ```elixir
-site do
-  assets "assets" do
-    entry "app.ts"
-    url_prefix "/assets"
-  end
+assets do
+  entry "app.ts"
+  url_prefix "/assets"
 end
 ```
 
