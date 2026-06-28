@@ -191,6 +191,61 @@ defmodule Astral.BuilderTest do
     assert code =~ "Open"
   end
 
+  test "renders Vue island slot HTML through a static template" do
+    write("assets/islands/Gallery.vue", ~S'''
+    <template><section><slot /></section></template>
+    <script setup>
+    defineProps({ images: Array })
+    </script>
+    ''')
+
+    write("pages/index.astral", ~S'''
+    <.vue component="islands/Gallery.vue" client={:load} props={%{images: ["one.jpg"]}}>
+      <div class="thumbnail-strip"><img src="/office.jpg" alt="Office" /></div>
+    </.vue>
+    ''')
+
+    assert {:ok, _result} =
+             Astral.build(
+               root: tmp(),
+               layout: false,
+               asset_hash: false
+             )
+
+    html = read("dist/index.html")
+    assert html =~ ~s(<template data-astral-template="default">)
+    assert html =~ ~s(class="thumbnail-strip")
+    assert html =~ ~s(<img src="/office.jpg" alt="Office">)
+
+    [entry] = Path.wildcard(Path.join(tmp(), "dist/assets/astral-island-*.js"))
+    code = File.read!(entry)
+    assert code =~ "astral-slot"
+    assert code =~ "one.jpg"
+  end
+
+  test "allocates unique ids for repeated auto-id islands" do
+    write("assets/islands/Widget.vue", ~S'''
+    <template><button>{{ label }}</button></template>
+    <script setup>
+    defineProps({ label: String })
+    </script>
+    ''')
+
+    write("pages/index.astral", ~S'''
+    <.vue component="islands/Widget.vue" props={%{label: "Open"}} />
+    <.vue component="islands/Widget.vue" props={%{label: "Open"}} />
+    ''')
+
+    assert {:ok, _result} = Astral.build(root: tmp(), layout: false, asset_hash: false)
+
+    html = read("dist/index.html")
+
+    assert [first, second] =
+             Regex.scan(~r/id="(astral-island-[^"]+)"/, html, capture: :all_but_first)
+
+    assert first != second
+  end
+
   test "builds client-only Svelte island entries with Volt" do
     write("assets/islands/Counter.svelte", ~S'''
     <script>

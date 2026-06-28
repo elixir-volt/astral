@@ -3,6 +3,8 @@ declare const $astral_props: Record<string, unknown>
 declare const $astral_client: 'load' | 'idle' | 'visible' | 'media'
 declare const $astral_media: string | null
 
+type IslandSlots = Record<string, string>
+
 declare module 'astral:island-component' {
   const component: unknown
   export default component
@@ -15,5 +17,6 @@ declare module 'astral:island-runtime' {
     props: Record<string, unknown>
     client: 'load' | 'idle' | 'visible' | 'media'
     media: string | null
+    slots?: IslandSlots
   }): void
 }

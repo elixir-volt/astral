@@ -1,10 +1,12 @@
 export type ClientDirective = 'load' | 'idle' | 'visible' | 'media'
 
+export type IslandSlots = Record<string, string>
+
 export type IslandMount = {
   id: string
   client: ClientDirective
   media: string | null
-  mount: (island: HTMLElement) => unknown | Promise<unknown>
+  mount: (island: HTMLElement, slots: IslandSlots) => unknown | Promise<unknown>
 }
 
 export function mountIsland({ id, client, media, mount }: IslandMount): void {
@@ -13,8 +15,9 @@ export function mountIsland({ id, client, media, mount }: IslandMount): void {
 
   const run = async () => {
     if (!island || island.dataset.astralMounted === 'true') return
+    const slots = collectSlots(island)
     island.dataset.astralMounted = 'true'
-    await mount(island)
+    await mount(island, slots)
   }
 
   if (client === 'idle') {
@@ -38,4 +41,17 @@ export function mountIsland({ id, client, media, mount }: IslandMount): void {
   } else {
     void run()
   }
+}
+
+function collectSlots(island: HTMLElement): IslandSlots {
+  const slots: IslandSlots = {}
+
+  for (const template of island.querySelectorAll<HTMLTemplateElement>(
+    ':scope > template[data-astral-template]'
+  )) {
+    slots[template.dataset.astralTemplate || 'default'] = template.innerHTML
+    template.remove()
+  }
+
+  return slots
 }

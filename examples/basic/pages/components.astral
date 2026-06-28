@@ -29,7 +29,9 @@ assigns = assign(assigns, :features, ["HEEx expressions", "local components", "P
       component="islands/Gallery.vue"
       client={:visible}
       props={%{title: "Interactive gallery", images: ["Astral", "Volt", "XM"]}}
-    />
+    >
+      <p class="eyebrow">Static HEEx children are passed to the Vue default slot.</p>
+    </.vue>
 
     <.react component="islands/ReactCounter.jsx" client={:media} media="(min-width: 640px)" props={%{initial: 2}} />
   </div>

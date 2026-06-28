@@ -12,13 +12,14 @@ defmodule Astral.Islands.Registry do
 
   @type state :: %{
           site: Astral.Site.t(),
-          islands: %{String.t() => Island.t()}
+          islands: %{String.t() => Island.t()},
+          ids: %{String.t() => pos_integer()}
         }
 
   @doc "Start an empty island registry for a site render."
   @spec start(Astral.Site.t()) :: :ok
   def start(%Astral.Site{} = site) do
-    Process.put(@key, %{site: site, islands: %{}})
+    Process.put(@key, %{site: site, islands: %{}, ids: %{}})
     :ok
   end
 
@@ -56,7 +57,10 @@ defmodule Astral.Islands.Registry do
     props = Keyword.get(opts, :props, %{})
     props = Astral.Islands.Props.normalize!(props, component: component)
     props_json = Jason.encode!(props)
-    id = Keyword.get(opts, :id) || island_id(adapter, component, client, media, props_json)
+
+    {id, ids} =
+      allocate_id!(state, Keyword.get(opts, :id), adapter, component, client, media, props_json)
+
     component_path = resolve_component!(site.config, component)
     entry_source = Path.join([".astral", "islands", "#{id}.ts"])
     entry_path = Path.join(site.config.assets, entry_source)
@@ -76,16 +80,37 @@ defmodule Astral.Islands.Registry do
 
     Astral.Islands.Writer.write!(island)
 
-    islands = Map.put_new(state.islands, id, island)
-    Process.put(@key, %{state | islands: islands})
-    Map.fetch!(islands, id)
+    islands = Map.put(state.islands, id, island)
+    Process.put(@key, %{state | islands: islands, ids: ids})
+    island
   end
 
   defp state! do
     case Process.get(@key) do
-      %{site: %Astral.Site{}, islands: islands} = state when is_map(islands) -> state
-      _ -> raise "Astral island registry is not active"
+      %{site: %Astral.Site{}, islands: islands, ids: ids} = state
+      when is_map(islands) and is_map(ids) ->
+        state
+
+      _ ->
+        raise "Astral island registry is not active"
     end
+  end
+
+  defp allocate_id!(state, explicit_id, _adapter, _component, _client, _media, _props_json)
+       when is_binary(explicit_id) do
+    if Map.has_key?(state.islands, explicit_id) do
+      raise ArgumentError, "duplicate explicit island id: #{inspect(explicit_id)}"
+    end
+
+    {explicit_id, state.ids}
+  end
+
+  defp allocate_id!(state, nil, adapter, component, client, media, props_json) do
+    base_id = island_id(adapter, component, client, media, props_json)
+    index = Map.get(state.ids, base_id, 0) + 1
+    id = if index == 1, do: base_id, else: "#{base_id}-#{index}"
+
+    {id, Map.put(state.ids, base_id, index)}
   end
 
   defp resolve_component!(config, component) do

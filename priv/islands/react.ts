@@ -1,6 +1,6 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { mountIsland, type ClientDirective } from 'astral:islands/runtime'
+import { mountIsland, type ClientDirective, type IslandSlots } from 'astral:islands/runtime'
 
 export type FrameworkIsland<
   Component = React.ComponentType<Record<string, unknown>>,
@@ -18,9 +18,20 @@ export function mountReactIsland({ id, component, props, client, media }: Framew
     id,
     client,
     media,
-    mount(island) {
-      createRoot(island).render(React.createElement(component, props))
+    mount(island, slots) {
+      createRoot(island).render(React.createElement(component, props, children(slots)))
     }
+  })
+}
+
+function children(slots: IslandSlots): React.ReactNode {
+  const html = slots.default
+
+  if (!html) return undefined
+
+  return React.createElement('astral-slot', {
+    dangerouslySetInnerHTML: { __html: html },
+    style: { display: 'contents' }
   })
 }
 

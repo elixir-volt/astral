@@ -107,6 +107,16 @@ Use `<.vue>`, `<.svelte>`, `<.react>`, or `<.solid>` for framework-specific isla
 
 Props must be JSON-shaped data. Maps, lists, strings, numbers, booleans, nil, and atoms are accepted. Structs should either use `JSONCodec` or explicitly implement `Jason.Encoder`; unsupported values such as PIDs, references, and functions raise errors that include the component and prop path.
 
+Islands can receive static HEEx children through the default framework slot/children channel. Astral keeps slot HTML separate from JSON props and passes it to the browser runtime as static HTML:
+
+```astral
+<.vue component="islands/Gallery.vue" props={%{images: @images}}>
+  <div class="thumbnail-strip">
+    <.image :for={image <- @images} src={image} alt="Office" height={320} />
+  </div>
+</.vue>
+```
+
 Astral writes a generated island entry module and Volt compiles the imported framework component, so framework compilation remains Volt-owned. The initial implementation is client-only; SSR hydration can be layered on later.
 
 ## Browser assets

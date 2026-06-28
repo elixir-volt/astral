@@ -2,6 +2,7 @@
   <section class="island-card">
     <p class="eyebrow">Vue island</p>
     <h2>{{ title }}</h2>
+    <slot />
     <button type="button" @click="selected = (selected + 1) % images.length">
       Show {{ images[selected] }}
     </button>

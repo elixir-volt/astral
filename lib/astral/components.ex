@@ -98,6 +98,8 @@ defmodule Astral.Components do
   attr(:id, :string, default: nil)
   attr(:rest, :global)
 
+  slot(:inner_block)
+
   @doc "Render a client-side island mounted by Volt-managed framework code."
   def island(assigns) do
     island =
@@ -127,6 +129,7 @@ defmodule Astral.Components do
       data-astral-media={@island.media}
       {@rest}
     >
+      <template :if={@inner_block != []} data-astral-template="default">{render_slot(@inner_block)}</template>
     </div>
     <script type="module" src={@entry_path}></script>
     """
@@ -139,6 +142,8 @@ defmodule Astral.Components do
   attr(:id, :string, default: nil)
   attr(:rest, :global)
 
+  slot(:inner_block)
+
   @doc "Render a Vue client-side island."
   def vue(assigns), do: framework_island(assigns, :vue)
 
@@ -148,6 +153,8 @@ defmodule Astral.Components do
   attr(:props, :any, default: %{})
   attr(:id, :string, default: nil)
   attr(:rest, :global)
+
+  slot(:inner_block)
 
   @doc "Render a Svelte client-side island."
   def svelte(assigns), do: framework_island(assigns, :svelte)
@@ -159,6 +166,8 @@ defmodule Astral.Components do
   attr(:id, :string, default: nil)
   attr(:rest, :global)
 
+  slot(:inner_block)
+
   @doc "Render a React client-side island."
   def react(assigns), do: framework_island(assigns, :react)
 
@@ -168,6 +177,8 @@ defmodule Astral.Components do
   attr(:props, :any, default: %{})
   attr(:id, :string, default: nil)
   attr(:rest, :global)
+
+  slot(:inner_block)
 
   @doc "Render a Solid client-side island."
   def solid(assigns), do: framework_island(assigns, :solid)

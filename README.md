@@ -214,10 +214,12 @@ Mount a browser component from your Volt assets:
   component="islands/Gallery.vue"
   client={:visible}
   props={%{images: @images}}
-/>
+>
+  <div class="thumbnail-strip">Static HEEx children become the default framework slot.</div>
+</.vue>
 ```
 
-Astral provides framework-specific island components for every framework Volt supports: `<.vue>`, `<.svelte>`, `<.react>`, and `<.solid>`. All adapters are enabled by default; configure `islands do adapter :vue end` only if you want to restrict the allowed set. Client directives include `:load`, `:idle`, `:visible`, and `:media` with a media query string. The first island milestone is client-only: Astral renders a container and generated entry module, while Volt compiles the imported framework component.
+Astral provides framework-specific island components for every framework Volt supports: `<.vue>`, `<.svelte>`, `<.react>`, and `<.solid>`. All adapters are enabled by default; configure `islands do adapter :vue end` only if you want to restrict the allowed set. Client directives include `:load`, `:idle`, `:visible`, and `:media` with a media query string. The first island milestone is client-only: Astral renders a container, static slot template, and generated entry module, while Volt compiles the imported framework component.
 
 ## Development and builds
 
