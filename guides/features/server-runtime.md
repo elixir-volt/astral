@@ -69,4 +69,4 @@ Hybrid/runtime support belongs in Astral, not Volt. Volt should continue to own 
 - runtime content loaders or CMS-backed collection shapes,
 - optional runtime caching semantics where they fit Elixir deployment targets.
 
-Until that work lands, document and design server features as boundaries, not as implemented APIs.
+Until that work lands, document and design server features as boundaries, not as implemented APIs. See the backend, authentication, and testing guide for current guidance on composing Astral with CMSes, backend services, auth providers, and browser tests.

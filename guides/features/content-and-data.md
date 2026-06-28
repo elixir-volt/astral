@@ -172,4 +172,4 @@ Astral does not yet have a first-class remote content loader API. For CMS or API
 - fetch in `.astral` setup for small page-local build-time data,
 - materialize remote content into Markdown or data files before running `mix astral.build`.
 
-Live content collections and request-time data freshness belong with future hybrid/runtime modes.
+Live content collections and request-time data freshness belong with future hybrid/runtime modes. See the backend, authentication, and testing guide for the current CMS/backend-service boundary.

@@ -76,6 +76,7 @@ Astral's long-term goal is to become an Elixir-native static and hybrid site fra
 - Documentation classifying current Markdown, content collection, data-fetching, and live-content boundaries after auditing Astro's content guides.
 - Documentation classifying current on-demand rendering, server island, action, session, and route caching boundaries after auditing Astro's server-rendering guides.
 - Documentation classifying current static deployment and future adapter boundaries after auditing Astro's deployment and adapter guides.
+- Documentation classifying current CMS, backend-service, authentication, and testing composition boundaries after auditing Astro's guides.
 
 ## Current priorities
 
@@ -141,10 +142,12 @@ Goal: move beyond static-only without making Volt responsible for site semantics
 - Runtime route manifest.
 - Runtime/live endpoints beyond static generated routes, including non-GET methods and request-body handling.
 - Runtime/live content collection shape for CMS/API-backed data that should not require a static rebuild.
+- Build-time CMS/backend loader conventions for reusable plugins without making service-specific integrations core.
 - Full page/request middleware with per-request locals for runtime modes, if it fits Elixir/Phoenix idioms.
 - Request-time response controls for status, headers, redirects, cookies, and streaming where they fit Plug/Phoenix semantics.
 - Server-side session integration through Plug/Phoenix-compatible storage rather than static page assigns.
 - Decide whether an Astral-native action/form layer is worth adding on top of Plug/Phoenix endpoints.
+- Decide where authentication examples belong: first-party guides around Phoenix/Plug composition versus optional packages.
 - Decide whether runtime route caching needs an Astral API or should stay deployment/host-owned for Elixir targets.
 - First-class i18n routing decisions for locale prefixes, fallbacks, domain mapping, link helpers, route verification, and browser-language detection.
 - Deployment adapter shape for common static and server targets, including which host-specific static files belong in adapters versus userland `public/` files or generated routes.
@@ -166,6 +169,7 @@ Goal: add optional navigation enhancement without changing the static-first defa
 - Stable `.astral` template API.
 - Stable image and SVG APIs.
 - Stable island API.
+- Stable testing guidance for templates, plugins, generated routes, and browser assets.
 - Strong HexDocs and examples.
 - Dogfooded docs site built with Astral.
 - Production deployment guides for common static hosts.
