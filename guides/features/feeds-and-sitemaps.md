@@ -16,7 +16,7 @@ site do
 end
 ```
 
-The feed plugin renders a generated route, usually `/feed.xml`, from collection entries.
+The feed plugin renders a generated route, usually `/feed.xml`, from collection entries. It reads entry titles, dates, descriptions, authors, and draft status from schema-normalized `entry.data`, so declare those fields in the collection schema when you want them in feeds.
 
 ## Sitemap
 
@@ -31,7 +31,7 @@ site do
 end
 ```
 
-The sitemap plugin renders `/sitemap.xml` from discovered and generated routes.
+The sitemap plugin renders `/sitemap.xml` from discovered and generated routes. For collection entry pages, default `<lastmod>` uses schema-normalized `entry.data[:updated]` or `entry.data[:date]`; standalone pages use their page frontmatter metadata.
 
 ## Custom generated XML routes
 
@@ -58,4 +58,4 @@ defmodule MySite.FeedPlugin do
 end
 ```
 
-Use this pattern for feeds, JSON indexes, search documents, or other static generated assets.
+Use this pattern for feeds, JSON indexes, search documents, or other static generated assets. Prefer `entry.data` for schema-normalized collection values and `entry.metadata` only when you intentionally need raw frontmatter.

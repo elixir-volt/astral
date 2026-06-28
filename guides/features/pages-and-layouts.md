@@ -48,7 +48,7 @@ Markdown pages and collection entries can use local `.astral` components through
 
 Components are discovered from the configured `components/` directory, the same as `.astral` pages and layouts. Use HEEx local component syntax (`<.name>`) rather than MDX imports.
 
-Assigns are available in Markdown with HEEx expression syntax:
+Assigns are available in Markdown with HEEx expression syntax. `@entry` is present for collection entry pages, and `@entry.data` contains schema-declared fields:
 
 ```md
 <p>{@metadata["title"]}</p>
@@ -88,7 +88,7 @@ pages/docs/[...path].md    -> /docs/*path
 
 Bracket filenames are portable file-route sugar. Astral converts them to Elixir/Phoenix-style route patterns internally.
 
-Dynamic page templates render once for each collection entry whose route matches the file route pattern. Route params are exposed as string-keyed `@params` assigns:
+Dynamic page templates render once for each collection entry whose route matches the file route pattern. Route params are exposed as string-keyed `@params` assigns. Use a collection schema for fields read from `@entry.data`:
 
 ```astral
 <h1>{@entry.data.title}</h1>

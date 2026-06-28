@@ -47,9 +47,11 @@ pages/blog/[slug].astral   -> /blog/:slug
 ```astral
 <article data-slug={@params["slug"]}>
   <h1>{@entry.data.title}</h1>
-  {Phoenix.HTML.raw(@entry.content.html)}
+  {@entry.content}
 </article>
 ```
+
+`@entry.content` implements Phoenix's HTML-safe protocol. Use a collection schema for fields you read from `@entry.data`; raw frontmatter remains available as string-keyed `@entry.metadata`.
 
 ## Setup-declared dynamic `.astral` pages
 
@@ -136,7 +138,7 @@ The `*page` route parameter omits page one:
 /blog/3/
 ```
 
-The pagination layout receives `@page`, `@collection`, `@site`, `@collections`, `@routes`, and `@route`.
+The pagination layout receives `@page`, `@collection`, `@site`, `@collections`, `@routes`, and `@route`. Declare a collection schema for any fields you read through `entry.data`, such as `entry.data.title` below.
 
 ```eex
 <h1>Blog</h1>

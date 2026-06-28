@@ -40,7 +40,7 @@ Markdown pages and collection entries can use local `.astral` components through
 
 Use local component calls such as `<.callout>`, not MDX imports. MDX/JSX expressions are not currently supported in Astral Markdown.
 
-Assigns are available with HEEx expression syntax:
+Assigns are available with HEEx expression syntax. `@entry` is present for collection entry pages, and `@entry.data` contains only schema-declared fields:
 
 ```md
 <p>{@metadata["title"]}</p>
@@ -86,7 +86,7 @@ end
 
 Each Markdown file becomes an entry. Use a schema to expose cast atom-keyed values and defaults in `entry.data`; without a schema, `entry.data` is `%{}`. `entry.metadata` remains the original string-keyed frontmatter.
 
-Collection helpers read schema-normalized data: `published/1` uses `entry.data[:draft]`, `sort_by_date/2` uses `entry.data[:updated]` or `entry.data[:date]`, and `tags/1` uses `entry.data[:tags]`. Prefer `entry.data` in your own layouts, pages, feeds, and generated routes when you need schema defaults or cast values.
+Collection helpers read schema-normalized data: `published/1` uses `entry.data[:draft]`, `sort_by_date/2` uses `entry.data[:updated]` or `entry.data[:date]`, and `tags/1` uses `entry.data[:tags]`. Declare these fields in your schema when you want helpers or templates to see them. Prefer `entry.data` in your own layouts, pages, feeds, and generated routes when you need schema defaults or cast values.
 
 Query collections from `.astral` setup blocks, layouts, generated routes, or plugins:
 
