@@ -22,3 +22,7 @@ defmodule Astral.Content do
             permalink: nil,
             headings: []
 end
+
+defimpl Phoenix.HTML.Safe, for: Astral.Content do
+  def to_iodata(%Astral.Content{html: html}), do: html
+end

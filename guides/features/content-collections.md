@@ -61,11 +61,12 @@ content/posts/hello.md
 pages/blog/[slug].astral
 ```
 
-The dynamic page route matches the collection permalink `/blog/:slug/` and receives `@entry` plus string-keyed route params:
+The dynamic page route matches the collection permalink `/blog/:slug/` and receives `@entry` plus string-keyed route params. Render the entry body directly with `{@entry.content}`; Astral content implements Phoenix's HTML-safe protocol, so already-rendered Markdown and Markdown components are not escaped:
 
 ```astral
 <article>
   <h1>{@entry.data.title}</h1>
+  {@entry.content}
   <p>Slug: {@params["slug"]}</p>
 </article>
 ```

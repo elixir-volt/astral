@@ -65,6 +65,19 @@ defmodule Astral.TemplateTest do
     assert script.source == "const answer: number = 42"
   end
 
+  test "renders Astral content as safe HTML" do
+    write("page.astral", """
+    <article>{@entry.content}</article>
+    """)
+
+    entry = %Astral.Entry{content: %Astral.Content{html: "<p><strong>Hello</strong></p>"}}
+    config = Astral.Config.new(root: tmp(), pages: ".")
+
+    assert {:ok, html} = Astral.Template.render_file(path("page.astral"), %{entry: entry}, config)
+    assert html =~ "<article><p><strong>Hello</strong></p></article>"
+    refute html =~ "&lt;strong&gt;"
+  end
+
   test "renders local components with dynamic tags and rest attributes" do
     write("components/width_wrapper.astral", """
     ---
