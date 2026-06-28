@@ -839,6 +839,20 @@ defmodule Astral.BuilderTest do
     assert Exception.message(error) =~ "unexpected route parameters"
   end
 
+  test "rejects dynamic Astral setup paths that are not route path contracts" do
+    write("pages/tags/[tag].astral", ~S'''
+    ---
+    paths = [%{tag: "elixir"}]
+    ---
+    <h1>{@params["tag"]}</h1>
+    ''')
+
+    assert {:error, {:dynamic_route_paths_failed, _path, {:invalid_route_paths, paths}}} =
+             Astral.build(root: tmp(), layout: false)
+
+    assert paths == [%{tag: "elixir"}]
+  end
+
   test "renders glob dynamic Markdown routes with params in layouts" do
     write("pages/docs/[...path].md", "# Dynamic Doc")
     write("layouts/doc.html", ~S(<%= @params["path"] %>:<%= @entry.data.title %>:<%= @content %>))

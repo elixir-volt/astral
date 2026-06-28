@@ -14,6 +14,12 @@ defmodule Astral.Route.PathTest do
            }
   end
 
+  test "rejects non-atom param keys" do
+    assert_raise ArgumentError, ~r/param names must be atoms/, fn ->
+      Path.new(%{"tag" => "elixir"})
+    end
+  end
+
   test "rejects non-atom assign keys" do
     assert_raise ArgumentError, ~r/assign names must be atoms/, fn ->
       Path.new([tag: "elixir"], %{"posts" => []})

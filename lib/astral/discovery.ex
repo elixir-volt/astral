@@ -101,7 +101,7 @@ defmodule Astral.Discovery do
       case Astral.Template.setup_binding_file(path, page_discovery_assigns(site), site.config) do
         {:ok, binding} ->
           binding
-          |> route_paths_from_binding(path)
+          |> route_paths_from_binding()
           |> case do
             {:ok, nil} ->
               {:error, {:unmatched_dynamic_route, path, file_route.pattern.source}}
@@ -128,14 +128,14 @@ defmodule Astral.Discovery do
     |> Enum.flat_map(fn entry -> dynamic_page(path, content, file_route, entry, config) end)
   end
 
-  defp route_paths_from_binding(binding, path) do
+  defp route_paths_from_binding(binding) do
     case Keyword.fetch(binding, :paths) do
-      {:ok, paths} -> validate_route_paths(paths, path)
+      {:ok, paths} -> validate_route_paths(paths)
       :error -> {:ok, nil}
     end
   end
 
-  defp validate_route_paths(paths, _path) when is_list(paths) do
+  defp validate_route_paths(paths) when is_list(paths) do
     if Enum.all?(paths, &match?(%Astral.Route.Path{}, &1)) do
       {:ok, paths}
     else
@@ -143,7 +143,7 @@ defmodule Astral.Discovery do
     end
   end
 
-  defp validate_route_paths(paths, _path), do: {:error, {:invalid_route_paths, paths}}
+  defp validate_route_paths(paths), do: {:error, {:invalid_route_paths, paths}}
 
   defp build_route_path_pages(path, content, file_route, route_paths, config) do
     {:ok, Enum.map(route_paths, &route_path_page(path, content, file_route, &1, config))}

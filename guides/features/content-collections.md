@@ -197,4 +197,4 @@ paths =
 </ul>
 ```
 
-Save this as `pages/tags/[tag].astral`. Each item in `paths` is an `Astral.Route.Path` contract produced by `path/1`, not an arbitrary map. Route params are exposed as `@params`, and atom-keyed `assigns` are merged into the page assigns.
+Save this as `pages/tags/[tag].astral`. Each item in `paths` is an `Astral.Route.Path` contract produced by `path/1`, not an arbitrary map. The `path/1` params and assigns use atom keys; rendered route params are exposed as string-keyed `@params`, and atom-keyed `assigns` are merged into page assigns.

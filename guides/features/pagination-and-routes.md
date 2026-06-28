@@ -23,7 +23,7 @@ paths =
 </ul>
 ```
 
-The setup `paths` list is evaluated during discovery. Each `path/1` item carries route params plus optional atom-keyed page assigns. Astral generates concrete routes such as `/tags/elixir/` and makes params available as `@params` while rendering.
+The setup `paths` list is evaluated during discovery. Each `path/1` item carries atom-keyed route params plus optional atom-keyed page assigns. Astral generates concrete routes such as `/tags/elixir/` and makes rendered params available as string-keyed `@params` for template compatibility.
 
 ## Config-declared generated routes
 
