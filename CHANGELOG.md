@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.3 - 2026-06-28
+
 ### Added
 
 - Static HEEx children for client islands, passed to framework runtimes through the default slot/children channel.
