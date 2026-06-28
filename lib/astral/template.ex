@@ -66,6 +66,7 @@ defmodule Astral.Template do
        defmodule unquote(module) do
          use Phoenix.Component
          import Astral.Components
+         import PhoenixIconify, only: [icon: 1]
          import Phoenix.HTML
          require Astral.Template.HEEx
 

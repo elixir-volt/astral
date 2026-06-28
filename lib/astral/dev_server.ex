@@ -114,7 +114,8 @@ defmodule Astral.DevServer do
   end
 
   defp discover_dev_site(config) do
-    with {:ok, site} <- Astral.Discovery.discover(config) do
+    with :ok <- Astral.Iconify.prepare(config),
+         {:ok, site} <- Astral.Discovery.discover(config) do
       {:ok, %{site | mode: :dev}}
     end
   end

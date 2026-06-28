@@ -205,6 +205,14 @@ In development this points to Volt's dev server. In static builds it resolves th
 
 See the [Assets guide](https://hexdocs.pm/astral/assets.html) and the [Volt documentation](https://hexdocs.pm/volt) for frontend tooling details.
 
+## Icons
+
+Render Iconify icons server-side with PhoenixIconify; Astral prepares the icon manifest during build/dev rendering:
+
+```astral
+<.icon name="ri:external-link-fill" class="inline-block" width="12" height="12" />
+```
+
 ## Client islands
 
 Mount a browser component from your Volt assets:

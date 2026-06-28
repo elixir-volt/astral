@@ -65,6 +65,29 @@ defmodule Astral.TemplateTest do
     assert script.source == "const answer: number = 42"
   end
 
+  test "renders Iconify icons in Astral templates" do
+    PhoenixIconify.Manifest.add_icon("ri:external-link-fill", %Iconify.Icon{
+      name: "ri:external-link-fill",
+      body: ~S(<path d="M1 1h10v10"/>),
+      width: 12,
+      height: 12
+    })
+
+    on_exit(fn -> PhoenixIconify.Manifest.clear_cache() end)
+
+    write("page.astral", """
+    <.icon name="ri:external-link-fill" class="inline-block" width="12" height="12" />
+    """)
+
+    config = Astral.Config.new(root: tmp(), pages: ".")
+
+    assert {:ok, html} = Astral.Template.render_file(path("page.astral"), %{}, config)
+    assert html =~ ~s(<svg)
+    assert html =~ ~s(class="inline-block")
+    assert html =~ ~s(width="12")
+    assert html =~ ~s(<path d="M1 1h10v10"/>)
+  end
+
   test "renders Astral content as safe HTML" do
     write("page.astral", """
     <article>{@entry.content}</article>

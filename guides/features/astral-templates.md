@@ -101,6 +101,27 @@ Slots use HEEx slot rendering:
 </div>
 ```
 
+## Icons
+
+Astral imports PhoenixIconify's `<.icon>` component into `.astral` templates. Use Iconify's `prefix:name` format and normal HEEx attributes:
+
+```astral
+<.icon name="ri:external-link-fill" class="inline-block mb-0.5" width="12" height="12" />
+```
+
+Astral prepares the PhoenixIconify manifest during `mix astral.build` and development rendering, so sites do not need to add the `:phoenix_iconify` Mix compiler manually. Configure icon discovery at the intent level when needed:
+
+```elixir
+config :phoenix_iconify,
+  source_globs: [
+    "pages/**/*.astral",
+    "components/**/*.astral",
+    "layouts/**/*.astral",
+    "content/**/*.md"
+  ],
+  extra_icons: ["ri:external-link-fill"]
+```
+
 ## Client islands
 
 Astral can mount client-only framework components from Volt-managed assets. All Volt framework adapters are enabled by default; configure `islands do adapter :vue end` only when you want to restrict the allowed set.

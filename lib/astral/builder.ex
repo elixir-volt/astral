@@ -21,7 +21,8 @@ defmodule Astral.Builder do
   end
 
   defp build_config(config) do
-    with :ok <- Astral.PluginRunner.build_start(config.plugins, config),
+    with :ok <- Astral.Iconify.prepare(config),
+         :ok <- Astral.PluginRunner.build_start(config.plugins, config),
          {:ok, site} <- Astral.Discovery.discover(config),
          :ok <- prepare_outdir(config),
          :ok <- copy_public(config),
