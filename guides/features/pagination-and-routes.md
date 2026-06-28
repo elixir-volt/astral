@@ -20,6 +20,8 @@ Use ordinary `<a>` elements for navigation:
 <a href="/about/">About</a>
 ```
 
+See the navigation guide for current i18n, prefetch, and view-transition boundaries.
+
 Dynamic filenames use Astro-style brackets at the file boundary and Plug/Phoenix-style route params internally:
 
 ```text
@@ -190,8 +192,10 @@ If a generated route writes the same output path as a page or public file, the g
 
 Astral reports duplicate page routes. Broader output-conflict diagnostics for public files and generated routes are planned.
 
-## Redirects, rewrites, and middleware scope
+## Redirects, rewrites, i18n, and middleware scope
 
 Astral does not yet have core redirect or rewrite rules. For static redirects today, use your host's redirect configuration or generate host-specific files with `get` routes or plugins.
+
+Astral also does not yet have first-class i18n routing middleware. Use localized folders, collection locale fields, and site-owned link helpers for static multilingual sites today. Locale fallbacks, domain-based locales, browser-language detection, and route verification belong with future runtime/hybrid routing work.
 
 Full page middleware is not implemented yet. Current middleware-like support is limited to `plug` declarations around config-generated routes. Use `Astral.Plugin.render_page/3` for build-time HTML transforms across rendered pages.

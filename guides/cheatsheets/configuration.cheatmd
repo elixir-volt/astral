@@ -92,6 +92,17 @@ get "/robots.txt", content_type: "text/plain" do
 end
 ```
 
+## Multilingual static routes
+
+Use localized folders and site-owned link helpers today:
+
+```text
+pages/about.md     -> /about/
+pages/es/about.md  -> /es/about/
+```
+
+First-class i18n routing config, fallbacks, domains, and browser-language middleware are not implemented yet.
+
 Use `plug` only for config-generated route middleware:
 
 ```elixir

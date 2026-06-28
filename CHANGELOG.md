@@ -18,6 +18,7 @@
 - Editor setup, TypeScript, and environment variable guides that map Astral's Elixir site layer to Volt browser tooling.
 - Clearer plugins/integrations documentation separating Astral site plugins from Volt browser asset plugins.
 - Clearer routing, static endpoint, and middleware-scope documentation after auditing Astro's routing/endpoints/middleware guides.
+- Navigation documentation covering current i18n, prefetch, and view-transition boundaries.
 
 ### Changed
 
