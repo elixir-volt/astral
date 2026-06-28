@@ -186,4 +186,4 @@ Astral writes a generated island entry module and Volt compiles the imported fra
 </script>
 ```
 
-Astral removes those blocks from the server-rendered HTML template. Volt builds and serves them as first-class browser modules.
+Astral removes those blocks from the server-rendered HTML template. Volt builds and serves them as first-class browser modules. See the styling and browser code guide for details on how this differs from Astro's scoped styles, script processing, fonts, syntax highlighting, and framework components.

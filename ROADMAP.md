@@ -72,6 +72,7 @@ Astral's long-term goal is to become an Elixir-native static and hybrid site fra
 - Custom 404 page in the basic example site.
 - Setup-declared dynamic `.astral` pages for userland route enumeration such as tag pages, backed by strict `Astral.Route.Path` contracts.
 - Documentation classifying current i18n, prefetch, and view-transition boundaries after auditing Astro's navigation features.
+- Documentation classifying current CSS, font, syntax-highlighting, script, and framework-island boundaries after auditing Astro's UI-building features.
 
 ## Current priorities
 
@@ -107,6 +108,7 @@ Goal: make Astral easy to try for real sites.
 - `mix astral.new --template marketing`.
 - Search integration for docs/blog templates.
 - Syntax highlighting defaults.
+- Font examples and, if warranted, a small Elixir-native font helper for local fonts/preload links.
 - Related posts examples.
 - Redirects.
 - Stronger deployment docs for common static hosts.
@@ -120,6 +122,7 @@ Goal: turn the existing islands MVP into a dependable production feature.
 - Refine the existing per-island entry generation into a clearer route/component-level code splitting strategy.
 - Refine static children/slot behavior across Vue, React, Svelte, and Solid.
 - Add `client:only` if it fits Astral's native API.
+- Decide whether island/framework docs need SSR examples or whether client-only islands remain the intentionally small core.
 - Document framework-specific island patterns.
 - Stress-test island props serialization and hydration ordering.
 

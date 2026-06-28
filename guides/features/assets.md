@@ -215,4 +215,4 @@ Volt builds those blocks alongside the configured asset entry.
 
 ## Volt features
 
-For TypeScript, CSS, imported assets, asset query modes, workers, code splitting, HMR, and formatting/linting, see the Volt documentation.
+For TypeScript, CSS, imported assets, asset query modes, workers, code splitting, HMR, and formatting/linting, see the Volt documentation. See Astral's styling and browser code guide for current CSS, font, syntax-highlighting, script, and framework-island boundaries.
