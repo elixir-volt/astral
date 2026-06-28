@@ -19,6 +19,38 @@ Use local components with HEEx syntax:
 <.pill>Elixir</.pill>
 ```
 
+Component files receive the same `assigns` map as Phoenix function components, but without requiring module boilerplate. Use `assign/3`, `assigns_to_attributes/2`, `render_slot/1`, and Phoenix's built-in `<.dynamic_tag>` for wrapper components:
+
+```astral
+<!-- components/width_wrapper.astral -->
+---
+assigns =
+  assigns
+  |> assign(:tag, assigns[:as] || "div")
+  |> assign(:class, assigns[:class])
+  |> assign(:rest, assigns_to_attributes(assigns, [:as, :class]))
+---
+
+<.dynamic_tag
+  tag_name={@tag}
+  class={[
+    "px-6 sm:px-8 md:max-w-screen-md xl:max-w-screen-lg md:px-12 mx-auto",
+    @class
+  ]}
+  {@rest}
+>
+  {render_slot(@inner_block)}
+</.dynamic_tag>
+```
+
+```astral
+<.width_wrapper as="section" id="projects" class="pt-8 pb-12 md:py-12">
+  ...
+</.width_wrapper>
+```
+
+This is the HEEx equivalent of Astro's `Astro.props`, `{...props}`, `<slot />`, and dynamic `<Tag>` wrapper pattern.
+
 ## Pages
 
 `.astral` pages live in `pages/`:

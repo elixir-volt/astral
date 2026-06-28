@@ -65,6 +65,53 @@ defmodule Astral.TemplateTest do
     assert script.source == "const answer: number = 42"
   end
 
+  test "renders local components with dynamic tags and rest attributes" do
+    write("components/width_wrapper.astral", """
+    ---
+    assigns =
+      assigns
+      |> assign(:tag, assigns[:as] || "div")
+      |> assign(:class, assigns[:class])
+      |> assign(:rest, assigns_to_attributes(assigns, [:as, :class]))
+    ---
+    <.dynamic_tag tag_name={@tag} class={["wrapper", @class]} {@rest}>
+      {render_slot(@inner_block)}
+    </.dynamic_tag>
+    """)
+
+    write("page.astral", """
+    <.width_wrapper as="section" id="projects" class="wide" data-kind="feature">
+      Projects
+    </.width_wrapper>
+    """)
+
+    config = Astral.Config.new(root: tmp(), pages: ".")
+
+    assert {:ok, html} = Astral.Template.render_file(path("page.astral"), %{}, config)
+    assert html =~ ~s(<section id="projects" class="wrapper wide" data-kind="feature">)
+    assert html =~ "Projects"
+    assert html =~ ~s(</section>)
+  end
+
+  test "rejects unsafe dynamic tags in local components" do
+    write("components/box.astral", """
+    ---
+    assigns = assign(assigns, :tag, assigns[:as] || "div")
+    ---
+    <.dynamic_tag tag_name={@tag}>{render_slot(@inner_block)}</.dynamic_tag>
+    """)
+
+    write("page.astral", """
+    <.box as={"script>alert(1)</script"}>Unsafe</.box>
+    """)
+
+    config = Astral.Config.new(root: tmp(), pages: ".")
+
+    assert_raise ArgumentError, ~r/expected dynamic_tag name to be safe HTML/, fn ->
+      Astral.Template.render_file(path("page.astral"), %{}, config)
+    end
+  end
+
   test "supports setup blocks before HEEx" do
     write("page.astral", """
     ---
