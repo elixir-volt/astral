@@ -66,7 +66,7 @@ Astral's long-term goal is to become an Elixir-native static and hybrid site fra
 - Inline local SVG files through `<.svg src="..." />`, resolved with Volt asset aliases and rendered as HTML-safe SVG.
 - Phoenix-shaped `get` declarations in `astral.config.exs` for one-off generated static routes.
 - Plug-compatible middleware for generated config routes via `plug`.
-- Userland head metadata component pattern in the basic example and pages/layouts guide.
+- Userland head metadata component pattern in the basic example and pages/layouts guide, including canonical URLs, Open Graph/Twitter tags, and feed discovery links.
 - Root custom 404 pages that build to `dist/404.html` and return 404 in development.
 - Deterministic static output precedence documented and tested: public files, then pages, then generated routes.
 - Custom 404 page in the basic example site.
@@ -82,18 +82,15 @@ Goal: make Astral feel complete for practical blogs, docs, and marketing sites.
 - Richer dynamic route examples for blogs, docs, tags, categories, and paginated archives.
 - Document userland tag/category pages without making taxonomy a core abstraction.
 - Non-collection dynamic route enumeration if a clear Elixir-native API emerges.
-- Better diagnostics for unmatched dynamic routes, duplicate routes, missing params, and ambiguous collection matches.
+- Improve route diagnostics beyond the existing unmatched dynamic route and duplicate route errors, especially ambiguous collection matches and output conflicts.
 - More complete content collection guide examples, including schema field defaults.
 
 ### v0.3 — Metadata and document head
 
 Goal: make production pages easier to build without ad hoc layout code while preserving userland composition.
 
-- Canonical URL helpers.
-- Page metadata helper patterns.
-- Open Graph and Twitter card helper patterns.
-- Feed/sitemap discovery links.
 - Decide whether Astral needs a core `site_url`/`base_url` config.
+- Decide whether to promote userland `base_head` patterns into core helpers for canonical URLs, Open Graph/Twitter tags, and feed/sitemap discovery links.
 - Decide whether per-route `<head>` contribution from pages, layouts, and plugins is worth a core API.
 - If needed, add a plugin hook for head entries, likely `head/2` or equivalent.
 
@@ -115,8 +112,8 @@ Goal: make Astral easy to try for real sites.
 
 Goal: turn the existing islands MVP into a dependable production feature.
 
-- Improve island diagnostics in dev and build.
-- Route-level and component-level code splitting.
+- Expand existing island diagnostics in dev and build.
+- Refine the existing per-island entry generation into a clearer route/component-level code splitting strategy.
 - Refine static children/slot behavior across Vue, React, Svelte, and Solid.
 - Add `client:only` if it fits Astral's native API.
 - Document framework-specific island patterns.
