@@ -1,17 +1,17 @@
 # Astral Roadmap
 
-Astral's long-term goal is to become an Elixir-native static site and hybrid site framework with Astro-class site features, while keeping Volt focused on frontend assets, bundling, dev server primitives, and HMR.
+Astral's long-term goal is to become an Elixir-native static and hybrid site framework with Astro-class site features, while keeping Volt focused on frontend assets, bundling, dev-server primitives, and HMR.
 
 ## Architecture principles
 
-- **Volt stays Vite-like.** Volt owns JavaScript/TypeScript/CSS compilation, bundling, imported assets, embedded modules, dev server primitives, and HMR.
-- **Astral owns site semantics.** Astral owns pages, routes, content collections, layouts, frontmatter, feeds, sitemaps, metadata, islands, and deployment adapters.
-- **Elixir-first configuration.** Site config is real Elixir returning structs, not global app env or JavaScript object clones.
+- **Volt stays Vite-like.** Volt owns JavaScript/TypeScript/CSS compilation, bundling, imported assets, embedded modules, dev-server primitives, and HMR.
+- **Astral owns site semantics.** Astral owns pages, routes, content collections, layouts, frontmatter, feeds, sitemaps, metadata patterns, images, islands, and deployment adapters.
+- **Elixir-first configuration.** Site config is real Elixir returning structs and DSL data, not app-env state or a JavaScript config clone.
 - **HEEx-first templates.** `.astral` uses Phoenix/HEEx semantics instead of inventing a JSX-like component language.
-- **Parser-backed processing.** Use real parsers for Markdown, HEEx-like templates, HTML-like markup, JavaScript/TypeScript, CSS, and frontmatter.
-- **Value before abstraction.** Add hooks and APIs when they unlock user-facing capabilities.
+- **Parser-backed processing.** Use real parsers for Markdown, HEEx-like templates, HTML-like markup, JavaScript/TypeScript, CSS, XML/SVG, and frontmatter.
+- **Value before abstraction.** Add hooks and APIs when they unlock user-facing capabilities, not just to mirror another framework's names.
 
-## Shipped foundation
+## Implemented foundation
 
 ### v0.1.0 — Initial static site generator
 
@@ -33,91 +33,69 @@ Astral's long-term goal is to become an Elixir-native static site and hybrid sit
 - Parser-backed `.astral` `<style>` and `<script>` extraction through Volt embedded modules.
 - Local component discovery from `components/**/*.astral`.
 - Content collections.
-- Collection schemas and validation with JSONSpec-style typespec maps and Zoi.
+- Collection schemas and validation.
 - Collection entry routes from `permalink` patterns.
 - Collection query helpers such as `entries/2`, `published/1`, `sort_by_date/2`, and `tags/1`.
 - Route patterns with Plug/Phoenix-style `:param` and `*glob` segments.
 - Pagination primitives and collection pagination plugin.
-- Plugin foundation modeled after Volt: behaviour, runner, tuple options, ordering, generated routes, route rendering, page transforms, and lifecycle hooks.
+- Plugin foundation: behaviour, runner, tuple options, ordering, generated routes, route rendering, page transforms, and lifecycle hooks.
 - Feed and sitemap plugins.
 - Markdown heading anchors and heading metadata for table-of-contents layouts.
 - XM extracted as a standalone XML DSL package used by feed/sitemap plugins.
 - User guides, cheatsheets, and a Volt-style README.
 
-## Near-term priority: dynamic content routes
+### v0.1.2 — Dynamic routes, images, and islands MVP
 
-Initial collection-backed dynamic file routes landed on `master` after v0.1.1. The next priority is rounding them into a complete dynamic content route story with diagnostics, examples, and non-collection enumeration if needed.
-
-Target file shapes:
-
-```text
-pages/blog/[slug].astral
-pages/blog/[slug].md
-pages/docs/[...path].md
-pages/tags/[tag]/[...page].astral
-```
-
-Route equivalents:
-
-```text
-/blog/:slug
-/docs/*path
-/tags/:tag/*page
-```
-
-Dynamic file routes integrate with collections without making tags/categories a core taxonomy abstraction. A common blog detail page is expressible as a user-owned route template backed by collection data:
-
-```text
-content/posts/hello.md
-pages/blog/[slug].astral
-```
-
-The page template owns the HTML while Astral provides the matching entry and route params.
-
-### Design goals
-
-- Keep route syntax Elixir/Phoenix-like at the API level: `:slug` and `*path`.
-- Use bracket filenames only as file-route sugar.
-- Avoid `:` and `*` in filenames for Windows and shell portability.
-- Support `.md`, `.html`, and `.astral` pages.
-- Make collection-backed dynamic routes feel like ordinary page rendering.
-- Keep tags/categories userland.
-- Preserve generated route plugins for feeds, sitemaps, pagination, and custom files.
-
-### Likely work
-
-- Parser-backed file-route conversion from `[slug]` / `[...path]` filenames to `Astral.Route.Pattern`. *(Initial support landed on `master` after v0.1.1.)*
-- Route params in page/layout assigns as string-keyed `@params`. *(Initial support landed on `master` after v0.1.1.)*
-- Collection matching for route params, initially by route pattern. *(Initial support landed on `master` after v0.1.1.)*
-- Decide how `get_static_paths`-style enumeration should look in Elixir, if needed for non-collection dynamic pages.
-- Add dev/build diagnostics for dynamic routes with missing params or unmatched entries.
-- Add richer example site pages.
-
-## Next milestones
-
-### v0.2 — Dynamic content routes
-
-Goal: make Astral a practical blog/docs framework with user-owned dynamic templates.
-
-- Dynamic file routes for `.md`, `.html`, and `.astral`. *(Initial collection-backed support landed on `master` after v0.1.1.)*
-- Collection-backed detail routes such as `pages/blog/[slug].astral`. *(Initial support landed on `master` after v0.1.1.)*
-- Route params available in pages and layouts. *(Initial support landed on `master` after v0.1.1.)*
+- Dynamic file routes for `.md`, `.html`, and `.astral` using bracket filename sugar such as `[slug]` and `[...path]`.
+- Route params in page/layout assigns as string-keyed `@params`.
+- Collection-backed detail routes such as `pages/blog/[slug].astral`.
 - Dynamic route diagnostics.
-- Userland tag pages documented with dynamic routes and pagination.
+- Ecto-style content collection schema fields.
+- Markdown rendering with Astral HEEx components.
+- Optimized local and remote image pipeline, including image, picture, figure, metadata, Markdown image, dev-server, and collection image field support.
+- Client-only islands for Vue, Svelte, React, and Solid.
+- Island client directives for `:load`, `:idle`, `:visible`, and `:media`.
+- JSON-safe island props through JSON-shaped values, JSONCodec structs, and Jason encoders.
+- Type-aware Volt JavaScript checks for Astral island runtime assets.
+- Vue and React islands in the basic example site.
+
+### Unreleased — Route and asset ergonomics
+
+- Static HEEx children for client islands, passed through the default slot/children channel.
+- Server-rendered Iconify icons through PhoenixIconify's `<.icon>` component in `.astral` templates.
+- Inline local SVG files through `<.svg src="..." />`, resolved with Volt asset aliases and rendered as HTML-safe SVG.
+- Phoenix-shaped `get` declarations in `astral.config.exs` for one-off generated static routes.
+- Plug-compatible middleware for generated config routes via `plug`.
+- Userland head metadata component pattern in the basic example and pages/layouts guide.
+
+## Current priorities
+
+The original v0.2/v0.5 work landed earlier than planned: dynamic routes, images, and an islands MVP are already in place. The roadmap now shifts from foundation building to hardening the site-authoring experience.
+
+### v0.2 — Content and routing polish
+
+Goal: make Astral feel complete for practical blogs, docs, and marketing sites.
+
+- Richer dynamic route examples for blogs, docs, tags, categories, and paginated archives.
+- Document userland tag/category pages without making taxonomy a core abstraction.
 - Frontmatter defaults.
-- Non-collection dynamic route enumeration, if a clear Elixir API emerges.
+- Non-collection dynamic route enumeration if a clear Elixir-native API emerges.
+- Better diagnostics for unmatched dynamic routes, duplicate routes, missing params, and ambiguous collection matches.
 - More complete content collection guide examples.
+- Custom `404.html` convention.
+- Clarify static assets, generated routes, and public file precedence.
 
 ### v0.3 — Metadata and document head
 
-Goal: make production pages easier to build without ad hoc layout code.
+Goal: make production pages easier to build without ad hoc layout code while preserving userland composition.
 
-- Page metadata helpers.
 - Canonical URL helpers.
-- Open Graph and Twitter card helpers.
+- Page metadata helper patterns.
+- Open Graph and Twitter card helper patterns.
 - Feed/sitemap discovery links.
-- Per-route `<head>` contribution from pages, layouts, and plugins.
-- Plugin hook for head entries, likely `head/2` or equivalent.
+- Decide whether Astral needs a core `site_url`/`base_url` config.
+- Decide whether per-route `<head>` contribution from pages, layouts, and plugins is worth a core API.
+- If needed, add a plugin hook for head entries, likely `head/2` or equivalent.
 
 ### v0.4 — Starter templates and product polish
 
@@ -131,38 +109,20 @@ Goal: make Astral easy to try for real sites.
 - Related posts examples.
 - Redirects.
 - Stronger deployment docs for common static hosts.
+- Dogfooded Astral docs site.
 
-### v0.5 — Islands MVP
+### v0.5 — Islands hardening
 
-Goal: deliver Astro's biggest differentiator in an Elixir/Volt-native way.
+Goal: turn the existing islands MVP into a dependable production feature.
 
-- Island declarations in `.astral`/HEEx templates.
-- Initial hydration modes:
-  - `client:load`
-  - `client:idle`
-  - `client:visible`
-- Island manifest generation.
-- Prop serialization.
-- Volt entries for island client boot code.
-- One framework adapter first, then expand.
-
-Candidate API direction:
-
-```heex
-<.island component="Counter" client="visible" props={%{count: 0}} />
-```
-
-### v0.6 — Framework adapters and richer islands
-
-- React islands.
-- Vue islands.
-- Svelte islands.
-- Solid islands.
-- `client:media` and `client:only` hydration modes.
+- Improve island diagnostics in dev and build.
 - Route-level and component-level code splitting.
-- Island dev diagnostics.
+- Refine static children/slot behavior across Vue, React, Svelte, and Solid.
+- Add `client:only` if it fits Astral's native API.
+- Document framework-specific island patterns.
+- Stress-test island props serialization and hydration ordering.
 
-### v0.7 — Hybrid/runtime modes
+### v0.6 — Hybrid/runtime modes
 
 Goal: move beyond static-only without making Volt responsible for site semantics.
 
@@ -171,6 +131,7 @@ Goal: move beyond static-only without making Volt responsible for site semantics
 - Phoenix integration adapter.
 - Hybrid prerender plus dynamic routes.
 - Runtime route manifest.
+- Deployment adapter shape for common static and server targets.
 
 ### v1.0 — Stable Astro-class foundation
 
@@ -178,7 +139,16 @@ Goal: move beyond static-only without making Volt responsible for site semantics
 - Stable content collection API.
 - Stable plugin API.
 - Stable `.astral` template API.
+- Stable image and SVG APIs.
 - Stable island API.
 - Strong HexDocs and examples.
 - Dogfooded docs site built with Astral.
 - Production deployment guides for common static hosts.
+
+## Later / experimental
+
+These are intentionally not near-term roadmap items.
+
+- `.astro` compatibility as a separate compatibility package or mode, likely after native Astral APIs are stable.
+- QuickBEAM runtime shims for compiled Astro output.
+- MDX compatibility beyond current Markdown + HEEx component support.
