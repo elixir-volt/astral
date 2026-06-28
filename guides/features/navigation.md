@@ -54,7 +54,7 @@ locales = ["en", "es", "fr"]
 paths = for locale <- locales, do: path locale: locale
 ---
 
-<h1>{@params["locale"]}</h1>
+<h1>{@params.locale}</h1>
 ```
 
 Keep locale link generation in small site-owned helpers or components for now. This avoids adding an Astro-shaped global config before Astral has a runtime request layer and a clear Elixir-native i18n API.

@@ -93,7 +93,7 @@ The dynamic page route matches the collection permalink `/blog/:slug/` and recei
 <article>
   <h1>{@entry.data.title}</h1>
   {@entry.content}
-  <p>Slug: {@params["slug"]}</p>
+  <p>Slug: {@params.slug}</p>
 </article>
 ```
 
@@ -104,7 +104,7 @@ content/docs/guide/intro.md
 pages/docs/[...path].md
 ```
 
-Use `@params["path"]` to read the captured path.
+Use `@params.path` to read the captured path.
 
 ## Components in collection Markdown
 
@@ -187,7 +187,7 @@ paths =
   end
 ---
 
-<h1>{@params["tag"]}</h1>
+<h1>{@params.tag}</h1>
 <ul>
   <li :for={post <- @posts}>
     <a href={post.route_path}>{post.data.title}</a>
@@ -195,4 +195,4 @@ paths =
 </ul>
 ```
 
-Save this as `pages/tags/[tag].astral`. Each item in `paths` is an `Astral.Route.Path` contract produced by `path/1`, not an arbitrary map. The `path/1` params and assigns use atom keys; rendered route params are exposed as string-keyed `@params`, and atom-keyed `assigns` are merged into page assigns.
+Save this as `pages/tags/[tag].astral`. Each item in `paths` is an `Astral.Route.Path` contract produced by `path/1`, not an arbitrary map. The `path/1` params, rendered `@params`, and page assigns all use atom keys.

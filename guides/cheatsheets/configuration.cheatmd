@@ -63,10 +63,10 @@ pages/blog/[slug].astral   -> /blog/:slug
 pages/docs/[...path].md    -> /docs/*path
 ```
 
-Read route params from templates and layouts with string keys:
+Read route params from templates and layouts with atom keys:
 
 ```eex
-<%= @params["slug"] %>
+<%= @params.slug %>
 ```
 
 Declare arbitrary dynamic `.astral` paths with the `path/1` setup helper:

@@ -52,8 +52,8 @@ defmodule Astral.Route.Pattern do
     |> join()
   end
 
-  @doc "Match a concrete path against a pattern and return captured params."
-  @spec match(String.t() | t(), String.t()) :: {:ok, map()} | :error
+  @doc "Match a concrete path against a pattern and return string-keyed captured params."
+  @spec match(String.t() | t(), String.t()) :: {:ok, %{String.t() => String.t() | nil}} | :error
   def match(pattern, path)
   def match(pattern, path) when is_binary(pattern), do: pattern |> parse() |> match(path)
 

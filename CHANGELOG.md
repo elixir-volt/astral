@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.1.5 - 2026-06-28
+
+### Changed
+
+- Dynamic route params rendered in `@params` are now atom-keyed, matching setup-declared route params and schema-normalized entry data.
+
 ## 0.1.4 - 2026-06-28
 
 ### Added

@@ -15,8 +15,8 @@ defmodule Astral.Route.FileTest do
 
     assert route.dynamic?
     assert route.pattern.source == "/blog/:slug"
-    assert route.params == ["slug"]
-    assert File.match(route, "/blog/hello/") == {:ok, %{"slug" => "hello"}}
+    assert route.params == %{"slug" => :slug}
+    assert File.match(route, "/blog/hello/") == {:ok, %{slug: "hello"}}
   end
 
   test "converts spread params to Elixir-style route globs" do
@@ -24,10 +24,10 @@ defmodule Astral.Route.FileTest do
 
     assert route.dynamic?
     assert route.pattern.source == "/docs/*path"
-    assert route.params == ["path"]
+    assert route.params == %{"path" => :path}
 
     assert File.match(route, "/docs/intro/getting-started/") ==
-             {:ok, %{"path" => "intro/getting-started"}}
+             {:ok, %{path: "intro/getting-started"}}
   end
 
   test "generates concrete route paths from route path contracts" do

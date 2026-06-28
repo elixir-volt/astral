@@ -159,7 +159,7 @@ defmodule Astral.Discovery do
       route_path: page_route,
       output_path: Path.join(config.outdir, Astral.Route.output_relative(page_route)),
       content: content,
-      params: Astral.Route.Pattern.normalize_params(route_path.params),
+      params: route_path.params,
       assigns: route_path.assigns
     }
   end

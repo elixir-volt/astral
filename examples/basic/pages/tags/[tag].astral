@@ -8,9 +8,9 @@ paths =
   end
 ---
 
-<section class="tag-page" data-tag={@params["tag"]}>
+<section class="tag-page" data-tag={@params.tag}>
   <p class="eyebrow">Tag</p>
-  <h1>{@params["tag"]}</h1>
+  <h1>{@params.tag}</h1>
 
   <ul>
     <li :for={post <- @posts}>

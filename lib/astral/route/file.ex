@@ -18,7 +18,7 @@ defmodule Astral.Route.File do
           source: String.t(),
           pattern: Pattern.t(),
           dynamic?: boolean(),
-          params: [String.t()]
+          params: %{String.t() => atom()}
         }
 
   defstruct source: nil, pattern: nil, dynamic?: false, params: []
@@ -56,8 +56,8 @@ defmodule Astral.Route.File do
     |> trailing_slash()
   end
 
-  @doc "Match a concrete path and return string-keyed params for template assigns."
-  @spec match(t(), String.t()) :: {:ok, map()} | :error
+  @doc "Match a concrete path and return atom-keyed params for template assigns."
+  @spec match(t(), String.t()) :: {:ok, %{atom() => String.t() | nil}} | :error
   def match(%__MODULE__{} = route, path) do
     case Pattern.match(route.pattern, path) do
       {:ok, params} -> {:ok, allowed_params(params, route.params)}
@@ -111,34 +111,37 @@ defmodule Astral.Route.File do
   end
 
   defp param_names(%Pattern{} = pattern) do
-    Enum.flat_map(pattern.parts, fn
-      {:param, name} -> [name]
-      {:glob, name} -> [name]
+    pattern.parts
+    |> Enum.flat_map(fn
+      {:param, name} -> [{name, param_atom(name)}]
+      {:glob, name} -> [{name, param_atom(name)}]
       {:static, _segment} -> []
     end)
+    |> Map.new()
   end
 
   defp allowed_params(params, allowed) do
-    allowed = MapSet.new(allowed)
-
     Map.new(params, fn {name, value} ->
-      if MapSet.member?(allowed, name) do
-        {name, value}
-      else
-        raise ArgumentError, "unexpected route parameter #{inspect(name)}"
+      case Map.fetch(allowed, name) do
+        {:ok, atom} -> {atom, value}
+        :error -> raise ArgumentError, "unexpected route parameter #{inspect(name)}"
       end
     end)
   end
 
   defp validate_path_params!(route, path) do
-    allowed = MapSet.new(route.params)
-
-    actual =
-      path.params |> Enum.map(fn {name, _value} -> Atom.to_string(name) end) |> MapSet.new()
+    allowed = route.params |> Map.values() |> MapSet.new()
+    actual = path.params |> Map.keys() |> MapSet.new()
 
     case MapSet.difference(actual, allowed) |> MapSet.to_list() |> Enum.sort() do
       [] -> :ok
       params -> raise ArgumentError, "unexpected route parameters #{inspect(params)}"
     end
   end
+
+  # Route parameter names come from project-authored file names such as
+  # `pages/blog/[slug].astral`, not from request input. Astral converts them to
+  # atoms once at discovery so rendered `@params` has an Elixir-native shape.
+  # reach:disable-next-line unsafe_atom_creation
+  defp param_atom(name), do: String.to_atom(name)
 end

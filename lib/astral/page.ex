@@ -9,7 +9,7 @@ defmodule Astral.Page do
           output_path: String.t(),
           content: Astral.Content.t(),
           entry: Astral.Entry.t() | nil,
-          params: map(),
+          params: %{atom() => term()},
           assigns: %{atom() => term()}
         }
 

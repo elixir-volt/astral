@@ -695,7 +695,7 @@ defmodule Astral.BuilderTest do
 
   test "renders collection entries with dynamic Astral file routes" do
     write("pages/blog/[slug].astral", ~S'''
-    <article data-slug={@params["slug"]}>
+    <article data-slug={@params.slug}>
       <h1>{@entry.data.title}</h1>
       <div>{@entry.slug}</div>
     </article>
@@ -725,7 +725,7 @@ defmodule Astral.BuilderTest do
 
     assert {:ok, result} = Astral.build(config)
 
-    assert [%Astral.Page{route_path: "/blog/hello/", params: %{"slug" => "hello"}}] =
+    assert [%Astral.Page{route_path: "/blog/hello/", params: %{slug: "hello"}}] =
              result.site.pages
 
     assert read("dist/blog/hello/index.html") =~ ~s(<article data-slug="hello">)
@@ -776,8 +776,8 @@ defmodule Astral.BuilderTest do
         path tag: tag, assigns: %{posts: posts_for_tag}
       end
     ---
-    <section data-tag={@params["tag"]}>
-      <h1>{@params["tag"]}</h1>
+    <section data-tag={@params.tag}>
+      <h1>{@params.tag}</h1>
       <ul :for={post <- @posts}>
         <li>{post.data.title}</li>
       </ul>
@@ -830,7 +830,7 @@ defmodule Astral.BuilderTest do
     ---
     paths = [path tag: "elixir", extra: "nope"]
     ---
-    <h1>{@params["tag"]}</h1>
+    <h1>{@params.tag}</h1>
     ''')
 
     assert {:error, {:dynamic_route_paths_failed, _path, %ArgumentError{} = error}} =
@@ -844,7 +844,7 @@ defmodule Astral.BuilderTest do
     ---
     paths = [%{tag: "elixir"}]
     ---
-    <h1>{@params["tag"]}</h1>
+    <h1>{@params.tag}</h1>
     ''')
 
     assert {:error, {:dynamic_route_paths_failed, _path, {:invalid_route_paths, paths}}} =
@@ -855,7 +855,7 @@ defmodule Astral.BuilderTest do
 
   test "renders glob dynamic Markdown routes with params in layouts" do
     write("pages/docs/[...path].md", "# Dynamic Doc")
-    write("layouts/doc.html", ~S(<%= @params["path"] %>:<%= @entry.data.title %>:<%= @content %>))
+    write("layouts/doc.html", ~S(<%= @params.path %>:<%= @entry.data.title %>:<%= @content %>))
 
     write("content/docs/guide/intro.md", """
     ---
@@ -881,7 +881,7 @@ defmodule Astral.BuilderTest do
 
     assert {:ok, result} = Astral.build(config)
 
-    assert [%Astral.Page{route_path: "/docs/guide/intro/", params: %{"path" => "guide/intro"}}] =
+    assert [%Astral.Page{route_path: "/docs/guide/intro/", params: %{path: "guide/intro"}}] =
              result.site.pages
 
     assert read("dist/docs/guide/intro/index.html") ==
@@ -889,7 +889,7 @@ defmodule Astral.BuilderTest do
   end
 
   test "returns an error when a dynamic file route matches no collection entries" do
-    write("pages/blog/[slug].astral", "<h1>{@params[\"slug\"]}</h1>")
+    write("pages/blog/[slug].astral", "<h1>{@params.slug}</h1>")
 
     write("content/posts/hello.md", """
     ---

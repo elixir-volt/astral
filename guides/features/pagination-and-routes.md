@@ -29,10 +29,10 @@ pages/blog/[slug].astral   -> /blog/:slug
 pages/docs/[...path].md    -> /docs/*path
 ```
 
-Rendered params are available as string-keyed `@params`:
+Rendered params are available as atom-keyed `@params`:
 
 ```astral
-<h1>{@params["slug"]}</h1>
+<h1>{@params.slug}</h1>
 ```
 
 ## Collection-backed dynamic pages
@@ -45,7 +45,7 @@ pages/blog/[slug].astral   -> /blog/:slug
 ```
 
 ```astral
-<article data-slug={@params["slug"]}>
+<article data-slug={@params.slug}>
   <h1>{@entry.data.title}</h1>
   {@entry.content}
 </article>
@@ -68,13 +68,13 @@ paths =
   end
 ---
 
-<h1>{@params["tag"]}</h1>
+<h1>{@params.tag}</h1>
 <ul>
   <li :for={post <- @posts}>{post.data.title}</li>
 </ul>
 ```
 
-The setup `paths` list is evaluated during discovery. Each `path/1` item carries atom-keyed route params plus optional atom-keyed page assigns. Astral generates concrete routes such as `/tags/elixir/` and makes rendered params available as string-keyed `@params` for template compatibility.
+The setup `paths` list is evaluated during discovery. Each `path/1` item carries atom-keyed route params plus optional atom-keyed page assigns. Astral generates concrete routes such as `/tags/elixir/` and makes rendered params available as atom-keyed `@params`.
 
 ## Static endpoints with generated routes
 

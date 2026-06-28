@@ -132,7 +132,7 @@ paths =
   end
 ---
 
-<h1>{@params["tag"]}</h1>
+<h1>{@params.tag}</h1>
 ```
 
 This is the current Astral equivalent of Astro's build-time static path generation, expressed as Elixir data in the page that owns the route.
