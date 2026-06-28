@@ -1,6 +1,42 @@
 # Pagination and Generated Routes
 
-Astral plugins can add generated routes during static builds. Built-in pagination helpers cover common collection index pages.
+Astral can add generated routes during static builds. Use top-level `get` declarations for site-specific static outputs, and plugins for reusable route generators.
+
+## Config-declared generated routes
+
+Declare one-off static outputs directly in `astral.config.exs`:
+
+```elixir
+site do
+  get "/robots.txt", content_type: "text/plain" do
+    "User-agent: *\nAllow: /\n"
+  end
+
+  get "/search-index.json", content_type: "application/json" do
+    site
+    |> MySite.Search.index()
+    |> Jason.encode!()
+  end
+
+  get "/social-image.png", content_type: "image/png" do
+    MySite.SocialImage.render_png!(site)
+  end
+end
+```
+
+The block runs in dev for matching requests and during static builds when Astral writes the output file. The block can use `site`, `route`, `config`, and `assigns`.
+
+Use `plug` declarations for Plug-compatible middleware around generated responses:
+
+```elixir
+site do
+  plug MySite.GeneratedRouteHeaders, cache: "public, max-age=3600"
+
+  get "/data.json", content_type: "application/json" do
+    Jason.encode!(%{ok: true})
+  end
+end
+```
 
 ## Collection pagination plugin
 

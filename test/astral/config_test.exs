@@ -55,6 +55,35 @@ defmodule Astral.ConfigTest do
     assert collection.schema["type"] == "object"
   end
 
+  test "site DSL supports top-level generated routes and plugs" do
+    config =
+      site do
+        root("/tmp/astral")
+
+        plug(String, value: "ok")
+
+        get "/robots.txt", content_type: "text/plain" do
+          "root=#{site.config.root}; route=#{route.path}; assigns=#{inspect(assigns)}; config=#{config.root}"
+        end
+      end
+
+    assert [
+             {Astral.Plugin.GeneratedRoutes,
+              [
+                routes: [%Astral.Route{path: "/robots.txt", content_type: "text/plain"}],
+                plugs: [{String, [value: "ok"]}]
+              ]}
+           ] = config.plugins
+
+    [{Astral.Plugin.GeneratedRoutes, opts}] = config.plugins
+    [generated] = Keyword.fetch!(opts, :routes)
+    route = Astral.Route.new("/robots.txt", config, content_type: "text/plain")
+    site = %Astral.Site{config: config}
+
+    assert generated.assigns.render.(route, site) ==
+             "root=/tmp/astral; route=/robots.txt; assigns=%{}; config=/tmp/astral"
+  end
+
   test "site DSL supports island adapters" do
     config =
       site do

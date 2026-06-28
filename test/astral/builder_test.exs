@@ -1,6 +1,7 @@
 defmodule Astral.BuilderTest do
   use ExUnit.Case, async: false
 
+  import Astral.Config, only: [site: 1]
   import JSONSpec
 
   defmodule RemoteImageServer do
@@ -842,6 +843,24 @@ defmodule Astral.BuilderTest do
              result.site.routes
 
     assert read("dist/feed.xml") == "<feed>Hello</feed>"
+  end
+
+  test "renders config-declared generated routes" do
+    write("pages/index.html", "<h1>Home</h1>")
+
+    config =
+      site do
+        root(tmp())
+
+        get "/robots.txt", content_type: "text/plain" do
+          "User-agent: *\nAllow: #{site.config.root}\n"
+        end
+      end
+
+    assert {:ok, result} = Astral.build(config)
+
+    assert [%Astral.Route{path: "/robots.txt", content_type: "text/plain"}] = result.site.routes
+    assert read("dist/robots.txt") == "User-agent: *\nAllow: #{tmp()}\n"
   end
 
   test "renders Ecto-style image fields from collection frontmatter" do

@@ -39,11 +39,22 @@ defmodule Astral.Plugin do
   @callback routes(site :: Astral.Site.t()) :: [Astral.Route.t()]
   @callback routes(site :: Astral.Site.t(), opts :: keyword()) :: [Astral.Route.t()]
 
+  @type route_body :: iodata()
+  @type route_headers :: [{String.t(), String.t()}]
+
   @doc "Render a plugin-owned generated route."
   @callback render_route(route :: Astral.Route.t(), site :: Astral.Site.t()) ::
-              {:ok, String.t()} | {:ok, String.t(), String.t()} | nil
+              {:ok, route_body()}
+              | {:ok, route_body(), String.t()}
+              | {:ok, route_body(), String.t(), route_headers()}
+              | {:error, term()}
+              | nil
   @callback render_route(route :: Astral.Route.t(), site :: Astral.Site.t(), opts :: keyword()) ::
-              {:ok, String.t()} | {:ok, String.t(), String.t()} | nil
+              {:ok, route_body()}
+              | {:ok, route_body(), String.t()}
+              | {:ok, route_body(), String.t(), route_headers()}
+              | {:error, term()}
+              | nil
 
   @doc "Transform rendered page HTML."
   @callback render_page(html :: String.t(), page :: Astral.Page.t(), site :: Astral.Site.t()) ::

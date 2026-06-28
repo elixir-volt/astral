@@ -160,14 +160,21 @@ defmodule Astral.Builder do
   end
 
   defp render_route(route, site) do
-    with {:ok, body, _content_type} <-
-           Astral.PluginRunner.render_route(site.config.plugins, route, site),
+    with {:ok, body} <- render_route_body(site.config.plugins, route, site),
          :ok <- File.mkdir_p(Path.dirname(route.output_path)),
          :ok <- File.write(route.output_path, body) do
       :ok
     else
       nil -> {:error, {:missing_route_renderer, route.path}}
       {:error, reason} -> {:error, {:route_render_failed, route.path, reason}}
+    end
+  end
+
+  defp render_route_body(plugins, route, site) do
+    case Astral.PluginRunner.render_route(plugins, route, site) do
+      {:ok, body, _content_type} -> {:ok, body}
+      {:ok, body, _content_type, _headers} -> {:ok, body}
+      other -> other
     end
   end
 end

@@ -139,6 +139,14 @@ defmodule Astral.DevServer do
             |> send_resp(200, body)
             |> halt()
 
+          {:ok, body, content_type, headers} ->
+            conn
+            |> put_route_headers(headers)
+            |> put_resp_content_type(content_type)
+            |> put_resp_header("cache-control", "no-cache, no-store, must-revalidate")
+            |> send_resp(200, body)
+            |> halt()
+
           {:error, reason} ->
             server_error(conn, reason)
 
@@ -157,6 +165,10 @@ defmodule Astral.DevServer do
 
   defp find_route(site, request_path) do
     Enum.find(site.routes, &Astral.Route.match?(&1.path, request_path))
+  end
+
+  defp put_route_headers(conn, headers) do
+    Enum.reduce(headers, conn, fn {key, value}, conn -> put_resp_header(conn, key, value) end)
   end
 
   defp server_error(conn, reason) do

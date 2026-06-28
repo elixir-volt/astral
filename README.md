@@ -170,6 +170,18 @@ plugins [
 ]
 ```
 
+Add one-off generated files directly in config with Phoenix-shaped `get` routes:
+
+```elixir
+get "/robots.txt", content_type: "text/plain" do
+  "User-agent: *\nAllow: /\n"
+end
+
+get "/search-index.json", content_type: "application/json" do
+  Jason.encode!(MySite.Search.index(site))
+end
+```
+
 See [Pagination and Generated Routes](https://hexdocs.pm/astral/pagination-and-routes.html) and [Feeds and Sitemaps](https://hexdocs.pm/astral/feeds-and-sitemaps.html).
 
 ## Optimized images and Volt-powered assets

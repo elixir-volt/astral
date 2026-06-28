@@ -52,12 +52,16 @@ defmodule Astral.PluginRunner do
 
   @doc "Render a generated route with the first plugin that owns it."
   @spec render_route([plugin()], Astral.Route.t(), Astral.Site.t()) ::
-          {:ok, String.t(), String.t()} | {:error, term()} | nil
+          {:ok, iodata(), String.t()}
+          | {:ok, iodata(), String.t(), [{String.t(), String.t()}]}
+          | {:error, term()}
+          | nil
   def render_route(plugins, route, site) do
     Enum.find_value(plugins(plugins), fn plugin ->
       case call_optional(plugin, :render_route, [route, site], nil) do
         {:ok, body} -> {:ok, body, route.content_type}
         {:ok, body, content_type} -> {:ok, body, content_type}
+        {:ok, body, content_type, headers} -> {:ok, body, content_type, headers}
         {:error, _reason} = error -> error
         nil -> nil
       end

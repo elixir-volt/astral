@@ -58,7 +58,7 @@ defmodule Astral.Config do
     outdir = path(opts, :outdir, root, "dist")
     assets = path(opts, :assets, root, "assets")
 
-    plugins = Keyword.get(opts, :plugins, [])
+    plugins = plugins(opts)
 
     config = %__MODULE__{
       root: root,
@@ -88,6 +88,18 @@ defmodule Astral.Config do
     opts
     |> Keyword.get(key, default)
     |> Path.expand(base)
+  end
+
+  defp plugins(opts) do
+    plugins = Keyword.get(opts, :plugins, [])
+    generated_routes = opts |> Keyword.get_values(:generated_routes) |> List.flatten()
+    plugs = opts |> Keyword.get_values(:plugs) |> List.flatten()
+
+    if generated_routes == [] and plugs == [] do
+      plugins
+    else
+      plugins ++ [{Astral.Plugin.GeneratedRoutes, routes: generated_routes, plugs: plugs}]
+    end
   end
 
   defp islands_config(opts) do
@@ -122,6 +134,18 @@ defmodule Astral.Config do
 
     quote do
       [unquote_splicing(pairs)]
+    end
+  end
+
+  defp pair_ast(:generated_routes, routes) do
+    quote do
+      {:generated_routes, [unquote_splicing(routes)]}
+    end
+  end
+
+  defp pair_ast(:plugs, plugs) do
+    quote do
+      {:plugs, [unquote_splicing(plugs)]}
     end
   end
 
@@ -163,6 +187,17 @@ defmodule Astral.Config do
     do: [islands: islands_block_to_opts(block)]
 
   defp expression_to_opts({:plugins, _meta, [plugins]}), do: [plugins: plugins]
+  defp expression_to_opts({:plug, _meta, [module]}), do: [plugs: [plug_ast(module, [])]]
+  defp expression_to_opts({:plug, _meta, [module, opts]}), do: [plugs: [plug_ast(module, opts)]]
+
+  defp expression_to_opts({:get, _meta, [path, [do: block]]}) do
+    [generated_routes: [generated_route_ast(path, [], block)]]
+  end
+
+  defp expression_to_opts({:get, _meta, [path, opts, [do: block]]}) do
+    [generated_routes: [generated_route_ast(path, opts, block)]]
+  end
+
   defp expression_to_opts({:asset_entry, _meta, [path]}), do: [asset_entry: path]
   defp expression_to_opts({:asset_outdir, _meta, [path]}), do: [asset_outdir: path]
   defp expression_to_opts({:asset_url_prefix, _meta, [prefix]}), do: [asset_url_prefix: prefix]
@@ -182,6 +217,58 @@ defmodule Astral.Config do
 
   defp expression_to_opts({:collections, _meta, [[do: block]]}) do
     [collections: collection_block_to_opts(block)]
+  end
+
+  defp generated_route_ast(path, opts, block) do
+    content_type = Keyword.get(opts, :content_type)
+    bindings = generated_route_bindings(block)
+
+    quote do
+      %Astral.Route{
+        path: Astral.Route.normalize(unquote(path)),
+        content_type: unquote(content_type) || MIME.from_path(unquote(path)),
+        kind: :generated,
+        assigns: %{
+          render: fn var!(route_arg), var!(site_arg) ->
+            _ = var!(route_arg)
+            _ = var!(site_arg)
+            unquote_splicing(bindings)
+            unquote(block)
+          end
+        }
+      }
+    end
+  end
+
+  defp generated_route_bindings(block) do
+    used = used_vars(block)
+
+    [
+      if(:route in used, do: quote(do: var!(route) = var!(route_arg))),
+      if(:site in used, do: quote(do: var!(site) = var!(site_arg))),
+      if(:config in used, do: quote(do: var!(config) = var!(site_arg).config)),
+      if(:assigns in used, do: quote(do: var!(assigns) = var!(route_arg).assigns))
+    ]
+    |> Enum.reject(&is_nil/1)
+  end
+
+  defp used_vars(ast) do
+    {_ast, vars} =
+      Macro.prewalk(ast, MapSet.new(), fn
+        {name, _meta, context} = node, vars when is_atom(name) and is_atom(context) ->
+          {node, MapSet.put(vars, name)}
+
+        node, vars ->
+          {node, vars}
+      end)
+
+    vars
+  end
+
+  defp plug_ast(module, opts) do
+    quote do
+      {unquote(module), unquote(opts)}
+    end
   end
 
   defp layout_block_to_opts({:__block__, _meta, expressions}) do
