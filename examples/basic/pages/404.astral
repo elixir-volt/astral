@@ -1,0 +1,17 @@
+---
+assigns = assign(assigns, :title, "Page not found")
+---
+
+<section class="post">
+  <p class="eyebrow">404</p>
+  <h1>{@title}</h1>
+
+  <p>
+    The page you were looking for does not exist. Astral writes this root 404
+    page to <code>dist/404.html</code> for static hosts.
+  </p>
+
+  <p>
+    <a class="button" href="/">Back home</a>
+  </p>
+</section>

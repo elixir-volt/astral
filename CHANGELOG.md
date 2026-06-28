@@ -11,6 +11,7 @@
 - A userland head metadata component pattern in the basic example and pages/layouts guide.
 - Root custom 404 pages (`pages/404.{md,html,astral}`) that build to `dist/404.html` and return 404 in development.
 - Documentation and tests for deterministic static output precedence: public files, then pages, then generated routes.
+- A custom 404 page in the basic example site.
 
 ## 0.1.2 - 2026-06-26
 
