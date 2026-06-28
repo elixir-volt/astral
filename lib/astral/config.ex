@@ -72,7 +72,10 @@ defmodule Astral.Config do
   defmacro components(path), do: put_opts_ast(components: path)
 
   @doc false
-  defmacro plugins(plugins), do: put_opts_ast(plugins: plugins)
+  defmacro plugin(module), do: put_opts_ast(plugins: [plugin_ast(module, [])])
+
+  @doc false
+  defmacro plugin(module, opts), do: put_opts_ast(plugins: [plugin_ast(module, opts)])
 
   @doc false
   defmacro plug(module), do: put_opts_ast(plugs: [plug_ast(module, [])])
@@ -194,7 +197,7 @@ defmodule Astral.Config do
   end
 
   defp configured_plugins(opts) do
-    plugins = Keyword.get(opts, :plugins, [])
+    plugins = opts |> Keyword.get_values(:plugins) |> List.flatten()
     generated_routes = opts |> Keyword.get_values(:generated_routes) |> List.flatten()
     plugs = opts |> Keyword.get_values(:plugs) |> List.flatten()
 
@@ -295,7 +298,11 @@ defmodule Astral.Config do
   defp expression_to_opts({:islands, _meta, [[do: block]]}),
     do: [islands: islands_block_to_opts(block)]
 
-  defp expression_to_opts({:plugins, _meta, [plugins]}), do: [plugins: plugins]
+  defp expression_to_opts({:plugin, _meta, [module]}), do: [plugins: [plugin_ast(module, [])]]
+
+  defp expression_to_opts({:plugin, _meta, [module, opts]}),
+    do: [plugins: [plugin_ast(module, opts)]]
+
   defp expression_to_opts({:plug, _meta, [module]}), do: [plugs: [plug_ast(module, [])]]
   defp expression_to_opts({:plug, _meta, [module, opts]}), do: [plugs: [plug_ast(module, opts)]]
 
@@ -380,6 +387,18 @@ defmodule Astral.Config do
       end)
 
     vars
+  end
+
+  defp plugin_ast(module, []) do
+    quote do
+      unquote(module)
+    end
+  end
+
+  defp plugin_ast(module, opts) do
+    quote do
+      {unquote(module), unquote(opts)}
+    end
   end
 
   defp plug_ast(module, opts) do

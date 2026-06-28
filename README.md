@@ -148,20 +148,20 @@ See the [Content Collections guide](https://hexdocs.pm/astral/content-collection
 Build common site routes with plugins:
 
 ```elixir
-plugins [
-  {Astral.Plugin.CollectionPages,
-   collection: :posts,
-   pattern: "/blog/*page",
-   page_size: 10,
-   layout: "blog.html"},
-  {Astral.Plugin.Feed,
-   site_url: "https://example.com",
-   title: "My Blog",
-   author: "Me",
-   collection: :posts},
-  {Astral.Plugin.Sitemap,
-   site_url: "https://example.com"}
-]
+plugin Astral.Plugin.CollectionPages,
+  collection: :posts,
+  pattern: "/blog/*page",
+  page_size: 10,
+  layout: "blog.html"
+
+plugin Astral.Plugin.Feed,
+  site_url: "https://example.com",
+  title: "My Blog",
+  author: "Me",
+  collection: :posts
+
+plugin Astral.Plugin.Sitemap,
+  site_url: "https://example.com"
 ```
 
 Add one-off generated files directly in config with Phoenix-shaped `get` routes:

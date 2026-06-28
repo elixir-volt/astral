@@ -57,6 +57,13 @@ defmodule Astral.Config.ReaderTest do
       allow_remote "https://images.example.com/**"
     end
 
+    plugin Astral.Plugin.Sitemap
+
+    plugin Astral.Plugin.Feed,
+      collection: :posts,
+      title: "My Blog",
+      path: "/feed.xml"
+
     collections do
       collection :posts, "content/posts" do
         permalink "/blog/:slug/"
@@ -85,6 +92,12 @@ defmodule Astral.Config.ReaderTest do
     assert collection.name == :posts
     assert collection.dir == Path.join(tmp_dir, "content/posts")
     assert Enum.any?(config.image.remote_patterns, &(&1.hostname == "images.example.com"))
+    assert Astral.Plugin.Sitemap in config.plugins
+
+    assert {Astral.Plugin.Feed, feed_opts} =
+             Enum.find(config.plugins, &match?({Astral.Plugin.Feed, _opts}, &1))
+
+    assert feed_opts[:collection] == :posts
     assert Enum.any?(config.plugins, &match?({Astral.Plugin.GeneratedRoutes, _opts}, &1))
   end
 

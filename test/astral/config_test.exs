@@ -10,7 +10,8 @@ defmodule Astral.ConfigTest do
         outdir("_site")
         pages("src/pages")
         public("static")
-        plugins([String, {List, opt: true}])
+        plugin(String)
+        plugin(List, opt: true)
 
         layouts "src/layouts" do
           default("page.html")
@@ -53,6 +54,18 @@ defmodule Astral.ConfigTest do
     assert collection.layout == "post.html"
     assert collection.drafts
     assert collection.schema["type"] == "object"
+  end
+
+  test "site DSL supports singular plugin declarations" do
+    config =
+      site do
+        root("/tmp/astral")
+
+        plugin(String)
+        plugin(List, opt: true)
+      end
+
+    assert config.plugins == [String, {List, opt: true}]
   end
 
   test "site DSL supports top-level generated routes and plugs" do

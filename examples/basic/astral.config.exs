@@ -3,11 +3,13 @@ import Astral.Config
 root "."
 outdir "dist"
 
-plugins [
-  {Astral.Plugin.Feed,
-   site_url: "https://example.com", title: "Astral Basic", author: "Astral", collection: :posts},
-  {Astral.Plugin.Sitemap, site_url: "https://example.com"}
-]
+plugin Astral.Plugin.Feed,
+  site_url: "https://example.com",
+  title: "Astral Basic",
+  author: "Astral",
+  collection: :posts
+
+plugin Astral.Plugin.Sitemap, site_url: "https://example.com"
 
 get "/posts.txt", content_type: "text/plain" do
   site.entries.posts

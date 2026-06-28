@@ -115,13 +115,11 @@ This `plug` support is intentionally scoped to config-generated routes. It is no
 ## Collection pagination plugin
 
 ```elixir
-plugins [
-  {Astral.Plugin.CollectionPages,
-   collection: :posts,
-   pattern: "/blog/*page",
-   page_size: 10,
-   layout: "blog.html"}
-]
+plugin Astral.Plugin.CollectionPages,
+  collection: :posts,
+  pattern: "/blog/*page",
+  page_size: 10,
+  layout: "blog.html"
 ```
 
 The `*page` route parameter omits page one:

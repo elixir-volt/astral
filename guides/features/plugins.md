@@ -20,13 +20,11 @@ Use a **Volt plugin** or Volt config for browser assets:
 ## Configure plugins
 
 ```elixir
-plugins [
-  MySite.SEOPlugin,
-  {MySite.AnalyticsPlugin, id: "G-XXXX"}
-]
+plugin MySite.SEOPlugin
+plugin MySite.AnalyticsPlugin, id: "G-XXXX"
 ```
 
-Plugins are modules implementing `Astral.Plugin`. Tuple options are passed to callbacks that define an extra argument.
+Plugins are modules implementing `Astral.Plugin`. Options are passed to callbacks that define an extra argument.
 
 ## Render hook example
 

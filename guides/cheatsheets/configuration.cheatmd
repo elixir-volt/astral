@@ -136,13 +136,12 @@ Pass deployment URLs to feed, sitemap, or head components where they are needed.
 ## Plugins
 
 ```elixir
-plugins [
-  {Astral.Plugin.Feed,
-   site_url: "https://example.com",
-   title: "My Blog",
-   author: "Me",
-   collection: :posts},
-  {Astral.Plugin.Sitemap,
-   site_url: "https://example.com"}
-]
+plugin Astral.Plugin.Feed,
+  site_url: "https://example.com",
+  title: "My Blog",
+  author: "Me",
+  collection: :posts
+
+plugin Astral.Plugin.Sitemap,
+  site_url: "https://example.com"
 ```

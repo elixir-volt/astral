@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.1.6 - 2026-06-28
+
+### Changed
+
+- Replaced the top-level `plugins [...]` config declaration with singular `plugin` declarations for cleaner config files.
+
 ## 0.1.5 - 2026-06-28
 
 ### Changed
