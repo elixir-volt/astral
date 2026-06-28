@@ -97,7 +97,7 @@ defmodule Astral.DevServer do
             conn
             |> put_resp_content_type("text/html")
             |> put_resp_header("cache-control", "no-cache, no-store, must-revalidate")
-            |> send_resp(200, html)
+            |> send_resp(page_status(page), html)
             |> halt()
 
           {:error, reason} ->
@@ -122,6 +122,10 @@ defmodule Astral.DevServer do
 
   defp find_page(site, request_path) do
     Enum.find(site.pages, &Astral.Route.match?(&1.route_path, request_path))
+  end
+
+  defp page_status(%Astral.Page{route_path: route_path}) do
+    if Astral.Route.match?(route_path, "/404"), do: 404, else: 200
   end
 
   defp serve_route(conn, config) do

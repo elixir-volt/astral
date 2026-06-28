@@ -52,6 +52,8 @@ defmodule Astral.Route do
   @doc "Return the output-relative path for a route."
   @spec output_relative(String.t()) :: String.t()
   def output_relative("/"), do: "index.html"
+  def output_relative("/404"), do: "404.html"
+  def output_relative("/404/"), do: "404.html"
 
   def output_relative(route_path) do
     path = route_path |> String.trim_leading("/") |> String.trim_trailing("/")

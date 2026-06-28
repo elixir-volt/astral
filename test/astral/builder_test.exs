@@ -108,6 +108,18 @@ defmodule Astral.BuilderTest do
     assert read("dist/about/index.html") == "<main>#{heading("About", "about")}</main>"
   end
 
+  test "writes root 404 pages to 404.html" do
+    write("pages/index.md", "# Home")
+    write("pages/404.md", "# Not Found")
+    write("layouts/default.html", "<main><%= @content %></main>")
+
+    assert {:ok, result} = Astral.build(root: tmp())
+
+    assert Enum.map(result.site.pages, & &1.route_path) == ["/404/", "/"]
+    assert read("dist/404.html") == "<main>#{heading("Not Found", "not-found")}</main>"
+    refute File.exists?(Path.join(tmp(), "dist/404/index.html"))
+  end
+
   test "builds Markdown pages with local Astral components" do
     write("components/pill.astral", ~S'''
     <span class="pill">

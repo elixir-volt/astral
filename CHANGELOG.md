@@ -9,6 +9,7 @@
 - Inline local SVG files through `<.svg src="..." />`, resolved with Volt asset aliases and rendered as HTML-safe SVG.
 - Phoenix-shaped `get` declarations in `astral.config.exs` for one-off generated static routes, with Plug-compatible middleware via `plug`.
 - A userland head metadata component pattern in the basic example and pages/layouts guide.
+- Root custom 404 pages (`pages/404.{md,html,astral}`) that build to `dist/404.html` and return 404 in development.
 
 ## 0.1.2 - 2026-06-26
 

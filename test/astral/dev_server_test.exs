@@ -264,6 +264,17 @@ defmodule Astral.DevServerTest do
     assert get_resp_header(conn, "content-type") |> hd() =~ "text/html"
   end
 
+  test "serves custom 404 pages with 404 status" do
+    write("pages/404.md", "# Not Found")
+    write("layouts/default.html", "<main><%= @content %></main>")
+
+    conn = call_dev_server("/404")
+
+    assert conn.status == 404
+    assert conn.resp_body =~ "Not Found"
+    assert get_resp_header(conn, "content-type") |> hd() =~ "text/html"
+  end
+
   test "returns 404 for unknown paths" do
     conn = call_dev_server("/missing")
 
