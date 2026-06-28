@@ -1,6 +1,21 @@
-# Plugins
+# Plugins and Integrations
 
-Astral plugins extend static site discovery, rendering, and build lifecycle behavior.
+Astral plugins extend static site discovery, rendering, and build lifecycle behavior. Volt plugins extend the browser asset graph. Together they cover the same broad territory that Astro calls integrations, but the responsibilities are split by layer.
+
+Use an **Astral plugin** for site semantics:
+
+- generated routes such as feeds, sitemaps, search indexes, and API-like static files,
+- content or route discovery changes,
+- rendered HTML transforms,
+- build lifecycle hooks.
+
+Use a **Volt plugin** or Volt config for browser assets:
+
+- JavaScript, TypeScript, CSS, and imported assets,
+- Vue, React, Svelte, Solid, and other framework compilation,
+- virtual browser modules and entries,
+- compile-time constants and `import.meta.env`,
+- asset HMR and production bundling.
 
 ## Configure plugins
 
@@ -55,6 +70,60 @@ defmodule MySite.SearchIndex do
   def render_route(_route, _site), do: nil
 end
 ```
+
+## Config-generated routes
+
+For one-off static outputs, prefer top-level `get` declarations in `astral.config.exs` instead of writing a reusable plugin:
+
+```elixir
+site do
+  get "/robots.txt", content_type: "text/plain" do
+    "User-agent: *\nAllow: /\n"
+  end
+
+  get "/search-index.json", content_type: "application/json" do
+    Jason.encode!(MySite.Search.index(site))
+  end
+end
+```
+
+Use `plug` for middleware around these generated responses:
+
+```elixir
+site do
+  plug MySite.GeneratedHeaders, cache: "public, max-age=3600"
+end
+```
+
+## Framework and asset integrations
+
+Frontend frameworks are configured through Volt and Astral islands, not Astral site plugins. The basic example enables Vue and React with Volt plugins:
+
+```elixir
+# config/config.exs
+config :volt,
+  plugins: [Volt.Plugin.Vue, Volt.Plugin.React],
+  import_source: "react"
+```
+
+Then `.astral` pages can mount client islands:
+
+```astral
+<.vue component="islands/Gallery.vue" client={:visible} props={%{title: "Gallery"}} />
+<.react component="islands/ReactCounter.jsx" client={:load} props={%{count: 1}} />
+```
+
+See the assets, islands, and Volt plugin documentation when the integration affects browser code rather than site discovery or rendering.
+
+## Installation and scaffolding
+
+Astral does not currently have an `astro add`-style command for arbitrary integrations. Use normal Mix and Hex workflows:
+
+- install Astral in a project with `mix igniter.install astral`,
+- scaffold starter files with `mix astral.new`,
+- add Elixir packages to `mix.exs`,
+- add browser packages to `package.json` only when your chosen Volt/browser tooling needs them,
+- configure Astral plugins in `astral.config.exs` and Volt plugins in `config/config.exs`.
 
 ## Hooks
 

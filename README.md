@@ -182,7 +182,7 @@ get "/search-index.json", content_type: "application/json" do
 end
 ```
 
-See [Pagination and Generated Routes](https://hexdocs.pm/astral/pagination-and-routes.html) and [Feeds and Sitemaps](https://hexdocs.pm/astral/feeds-and-sitemaps.html).
+Use Astral plugins for site semantics and Volt plugins for browser asset integrations. See [Pagination and Generated Routes](https://hexdocs.pm/astral/pagination-and-routes.html), [Feeds and Sitemaps](https://hexdocs.pm/astral/feeds-and-sitemaps.html), and [Plugins and Integrations](https://hexdocs.pm/astral/plugins.html).
 
 ## Optimized images and Volt-powered assets
 
