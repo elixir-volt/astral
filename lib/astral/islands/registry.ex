@@ -107,10 +107,16 @@ defmodule Astral.Islands.Registry do
 
   defp allocate_id!(state, nil, adapter, component, client, media, props_json) do
     base_id = island_id(adapter, component, client, media, props_json)
-    index = Map.get(state.ids, base_id, 0) + 1
-    id = if index == 1, do: base_id, else: "#{base_id}-#{index}"
 
-    {id, Map.put(state.ids, base_id, index)}
+    {previous, ids} =
+      Map.get_and_update(state.ids, base_id, fn previous ->
+        previous = previous || 0
+        {previous, previous + 1}
+      end)
+
+    id = if previous == 0, do: base_id, else: "#{base_id}-#{previous + 1}"
+
+    {id, ids}
   end
 
   defp resolve_component!(config, component) do
