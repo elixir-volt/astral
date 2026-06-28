@@ -23,7 +23,7 @@ site do
 end
 ```
 
-Each Markdown file in `content/posts/` becomes a validated entry and a static page at the collection permalink. The `schema do` field DSL mirrors Ecto's field shape; Astral uses Ecto casting behind the scenes for types, required fields, defaults, and image source resolution. Astral's current collections are local Markdown collections; Astro-style content loaders, single-file JSON/YAML/TOML loaders, collection references, generated TypeScript types, and live collections are not implemented yet.
+Each Markdown file in `content/posts/` becomes a validated entry and a static page at the collection permalink. The `schema do` field DSL mirrors Ecto's field shape; Astral uses Ecto casting behind the scenes for types, required fields, defaults, and image source resolution. Declare a schema when you want fields in `entry.data`; collections without a schema expose `%{}` as normalized data while preserving raw frontmatter in `entry.metadata`. Astral's current collections are local Markdown collections; Astro-style content loaders, single-file JSON/YAML/TOML loaders, collection references, generated TypeScript types, and live collections are not implemented yet.
 
 ## Schema defaults
 
@@ -51,7 +51,7 @@ is exposed as normalized data with defaults:
 %{title: "Hello", draft: false, tags: []}
 ```
 
-`entry.metadata` remains the original string-keyed frontmatter map. Use `entry.data` in layouts, pages, feeds, generated routes, and collection helpers when you want cast values and defaults.
+`entry.metadata` remains the original string-keyed frontmatter map. `entry.data` contains schema-declared fields only. Use `entry.data` in layouts, pages, feeds, generated routes, and collection helpers when you want cast values and defaults.
 
 Image fields resolve local paths relative to the entry file and expose an `Astral.Image.Source` struct:
 

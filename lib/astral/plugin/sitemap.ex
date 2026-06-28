@@ -112,6 +112,10 @@ defmodule Astral.Plugin.Sitemap do
     end
   end
 
+  defp default_lastmod(%Astral.Page{entry: %Astral.Entry{} = entry}) do
+    Map.get(entry.data, :updated) || Map.get(entry.data, :date) || Date.utc_today()
+  end
+
   defp default_lastmod(%Astral.Page{} = page) do
     page.content.metadata
     |> Map.get("updated", Map.get(page.content.metadata, "date", Date.utc_today()))

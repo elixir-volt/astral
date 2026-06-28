@@ -3,6 +3,10 @@ defmodule Astral.SchemaTest do
 
   import JSONSpec
 
+  test "normalizes missing schemas to empty data" do
+    assert Astral.Schema.normalize(nil, %{"title" => "Hello"}) == {:ok, %{}}
+  end
+
   test "normalizes JSONSpec schemas into atom-keyed data" do
     schema =
       schema(%{

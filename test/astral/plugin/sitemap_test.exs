@@ -30,6 +30,41 @@ defmodule Astral.Plugin.SitemapTest do
     assert sitemap =~ "<lastmod>2026-06-25</lastmod>"
   end
 
+  test "uses normalized collection entry data for lastmod", %{root: root} do
+    write(root, "content/posts/hello.md", """
+    ---
+    title: Hello
+    ---
+
+    # Hello
+    """)
+
+    config =
+      Astral.Config.new(
+        root: root,
+        plugins: [{Astral.Plugin.Sitemap, site_url: "https://example.com"}],
+        collections: [
+          [
+            name: :posts,
+            dir: "content/posts",
+            permalink: "/blog/:slug/",
+            schema: %Astral.Schema.Fields{
+              fields: [
+                %Astral.Schema.Field{name: :title, type: :string, required?: true},
+                %Astral.Schema.Field{name: :date, type: :date, default: ~D[2026-06-26]}
+              ]
+            }
+          ]
+        ]
+      )
+
+    assert {:ok, _result} = Astral.build(config)
+
+    sitemap = File.read!(Path.join(root, "dist/sitemap.xml"))
+    assert sitemap =~ "<loc>https://example.com/blog/hello/</loc>"
+    assert sitemap =~ "<lastmod>2026-06-26</lastmod>"
+  end
+
   test "supports exclude, changefreq, priority, and lastmod options", %{root: root} do
     config =
       Astral.Config.new(

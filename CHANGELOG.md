@@ -24,7 +24,8 @@
 
 ### Changed
 
-- Collection helpers and feed entry authors now use schema-normalized `entry.data` only instead of falling back to raw string-keyed frontmatter metadata.
+- Collection helpers, feed entry authors/dates, and collection sitemap dates now use schema-normalized `entry.data` instead of falling back to raw string-keyed frontmatter metadata.
+- Schema-less collections now expose empty normalized `entry.data` while preserving raw frontmatter in `entry.metadata`.
 
 ## 0.1.2 - 2026-06-26
 

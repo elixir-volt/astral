@@ -114,13 +114,17 @@ defmodule Astral.Plugin.Feed do
 
   defp feed_updated([entry | _entries]), do: entry_updated(entry)
 
-  defp entry_updated(entry), do: entry |> metadata_datetime("updated") |> DateTime.to_iso8601()
-  defp entry_published(entry), do: entry |> metadata_datetime("date") |> DateTime.to_iso8601()
+  defp entry_updated(entry), do: entry |> entry_datetime(:updated) |> DateTime.to_iso8601()
+  defp entry_published(entry), do: entry |> entry_datetime(:date) |> DateTime.to_iso8601()
 
-  defp metadata_datetime(entry, key) do
-    entry.metadata
-    |> Map.get(key, Map.get(entry.metadata, "date", Date.utc_today()))
+  defp entry_datetime(entry, key) do
+    entry.data
+    |> date_value(key)
     |> datetime()
+  end
+
+  defp date_value(data, key) do
+    Map.get(data, key) || Map.get(data, :date) || Date.utc_today()
   end
 
   defp datetime(%DateTime{} = datetime), do: DateTime.truncate(datetime, :second)

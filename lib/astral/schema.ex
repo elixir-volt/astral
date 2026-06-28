@@ -25,7 +25,7 @@ defmodule Astral.Schema do
   @spec normalize(term(), map(), keyword()) :: {:ok, map()} | {:error, term()}
   def normalize(schema, metadata, opts \\ [])
 
-  def normalize(nil, metadata, _opts), do: {:ok, metadata}
+  def normalize(nil, _metadata, _opts), do: {:ok, %{}}
 
   def normalize(schema, metadata, opts) do
     case schema_type(schema) do

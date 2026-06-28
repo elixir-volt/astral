@@ -58,6 +58,34 @@ defmodule Astral.Plugin.FeedTest do
              ~s(<![CDATA[<h1><a href="#hello" aria-hidden="true" class="anchor" id="hello"></a>Hello</h1>]]>)
   end
 
+  test "uses normalized entry data for feed dates", %{root: root} do
+    config =
+      Astral.Config.new(
+        root: root,
+        plugins: [{Astral.Plugin.Feed, site_url: "https://example.com"}],
+        collections: [
+          [
+            name: :posts,
+            dir: "content/posts",
+            permalink: "/blog/:slug/",
+            schema: %Astral.Schema.Fields{
+              fields: [
+                %Astral.Schema.Field{name: :title, type: :string, required?: true},
+                %Astral.Schema.Field{name: :date, type: :date, required?: true},
+                %Astral.Schema.Field{name: :updated, type: :date}
+              ]
+            }
+          ]
+        ]
+      )
+
+    assert {:ok, _result} = Astral.build(config)
+
+    feed = File.read!(Path.join(root, "dist/feed.xml"))
+    assert feed =~ "<published>2026-06-25T00:00:00Z</published>"
+    assert feed =~ "<updated>2026-06-25T00:00:00Z</updated>"
+  end
+
   test "supports summary, author, and text content options", %{root: root} do
     config =
       Astral.Config.new(

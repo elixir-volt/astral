@@ -84,7 +84,7 @@ collections do
 end
 ```
 
-Each Markdown file becomes a schema-normalized entry. Use `entry.data` for cast atom-keyed values and defaults; `entry.metadata` remains the original string-keyed frontmatter.
+Each Markdown file becomes an entry. Use a schema to expose cast atom-keyed values and defaults in `entry.data`; without a schema, `entry.data` is `%{}`. `entry.metadata` remains the original string-keyed frontmatter.
 
 Collection helpers read schema-normalized data: `published/1` uses `entry.data[:draft]`, `sort_by_date/2` uses `entry.data[:updated]` or `entry.data[:date]`, and `tags/1` uses `entry.data[:tags]`. Prefer `entry.data` in your own layouts, pages, feeds, and generated routes when you need schema defaults or cast values.
 

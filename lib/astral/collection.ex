@@ -51,8 +51,12 @@ defmodule Astral.Collection do
   @spec entry_datetime(Astral.Entry.t()) :: DateTime.t()
   def entry_datetime(%Astral.Entry{} = entry) do
     entry.data
-    |> Map.get(:updated, Map.get(entry.data, :date))
+    |> date_value()
     |> datetime()
+  end
+
+  defp date_value(data) do
+    Map.get(data, :updated) || Map.get(data, :date)
   end
 
   defp entry_tags(entry) do
