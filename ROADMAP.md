@@ -84,6 +84,7 @@ Goal: make Astral feel complete for practical blogs, docs, and marketing sites.
 - Continue documenting userland tag/category pages without making taxonomy a core abstraction.
 - Harden setup-declared dynamic route enumeration diagnostics and examples.
 - Improve route diagnostics beyond the existing unmatched dynamic route and duplicate route errors, especially ambiguous collection matches and output conflicts.
+- Decide and document first-class redirect support for static hosts.
 - More complete content collection guide examples, including schema field defaults.
 
 ### v0.3 — Metadata and document head
@@ -129,6 +130,8 @@ Goal: move beyond static-only without making Volt responsible for site semantics
 - Phoenix integration adapter.
 - Hybrid prerender plus dynamic routes.
 - Runtime route manifest.
+- Runtime/live endpoints beyond static generated routes.
+- Full page/request middleware with per-request locals for runtime modes, if it fits Elixir/Phoenix idioms.
 - Deployment adapter shape for common static and server targets.
 
 ### v1.0 — Stable Astro-class foundation

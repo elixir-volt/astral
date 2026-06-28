@@ -1,8 +1,55 @@
-# Pagination and Generated Routes
+# Routing, Pagination, and Generated Routes
 
-Astral can add generated routes during static builds. Use dynamic `.astral` pages when one template should produce several HTML pages, top-level `get` declarations for site-specific static outputs, and plugins for reusable route generators.
+Astral uses file-based routes for pages and generated routes for non-page outputs. Use dynamic `.astral` pages when one template should produce several HTML pages, top-level `get` declarations for site-specific static outputs, and plugins for reusable route generators.
 
-## Dynamic `.astral` pages
+## File-based page routes
+
+Files under `pages/` become routes automatically:
+
+```text
+pages/index.md              -> /
+pages/about.md             -> /about/
+pages/about/index.astral   -> /about/
+pages/docs/intro.html      -> /docs/intro/
+pages/404.astral           -> /404/ and dist/404.html
+```
+
+Use ordinary `<a>` elements for navigation:
+
+```astral
+<a href="/about/">About</a>
+```
+
+Dynamic filenames use Astro-style brackets at the file boundary and Plug/Phoenix-style route params internally:
+
+```text
+pages/blog/[slug].astral   -> /blog/:slug
+pages/docs/[...path].md    -> /docs/*path
+```
+
+Rendered params are available as string-keyed `@params`:
+
+```astral
+<h1>{@params["slug"]}</h1>
+```
+
+## Collection-backed dynamic pages
+
+If a dynamic page matches collection entry routes, Astral renders one page per matching entry and assigns `@entry`:
+
+```text
+content/posts/hello.md     -> /blog/hello/
+pages/blog/[slug].astral   -> /blog/:slug
+```
+
+```astral
+<article data-slug={@params["slug"]}>
+  <h1>{@entry.data.title}</h1>
+  {Phoenix.HTML.raw(@entry.content.html)}
+</article>
+```
+
+## Setup-declared dynamic `.astral` pages
 
 A dynamic page filename such as `pages/tags/[tag].astral` declares a route pattern. In the setup block, assign `paths` to a list of route path contracts with `path/1`:
 
@@ -25,9 +72,9 @@ paths =
 
 The setup `paths` list is evaluated during discovery. Each `path/1` item carries atom-keyed route params plus optional atom-keyed page assigns. Astral generates concrete routes such as `/tags/elixir/` and makes rendered params available as string-keyed `@params` for template compatibility.
 
-## Config-declared generated routes
+## Static endpoints with generated routes
 
-Declare one-off static outputs directly in `astral.config.exs`:
+For static data files and endpoint-like outputs, declare one-off generated routes directly in `astral.config.exs`:
 
 ```elixir
 site do
@@ -49,6 +96,8 @@ end
 
 The block runs in dev for matching requests and during static builds when Astral writes the output file. The block can use `site`, `route`, `config`, and `assigns`.
 
+Generated routes are static-build endpoints: they produce files such as `/search-index.json`, `/feed.xml`, `/sitemap.xml`, `/robots.txt`, or generated images. Astral does not yet provide live server API routes for `POST`, `PUT`, `DELETE`, or request-body handling; those belong to a future runtime/hybrid adapter.
+
 Use `plug` declarations for Plug-compatible middleware around generated responses:
 
 ```elixir
@@ -60,6 +109,8 @@ site do
   end
 end
 ```
+
+This `plug` support is intentionally scoped to config-generated routes. It is not full page middleware: it does not run around every page render and does not provide per-request locals for ordinary static pages.
 
 ## Collection pagination plugin
 
@@ -127,4 +178,20 @@ Astral route patterns use Plug/Phoenix-style segments:
 
 Use generated routes when a page is not backed by a single file in `pages/`.
 
-Generated routes are rendered after ordinary pages during static builds. If a generated route writes the same output path as a page or public file, the generated route wins. Prefer unique output paths unless the override is intentional.
+## Output precedence
+
+Astral writes static output in deterministic layers:
+
+```text
+public files < pages < generated routes
+```
+
+If a generated route writes the same output path as a page or public file, the generated route wins. Prefer unique output paths unless the override is intentional.
+
+Astral reports duplicate page routes. Broader output-conflict diagnostics for public files and generated routes are planned.
+
+## Redirects, rewrites, and middleware scope
+
+Astral does not yet have core redirect or rewrite rules. For static redirects today, use your host's redirect configuration or generate host-specific files with `get` routes or plugins.
+
+Full page middleware is not implemented yet. Current middleware-like support is limited to `plug` declarations around config-generated routes. Use `Astral.Plugin.render_page/3` for build-time HTML transforms across rendered pages.

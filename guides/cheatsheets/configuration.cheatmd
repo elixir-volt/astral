@@ -75,6 +75,29 @@ Read route params from templates and layouts with string keys:
 <%= @params["slug"] %>
 ```
 
+Declare arbitrary dynamic `.astral` paths with the `path/1` setup helper:
+
+```astral
+---
+paths = [path tag: "elixir", assigns: %{title: "Elixir"}]
+---
+<h1>{@title}</h1>
+```
+
+## Static generated routes
+
+```elixir
+get "/robots.txt", content_type: "text/plain" do
+  "User-agent: *\nAllow: /\n"
+end
+```
+
+Use `plug` only for config-generated route middleware:
+
+```elixir
+plug MySite.GeneratedHeaders, cache: "public, max-age=3600"
+```
+
 ## Content collections
 
 ```elixir
