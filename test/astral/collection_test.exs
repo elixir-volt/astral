@@ -1,10 +1,10 @@
 defmodule Astral.CollectionTest do
   use ExUnit.Case, async: true
 
-  test "reads, filters, sorts, and tags entries" do
-    old = entry("Old", "2024-01-01", ["elixir"], false)
-    draft = entry("Draft", "2026-01-01", ["draft"], true)
-    new = entry("New", "2025-01-01", ["volt", "elixir"], false)
+  test "reads, filters, sorts, and tags entries from normalized data" do
+    old = entry("Old", ~D[2024-01-01], ["elixir"], false)
+    draft = entry("Draft", ~D[2026-01-01], ["draft"], true)
+    new = entry("New", ~D[2025-01-01], ["volt", "elixir"], false)
     site = %Astral.Site{entries: %{posts: [old, draft, new]}}
 
     assert Astral.Collection.entries(site, :posts) == [old, draft, new]
@@ -14,9 +14,24 @@ defmodule Astral.CollectionTest do
     assert Astral.Collection.tags([old, draft, new]) == ["draft", "elixir", "volt"]
   end
 
-  defp entry(title, date, tags, draft) do
+  test "ignores raw metadata when normalized helper fields disagree" do
+    raw_published = %Astral.Entry{metadata: %{"draft" => false}, data: %{draft: true}}
+    raw_newer = entry("Raw Newer", ~D[2024-01-01], [], false, %{"date" => "2026-01-01"})
+
+    normalized_newer =
+      entry("Normalized Newer", ~D[2025-01-01], [], false, %{"date" => "2023-01-01"})
+
+    assert Astral.Collection.published([raw_published]) == []
+
+    assert Astral.Collection.sort_by_date([raw_newer, normalized_newer]) == [
+             normalized_newer,
+             raw_newer
+           ]
+  end
+
+  defp entry(title, date, tags, draft, metadata \\ %{}) do
     %Astral.Entry{
-      metadata: %{"title" => title, "date" => date, "draft" => draft, "tags" => tags},
+      metadata: Map.merge(%{"title" => title}, metadata),
       data: %{title: title, date: date, draft: draft, tags: tags}
     }
   end

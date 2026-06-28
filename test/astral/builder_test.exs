@@ -1157,6 +1157,41 @@ defmodule Astral.BuilderTest do
     assert data == %{title: "Hello Fields", date: ~D[2026-06-26], draft: false, tags: []}
   end
 
+  test "filters collection drafts after schema normalization" do
+    write("pages/index.html", "<h1>Home</h1>")
+
+    write("content/posts/draft.md", """
+    ---
+    title: Draft
+    draft: "true"
+    ---
+
+    # Draft
+    """)
+
+    config_path = Path.join(tmp(), "astral.config.exs")
+
+    File.write!(config_path, """
+    import Astral.Config
+
+    site do
+      root #{inspect(tmp())}
+
+      collections do
+        collection :posts, "content/posts" do
+          schema do
+            field :title, :string, required: true
+            field :draft, :boolean, default: false
+          end
+        end
+      end
+    end
+    """)
+
+    assert {:ok, result} = Astral.build(config: config_path)
+    assert result.site.entries.posts == []
+  end
+
   test "discovers Zoi-backed collection entries" do
     write("pages/index.html", "<h1>Home</h1>")
 

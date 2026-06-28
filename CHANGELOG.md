@@ -24,7 +24,7 @@
 
 ### Changed
 
-- Collection tag helpers and feed entry authors now use schema-normalized `entry.data` only instead of falling back to raw string-keyed frontmatter metadata.
+- Collection helpers and feed entry authors now use schema-normalized `entry.data` only instead of falling back to raw string-keyed frontmatter metadata.
 
 ## 0.1.2 - 2026-06-26
 

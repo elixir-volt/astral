@@ -51,7 +51,7 @@ is exposed as normalized data with defaults:
 %{title: "Hello", draft: false, tags: []}
 ```
 
-`entry.metadata` remains the original string-keyed frontmatter map. Use `entry.data` in layouts, pages, feeds, and generated routes when you want cast values and defaults. Note that current collection helpers are mixed: `tags/1` reads normalized `entry.data[:tags]`, while `published/1` and `sort_by_date/2` currently read raw metadata fields.
+`entry.metadata` remains the original string-keyed frontmatter map. Use `entry.data` in layouts, pages, feeds, generated routes, and collection helpers when you want cast values and defaults.
 
 Image fields resolve local paths relative to the entry file and expose an `Astral.Image.Source` struct:
 

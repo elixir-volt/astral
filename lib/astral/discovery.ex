@@ -272,12 +272,12 @@ defmodule Astral.Discovery do
   defp entry(path, collection) do
     with {:ok, source} <- File.read(path),
          {:ok, content} <- Astral.Markdown.render(source),
-         false <- draft?(content) and not collection.drafts,
          {:ok, data} <-
            Astral.Schema.normalize(collection.schema, content.metadata,
              base: path,
              source_dirs: []
-           ) do
+           ),
+         false <- draft?(data) and not collection.drafts do
       slug = entry_slug(path, collection)
       route_path = content.permalink || entry_route_path(collection, slug)
 
@@ -297,7 +297,7 @@ defmodule Astral.Discovery do
     end
   end
 
-  defp draft?(%{metadata: metadata}), do: metadata["draft"] == true
+  defp draft?(data) when is_map(data), do: Map.get(data, :draft) == true
 
   defp entry_slug(path, collection) do
     path

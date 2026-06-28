@@ -25,13 +25,13 @@ defmodule Astral.Collection do
     Map.get(site.entries, collection, [])
   end
 
-  @doc "Return entries that are not marked as drafts."
+  @doc "Return entries that are not marked as drafts in schema-normalized data."
   @spec published([Astral.Entry.t()]) :: [Astral.Entry.t()]
   def published(entries) when is_list(entries) do
-    Enum.reject(entries, &(Map.get(&1.metadata, "draft") == true))
+    Enum.reject(entries, &(Map.get(&1.data, :draft) == true))
   end
 
-  @doc "Sort entries by frontmatter `updated` or `date`."
+  @doc "Sort entries by schema-normalized `updated` or `date`."
   @spec sort_by_date([Astral.Entry.t()], :asc | :desc) :: [Astral.Entry.t()]
   def sort_by_date(entries, direction \\ :desc) when direction in [:asc, :desc] do
     Enum.sort_by(entries, &entry_datetime/1, {direction, DateTime})
@@ -47,11 +47,11 @@ defmodule Astral.Collection do
     |> Enum.sort()
   end
 
-  @doc "Return a DateTime for an entry using `updated`, `date`, then Unix epoch."
+  @doc "Return a DateTime for an entry using normalized `updated`, `date`, then Unix epoch."
   @spec entry_datetime(Astral.Entry.t()) :: DateTime.t()
   def entry_datetime(%Astral.Entry{} = entry) do
-    entry.metadata
-    |> Map.get("updated", Map.get(entry.metadata, "date"))
+    entry.data
+    |> Map.get(:updated, Map.get(entry.data, :date))
     |> datetime()
   end
 

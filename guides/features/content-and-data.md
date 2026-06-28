@@ -86,7 +86,7 @@ end
 
 Each Markdown file becomes a schema-normalized entry. Use `entry.data` for cast atom-keyed values and defaults; `entry.metadata` remains the original string-keyed frontmatter.
 
-Current helper behavior is source-backed and intentionally documented here: `Astral.Collection.tags/1` reads normalized `entry.data[:tags]`, while `published/1` and `sort_by_date/2` currently inspect raw frontmatter metadata (`"draft"`, `"updated"`, and `"date"`). Prefer `entry.data` in your own layouts, pages, feeds, and generated routes when you need schema defaults or cast values.
+Collection helpers read schema-normalized data: `published/1` uses `entry.data[:draft]`, `sort_by_date/2` uses `entry.data[:updated]` or `entry.data[:date]`, and `tags/1` uses `entry.data[:tags]`. Prefer `entry.data` in your own layouts, pages, feeds, and generated routes when you need schema defaults or cast values.
 
 Query collections from `.astral` setup blocks, layouts, generated routes, or plugins:
 
