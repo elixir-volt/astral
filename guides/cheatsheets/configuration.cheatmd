@@ -52,6 +52,8 @@ assets "assets" do
 end
 ```
 
+Reference asset entries from layouts with `Astral.asset_path/2`. In development this points at Volt's dev server; in static builds it resolves through the emitted manifest.
+
 ## Dynamic file routes
 
 ```text
@@ -82,6 +84,18 @@ collections do
   end
 end
 ```
+
+## Site metadata
+
+Keep SEO and document metadata in layouts or components:
+
+```astral
+<head>
+  <.base_head title={@page.title || "My Site"} route={@route} />
+</head>
+```
+
+Pass deployment URLs to feed, sitemap, or head components where they are needed.
 
 ## Plugins
 

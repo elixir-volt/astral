@@ -15,8 +15,10 @@ mix astral.dev --open
 ## Options
 
 ```bash
-mix astral.dev --config astral.config.exs --port 4000
+mix astral.dev --config astral.config.exs --host localhost --port 4000
 ```
+
+The default port is `4000`. Use `--open` to open the printed URL in your browser.
 
 ## What the server does
 
@@ -35,3 +37,13 @@ The development server:
 Volt handles browser asset HMR. Astral triggers full reloads for site-layer files such as pages, layouts, components, and public files.
 
 Use plain browser JavaScript for static-site interactivity. `.astral` templates render static HTML; they do not imply LiveView server events.
+
+## Build preview
+
+`mix astral.dev` previews source files and updates as you edit. To check deploy output, run:
+
+```bash
+mix astral.build
+```
+
+Then serve the generated `dist/` directory with any static file server. A static preview shows the site exactly as it was when you last built it; later source edits require another build.

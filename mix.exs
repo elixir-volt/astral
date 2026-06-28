@@ -106,6 +106,7 @@ defmodule Astral.MixProject do
       examples/basic/assets/styles.css
       examples/basic/astral.config.exs
       examples/basic/config/config.exs
+      examples/basic/components/base_head.astral
       examples/basic/components/formatted_date.astral
       examples/basic/components/pill.astral
       examples/basic/content/posts/hello-astral.md
@@ -116,12 +117,14 @@ defmodule Astral.MixProject do
       examples/basic/mix.exs
       examples/basic/package-lock.json
       examples/basic/package.json
+      examples/basic/pages/404.astral
       examples/basic/pages/about.md
       examples/basic/pages/blog
       examples/basic/pages/components.astral
       examples/basic/pages/index.md
       examples/basic/pages/landing.md
       examples/basic/pages/raw.html
+      examples/basic/pages/tags
       examples/basic/public/robots.txt
       examples/basic/tsconfig.json
     |

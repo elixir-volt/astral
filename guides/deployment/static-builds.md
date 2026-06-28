@@ -16,9 +16,11 @@ end
 
 Upload the generated directory to any static host or CDN.
 
+To preview the deployable output locally, serve `dist/` with any static file server after building. This preview is intentionally different from `mix astral.dev`: it shows the files from the last build and does not update until you run `mix astral.build` again.
+
 ## Routes
 
-Each route is written as an `index.html` file:
+Most extensionless routes are written as `index.html` files:
 
 ```text
 /                 -> dist/index.html

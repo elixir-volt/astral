@@ -14,6 +14,7 @@
 - A custom 404 page in the basic example site.
 - Clearer content collection documentation for schema defaults and userland tag page patterns.
 - Setup-declared dynamic `.astral` page paths through strict `Astral.Route.Path` values and the `path/1` setup helper.
+- Clearer develop/build/configuration docs covering dev server options, static build preview expectations, and metadata placement.
 
 ### Changed
 

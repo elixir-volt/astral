@@ -70,6 +70,7 @@ Astral's long-term goal is to become an Elixir-native static and hybrid site fra
 - Root custom 404 pages that build to `dist/404.html` and return 404 in development.
 - Deterministic static output precedence documented and tested: public files, then pages, then generated routes.
 - Custom 404 page in the basic example site.
+- Setup-declared dynamic `.astral` pages for userland route enumeration such as tag pages, backed by strict `Astral.Route.Path` contracts.
 
 ## Current priorities
 
@@ -79,9 +80,9 @@ The original v0.2/v0.5 work landed earlier than planned: dynamic routes, images,
 
 Goal: make Astral feel complete for practical blogs, docs, and marketing sites.
 
-- Richer dynamic route examples for blogs, docs, tags, categories, and paginated archives.
-- Document userland tag/category pages without making taxonomy a core abstraction.
-- Non-collection dynamic route enumeration if a clear Elixir-native API emerges.
+- Richer dynamic route examples for blogs, docs, categories, and paginated archives.
+- Continue documenting userland tag/category pages without making taxonomy a core abstraction.
+- Harden setup-declared dynamic route enumeration diagnostics and examples.
 - Improve route diagnostics beyond the existing unmatched dynamic route and duplicate route errors, especially ambiguous collection matches and output conflicts.
 - More complete content collection guide examples, including schema field defaults.
 

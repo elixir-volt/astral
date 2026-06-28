@@ -17,7 +17,7 @@ mix astral.new
 ```bash
 mix astral.dev
 mix astral.dev --open
-mix astral.dev --config astral.config.exs --port 4000
+mix astral.dev --config astral.config.exs --host localhost --port 4000
 ```
 
 ## Static build
@@ -25,6 +25,7 @@ mix astral.dev --config astral.config.exs --port 4000
 ```bash
 mix astral.build
 mix astral.build --config astral.config.exs
+mix astral.build --root site --outdir dist
 ```
 
 ## Example site
@@ -36,6 +37,10 @@ mix astral.dev
 mix astral.build
 mix check
 ```
+
+## Build preview
+
+After `mix astral.build`, serve `dist/` with any static file server to preview deploy output. Re-run the build after source changes.
 
 ## Project validation
 

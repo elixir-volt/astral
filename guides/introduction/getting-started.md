@@ -28,7 +28,11 @@ mix astral.new
 mix astral.dev
 ```
 
-Open the printed local URL. The dev server serves pages, public files, Volt assets, and HMR.
+Open the printed local URL. The dev server serves pages, public files, Volt assets, and HMR. Use `--open` to launch a browser automatically:
+
+```bash
+mix astral.dev --open
+```
 
 ## Build static output
 
@@ -36,7 +40,9 @@ Open the printed local URL. The dev server serves pages, public files, Volt asse
 mix astral.build
 ```
 
-Astral writes static HTML and copied public files to `dist/` by default. Upload that directory to any static host.
+Astral writes static HTML and copied public files to `dist/` by default. The build prints a route table so you can see which source routes were written. Upload that directory to any static host.
+
+To preview exactly what you last built, serve `dist/` with any static file server. Re-run `mix astral.build` after changes; a static preview does not update live like `mix astral.dev`.
 
 ## Starter layout
 
@@ -56,3 +62,25 @@ public/
 ```
 
 Add Markdown or `.astral` files under `pages/`. Add layouts under `layouts/`. Configure assets under `assets/` and reference them with `Astral.asset_path/2`.
+
+## Configure the site
+
+`astral.config.exs` is ordinary Elixir:
+
+```elixir
+import Astral.Config
+
+site do
+  root "."
+  outdir "dist"
+  pages "pages"
+  public "public"
+  components "components"
+
+  layouts "layouts" do
+    default "default.html"
+  end
+end
+```
+
+Use the configuration cheatsheet for common options. Site metadata such as titles, descriptions, canonical links, and Open Graph tags belongs in layouts or components, not global config.
