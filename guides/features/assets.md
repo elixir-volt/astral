@@ -75,6 +75,18 @@ end
 
 Files in `public/` are still copied as-is. Use `<.image>`, `<.picture>`, or `<.figure>` when you want Astral to optimize and hash an image.
 
+## Public files and output precedence
+
+Static builds write outputs in this order:
+
+1. copy files from `public/`,
+2. render pages from `pages/`,
+3. render generated routes from plugins and config-level `get` declarations.
+
+When two sources write the same output path, the later source wins. For example, `pages/404.md` overwrites `public/404.html`, and a generated route for `/robots.txt` overwrites `public/robots.txt`.
+
+Prefer avoiding duplicate output paths. The current behavior is deterministic so small sites can intentionally override public files, but future diagnostics may warn about accidental collisions.
+
 ## Inline SVG files
 
 Use `<.svg>` when you want to include a project SVG file directly in the rendered HTML, such as clip-path definitions, masks, or a hand-authored logo:

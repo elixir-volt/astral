@@ -103,3 +103,5 @@ Astral route patterns use Plug/Phoenix-style segments:
 ```
 
 Use generated routes when a page is not backed by a single file in `pages/`.
+
+Generated routes are rendered after ordinary pages during static builds. If a generated route writes the same output path as a page or public file, the generated route wins. Prefer unique output paths unless the override is intentional.

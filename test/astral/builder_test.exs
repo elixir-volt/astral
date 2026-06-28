@@ -616,6 +616,34 @@ defmodule Astral.BuilderTest do
     assert read("dist/robots.txt") == "User-agent: *"
   end
 
+  test "pages override public files with the same output path" do
+    write("pages/404.md", "# Page 404")
+    write("public/404.html", "Public 404")
+    write("layouts/default.html", "<main><%= @content %></main>")
+
+    assert {:ok, _result} = Astral.build(root: tmp())
+
+    assert read("dist/404.html") == "<main>#{heading("Page 404", "page-404")}</main>"
+  end
+
+  test "generated routes override page and public files with the same output path" do
+    write("pages/about.html", "<h1>Page About</h1>")
+    write("public/about/index.html", "Public About")
+
+    config = Astral.Config.new(root: tmp())
+
+    route =
+      Astral.Route.new("/about/", config,
+        assigns: %{render: fn _route, _site -> "<h1>Generated About</h1>" end}
+      )
+
+    config = %{config | plugins: [{Astral.Plugin.GeneratedRoutes, routes: [route]}]}
+
+    assert {:ok, _result} = Astral.build(config)
+
+    assert read("dist/about/index.html") == "<h1>Generated About</h1>"
+  end
+
   test "builds from an astral config file" do
     write("site_pages/index.html", "<h1>Home</h1>")
 
