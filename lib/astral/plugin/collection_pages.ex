@@ -1,3 +1,6 @@
+# Generated route plugins already share Astral.Plugin. A narrower duplicate behaviour
+# conflicts with the existing callback definitions without adding a new contract.
+# reach:disable-next-line behaviour_candidate
 defmodule Astral.Plugin.CollectionPages do
   @moduledoc """
   Generated collection pagination plugin.

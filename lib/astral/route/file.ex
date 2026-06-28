@@ -132,7 +132,9 @@ defmodule Astral.Route.File do
 
   defp validate_path_params!(route, path) do
     allowed = MapSet.new(route.params)
-    actual = path.params |> Map.keys() |> Enum.map(&Atom.to_string/1) |> MapSet.new()
+
+    actual =
+      path.params |> Enum.map(fn {name, _value} -> Atom.to_string(name) end) |> MapSet.new()
 
     case MapSet.difference(actual, allowed) |> MapSet.to_list() |> Enum.sort() do
       [] -> :ok
