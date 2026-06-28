@@ -147,6 +147,7 @@ defmodule Astral.MixProject do
         "guides/features/content-and-data.md",
         "guides/features/pagination-and-routes.md",
         "guides/features/navigation.md",
+        "guides/features/server-runtime.md",
         "guides/features/feeds-and-sitemaps.md",
         "guides/features/assets.md",
         "guides/features/ui-and-browser-code.md",

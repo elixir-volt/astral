@@ -200,4 +200,4 @@ Astral does not yet have core redirect or rewrite rules. For static redirects to
 
 Astral also does not yet have first-class i18n routing middleware. Use localized folders, collection locale fields, and site-owned link helpers for static multilingual sites today. Locale fallbacks, domain-based locales, browser-language detection, and route verification belong with future runtime/hybrid routing work.
 
-Full page middleware is not implemented yet. Current middleware-like support is limited to `plug` declarations around config-generated routes. Use `Astral.Plugin.render_page/3` for build-time HTML transforms across rendered pages.
+Full page middleware is not implemented yet. Current middleware-like support is limited to `plug` declarations around config-generated routes. Use `Astral.Plugin.render_page/3` for build-time HTML transforms across rendered pages. See the server runtime guide for the current on-demand rendering, action, session, and route caching boundaries.

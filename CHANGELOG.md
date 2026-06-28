@@ -21,6 +21,7 @@
 - Navigation documentation covering current i18n, prefetch, and view-transition boundaries.
 - Styling and browser-code documentation covering current CSS, font, syntax-highlighting, script, and framework-island boundaries.
 - Markdown, content, and data-fetching documentation covering current MDX, Markdown import, content loader, and live collection boundaries.
+- Server/runtime documentation covering current on-demand rendering, server island, action, session, and route caching boundaries.
 
 ### Changed
 
