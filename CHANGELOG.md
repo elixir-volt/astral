@@ -12,6 +12,7 @@
 - Root custom 404 pages (`pages/404.{md,html,astral}`) that build to `dist/404.html` and return 404 in development.
 - Documentation and tests for deterministic static output precedence: public files, then pages, then generated routes.
 - A custom 404 page in the basic example site.
+- Clearer content collection documentation for schema defaults and userland tag page patterns.
 
 ## 0.1.2 - 2026-06-26
 
