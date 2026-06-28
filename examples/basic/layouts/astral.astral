@@ -1,9 +1,12 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{@page.title || "Astral Basic"}</title>
+    <.base_head
+      title={@page.title || "Astral Basic"}
+      description={@metadata["description"]}
+      route={@route}
+      site_url="https://example.com"
+    />
     <script type="module" src={Astral.asset_path(@site, "app.ts")}></script>
   </head>
   <body>

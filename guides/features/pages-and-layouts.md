@@ -115,6 +115,45 @@ Common assigns:
 - `@entry` — current collection entry, otherwise `nil`.
 - `@routes` — generated routes.
 
+## Head metadata
+
+Astral does not provide a built-in SEO metadata component. Use ordinary HTML in layouts, or create a local `.astral` component for shared head tags. The `base_head` name mirrors Astro's common `BaseHead.astro` pattern while avoiding a confusing `<head><.head /></head>` shape:
+
+```astral
+---
+title = assigns[:title] || "My Site"
+description = assigns[:description] || "Site description"
+canonical = "#{String.trim_trailing(assigns[:site_url], "/")}#{assigns[:route]}"
+
+assigns =
+  assigns
+  |> assign(:title, title)
+  |> assign(:description, description)
+  |> assign(:canonical, canonical)
+---
+
+<link rel="canonical" href={@canonical} />
+<title>{@title}</title>
+<meta name="description" content={@description} />
+<meta property="og:title" content={@title} />
+<meta property="og:description" content={@description} />
+```
+
+Then call it from a `.astral` layout:
+
+```astral
+<head>
+  <.base_head
+    title={@page.title || "My Site"}
+    description={@metadata["description"]}
+    route={@route}
+    site_url="https://example.com"
+  />
+</head>
+```
+
+This keeps metadata as regular HTML instead of introducing a framework-level metadata API.
+
 ## Heading anchors
 
 Markdown headings get stable `id` attributes. Heading metadata is available as `@page.headings` for table-of-contents layouts:

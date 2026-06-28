@@ -8,6 +8,7 @@
 - Server-rendered Iconify icons through PhoenixIconify's `<.icon>` component in `.astral` templates.
 - Inline local SVG files through `<.svg src="..." />`, resolved with Volt asset aliases and rendered as HTML-safe SVG.
 - Phoenix-shaped `get` declarations in `astral.config.exs` for one-off generated static routes, with Plug-compatible middleware via `plug`.
+- A userland head metadata component pattern in the basic example and pages/layouts guide.
 
 ## 0.1.2 - 2026-06-26
 
