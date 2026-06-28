@@ -1138,14 +1138,12 @@ defmodule Astral.BuilderTest do
     site do
       root #{inspect(tmp())}
 
-      collections do
-        collection :posts, "content/posts" do
-          schema do
-            field :title, :string, required: true
-            field :date, :date, required: true
-            field :draft, :boolean, default: false
-            field :tags, {:array, :string}, default: []
-          end
+      collection :posts, "content/posts" do
+        schema do
+          field :title, :string, required: true
+          field :date, :date, required: true
+          field :draft, :boolean, default: false
+          field :tags, {:array, :string}, default: []
         end
       end
     end
@@ -1177,12 +1175,10 @@ defmodule Astral.BuilderTest do
     site do
       root #{inspect(tmp())}
 
-      collections do
-        collection :posts, "content/posts" do
-          schema do
-            field :title, :string, required: true
-            field :draft, :boolean, default: false
-          end
+      collection :posts, "content/posts" do
+        schema do
+          field :title, :string, required: true
+          field :draft, :boolean, default: false
         end
       end
     end

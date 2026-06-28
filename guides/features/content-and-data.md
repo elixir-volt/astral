@@ -69,17 +69,15 @@ Astral does not currently expose Astro-style Markdown file imports, `compiledCon
 Define local Markdown collections in `astral.config.exs`:
 
 ```elixir
-collections do
-  collection :posts, "content/posts" do
-    permalink "/blog/:slug/"
-    layout "post.html"
+collection :posts, "content/posts" do
+  permalink "/blog/:slug/"
+  layout "post.html"
 
-    schema do
-      field :title, :string, required: true
-      field :date, :date, required: true
-      field :draft, :boolean, default: false
-      field :tags, {:array, :string}, default: []
-    end
+  schema do
+    field :title, :string, required: true
+    field :date, :date, required: true
+    field :draft, :boolean, default: false
+    field :tags, {:array, :string}, default: []
   end
 end
 ```

@@ -100,18 +100,16 @@ See the [`.astral` Templates guide](https://hexdocs.pm/astral/astral-templates.h
 Define typed content collections in Elixir:
 
 ```elixir
-collections do
-  collection :posts, "content/posts" do
-    permalink "/blog/:slug/"
-    layout "post.html"
+collection :posts, "content/posts" do
+  permalink "/blog/:slug/"
+  layout "post.html"
 
-    schema do
-      field :title, :string, required: true
-      field :date, :date, required: true
-      field :draft, :boolean, default: false
-      field :tags, {:array, :string}, default: []
-      field :cover, :image
-    end
+  schema do
+    field :title, :string, required: true
+    field :date, :date, required: true
+    field :draft, :boolean, default: false
+    field :tags, {:array, :string}, default: []
+    field :cover, :image
   end
 end
 ```

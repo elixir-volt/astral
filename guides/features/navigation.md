@@ -33,15 +33,13 @@ pages/fr/about.md      -> /fr/about/
 For collection-backed or generated locale pages, keep locale metadata in your content schema and declare routes explicitly:
 
 ```elixir
-collections do
-  collection :posts, "content/posts" do
-    permalink "/:locale/blog/:slug/"
+collection :posts, "content/posts" do
+  permalink "/:locale/blog/:slug/"
 
-    schema do
-      field :locale, :string, required: true
-      field :title, :string, required: true
-      field :date, :date, required: true
-    end
+  schema do
+    field :locale, :string, required: true
+    field :title, :string, required: true
+    field :date, :date, required: true
   end
 end
 ```

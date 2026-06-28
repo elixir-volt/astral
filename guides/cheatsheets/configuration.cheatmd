@@ -106,17 +106,15 @@ plug MySite.GeneratedHeaders, cache: "public, max-age=3600"
 ## Content collections
 
 ```elixir
-collections do
-  collection :posts, "content/posts" do
-    permalink "/blog/:slug/"
-    layout "post.html"
+collection :posts, "content/posts" do
+  permalink "/blog/:slug/"
+  layout "post.html"
 
-    schema do
-      field :title, :string, required: true
-      field :date, :date, required: true
-      field :draft, :boolean, default: false
-      field :tags, {:array, :string}, default: []
-    end
+  schema do
+    field :title, :string, required: true
+    field :date, :date, required: true
+    field :draft, :boolean, default: false
+    field :tags, {:array, :string}, default: []
   end
 end
 ```

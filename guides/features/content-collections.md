@@ -5,18 +5,16 @@ Collections group Markdown entries such as posts, docs, changelog items, or auth
 ## Define a collection
 
 ```elixir
-collections do
-  collection :posts, "content/posts" do
-    permalink "/blog/:slug/"
-    layout "post.html"
+collection :posts, "content/posts" do
+  permalink "/blog/:slug/"
+  layout "post.html"
 
-    schema do
-      field :title, :string, required: true
-      field :date, :date, required: true
-      field :draft, :boolean, default: false
-      field :tags, {:array, :string}, default: []
-      field :cover, :image
-    end
+  schema do
+    field :title, :string, required: true
+    field :date, :date, required: true
+    field :draft, :boolean, default: false
+    field :tags, {:array, :string}, default: []
+    field :cover, :image
   end
 end
 ```

@@ -24,13 +24,11 @@ defmodule Astral.ConfigTest do
           hash(false)
         end
 
-        collections do
-          collection :posts, "content/posts" do
-            permalink("/blog/:slug/")
-            layout("post.html")
-            drafts(true)
-            schema(%{required(:title) => String.t()})
-          end
+        collection :posts, "content/posts" do
+          permalink("/blog/:slug/")
+          layout("post.html")
+          drafts(true)
+          schema(%{required(:title) => String.t()})
         end
       end
 
@@ -133,14 +131,12 @@ defmodule Astral.ConfigTest do
       site do
         root("/tmp/astral")
 
-        collections do
-          collection :posts, "content/posts" do
-            schema do
-              field(:title, :string, required: true)
-              field(:date, :date, required: true)
-              field(:draft, :boolean, default: false)
-              field(:tags, {:array, :string}, default: [])
-            end
+        collection :posts, "content/posts" do
+          schema do
+            field(:title, :string, required: true)
+            field(:date, :date, required: true)
+            field(:draft, :boolean, default: false)
+            field(:tags, {:array, :string}, default: [])
           end
         end
       end

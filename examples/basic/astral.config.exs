@@ -27,16 +27,14 @@ assets do
   hash false
 end
 
-collections do
-  collection :posts, "content/posts" do
-    permalink "/blog/:slug/"
-    layout "post.html"
+collection :posts, "content/posts" do
+  permalink "/blog/:slug/"
+  layout "post.html"
 
-    schema do
-      field :title, :string, required: true
-      field :date, :date, required: true
-      field :description, :string
-      field :tags, {:array, :string}, default: []
-    end
+  schema do
+    field :title, :string, required: true
+    field :date, :date, required: true
+    field :description, :string
+    field :tags, {:array, :string}, default: []
   end
 end

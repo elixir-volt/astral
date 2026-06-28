@@ -136,7 +136,11 @@ defmodule Astral.Config do
   defmacro assets(path, do: block), do: put_opts_ast([assets: path] ++ asset_block_to_opts(block))
 
   @doc false
-  defmacro collections(do: block), do: put_opts_ast(collections: collection_block_to_opts(block))
+  defmacro collection(name, dir), do: put_opts_ast(collections: [collection_ast(name, dir, [])])
+
+  @doc false
+  defmacro collection(name, dir, do: block),
+    do: put_opts_ast(collections: [collection_ast(name, dir, collection_options_to_opts(block))])
 
   @doc false
   def __reset_top_level__ do
@@ -339,8 +343,12 @@ defmodule Astral.Config do
     [assets: path] ++ asset_block_to_opts(block)
   end
 
-  defp expression_to_opts({:collections, _meta, [[do: block]]}) do
-    [collections: collection_block_to_opts(block)]
+  defp expression_to_opts({:collection, _meta, [name, dir]}) do
+    [collections: [collection_expression_to_opts({:collection, [], [name, dir]})]]
+  end
+
+  defp expression_to_opts({:collection, _meta, [name, dir, [do: block]]}) do
+    [collections: [collection_expression_to_opts({:collection, [], [name, dir, [do: block]]})]]
   end
 
   defp generated_route_ast(path, opts, block) do
@@ -444,11 +452,11 @@ defmodule Astral.Config do
   defp asset_expression_to_opts({:url_prefix, _meta, [prefix]}), do: [asset_url_prefix: prefix]
   defp asset_expression_to_opts({:hash, _meta, [enabled]}), do: [asset_hash: enabled]
 
-  defp collection_block_to_opts({:__block__, _meta, expressions}) do
-    Enum.map(expressions, &collection_expression_to_opts/1)
+  defp collection_ast(name, dir, opts) do
+    quote do
+      [name: unquote(name), dir: unquote(dir)] ++ unquote(keyword_ast(opts))
+    end
   end
-
-  defp collection_block_to_opts(expression), do: [collection_expression_to_opts(expression)]
 
   defp collection_expression_to_opts({:collection, _meta, [name, dir]}) do
     [name: name, dir: dir]

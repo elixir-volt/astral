@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.1.7 - 2026-06-28
+
+### Changed
+
+- Replaced the `collections do ... end` config wrapper with top-level `collection` declarations.
+
 ## 0.1.6 - 2026-06-28
 
 ### Changed

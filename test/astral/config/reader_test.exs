@@ -64,14 +64,12 @@ defmodule Astral.Config.ReaderTest do
       title: "My Blog",
       path: "/feed.xml"
 
-    collections do
-      collection :posts, "content/posts" do
-        permalink "/blog/:slug/"
+    collection :posts, "content/posts" do
+      permalink "/blog/:slug/"
 
-        schema do
-          field :title, :string, required: true
-          field :cover, :image
-        end
+      schema do
+        field :title, :string, required: true
+        field :cover, :image
       end
     end
 
