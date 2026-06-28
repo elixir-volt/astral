@@ -75,6 +75,18 @@ end
 
 Files in `public/` are still copied as-is. Use `<.image>`, `<.picture>`, or `<.figure>` when you want Astral to optimize and hash an image.
 
+## Inline SVG files
+
+Use `<.svg>` when you want to include a project SVG file directly in the rendered HTML, such as clip-path definitions, masks, or a hand-authored logo:
+
+```astral
+<.svg src="@/icons/clip-paths.svg" class="sr-only" />
+```
+
+Astral asks Volt to resolve the source path, so configured Volt aliases and `tsconfig.json` paths work the same way as browser asset imports. The SVG is parsed as XML, must have an `<svg>` root, and is rendered through Phoenix's HTML-safe protocol. Root attributes from the component call override attributes from the file.
+
+Use `<.svg>` for trusted local source files. It is intentionally narrower than generic raw HTML injection.
+
 Resolved collection image fields expose dimensions and format:
 
 ```astral

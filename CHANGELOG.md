@@ -6,6 +6,7 @@
 
 - Static HEEx children for client islands, passed to framework runtimes through the default slot/children channel.
 - Server-rendered Iconify icons through PhoenixIconify's `<.icon>` component in `.astral` templates.
+- Inline local SVG files through `<.svg src="..." />`, resolved with Volt asset aliases and rendered as HTML-safe SVG.
 
 ## 0.1.2 - 2026-06-26
 

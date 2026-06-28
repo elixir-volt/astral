@@ -90,6 +90,18 @@ defmodule Astral.Components do
     """
   end
 
+  attr(:src, :string, required: true)
+  attr(:rest, :global)
+
+  @doc "Render an inline SVG file resolved through Volt asset semantics."
+  def svg(assigns) do
+    assigns = assign(assigns, :svg, Astral.SVG.inline!(assigns.src, attrs: assigns.rest))
+
+    ~H"""
+    {@svg}
+    """
+  end
+
   attr(:component, :string, required: true)
   attr(:adapter, :atom, required: true)
   attr(:client, :atom, default: :load)

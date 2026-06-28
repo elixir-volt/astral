@@ -195,6 +195,12 @@ Astral writes compressed, content-hashed variants to `dist/assets/` during stati
 ![Hero](./hero.jpg "Optional title")
 ```
 
+Include trusted local SVG files inline when you need definitions, masks, or hand-authored SVG markup:
+
+```astral
+<.svg src="@/icons/clip-paths.svg" class="sr-only" />
+```
+
 Reference source frontend assets from layouts:
 
 ```eex

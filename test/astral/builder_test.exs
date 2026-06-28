@@ -418,6 +418,72 @@ defmodule Astral.BuilderTest do
     assert read("dist/index.html") =~ "Elixir"
   end
 
+  test "renders inline SVG files resolved from assets" do
+    write("assets/icons/clip-paths.svg", ~S'''
+    <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0">
+      <defs><clipPath id="mark"><path d="M0 0" /></clipPath></defs>
+    </svg>
+    ''')
+
+    write("pages/index.astral", ~S'''
+    <.svg src="icons/clip-paths.svg" class="sr-only" data-role="defs" />
+    ''')
+
+    write("layouts/default.html", "<main><%= @content %></main>")
+
+    assert {:ok, _result} = Astral.build(root: tmp())
+
+    html = read("dist/index.html")
+    assert html =~ ~s(<svg width="0" height="0" class="sr-only" data-role="defs">)
+    assert html =~ ~s(<clipPath id="mark">)
+    refute html =~ "xmlns="
+  end
+
+  test "renders inline SVG files resolved relative to the template" do
+    write("assets/icons/local.svg", ~S'''
+    <svg viewBox="0 0 1 1"><path id="local" d="M0 0" /></svg>
+    ''')
+
+    write("pages/nested/index.astral", ~S'''
+    <.svg src="../../assets/icons/local.svg" />
+    ''')
+
+    write("layouts/default.html", "<main><%= @content %></main>")
+
+    assert {:ok, _result} = Astral.build(root: tmp())
+
+    assert read("dist/nested/index.html") =~ ~s(<path id="local" d="M0 0"/>)
+  end
+
+  test "renders inline SVG files resolved through Volt aliases" do
+    original_aliases = Application.get_env(:volt, :aliases)
+    Application.put_env(:volt, :aliases, %{"@" => Path.join(tmp(), "assets")})
+
+    on_exit(fn ->
+      if original_aliases do
+        Application.put_env(:volt, :aliases, original_aliases)
+      else
+        Application.delete_env(:volt, :aliases)
+      end
+    end)
+
+    write("assets/icons/logo.svg", ~S'''
+    <svg viewBox="0 0 10 10"><circle id="dot" cx="5" cy="5" r="5" /></svg>
+    ''')
+
+    write("pages/index.astral", ~S'''
+    <.svg src="@/icons/logo.svg" aria-hidden="true" />
+    ''')
+
+    write("layouts/default.html", "<main><%= @content %></main>")
+
+    assert {:ok, _result} = Astral.build(root: tmp())
+
+    html = read("dist/index.html")
+    assert html =~ ~s(<svg viewBox="0 0 10 10" aria-hidden="true">)
+    assert html =~ ~s(<circle id="dot" cx="5" cy="5" r="5"/>)
+  end
+
   test "builds Volt assets extracted from Astral templates" do
     write("pages/index.astral", ~S'''
     <h1>Assets</h1>

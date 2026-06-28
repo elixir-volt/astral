@@ -47,14 +47,26 @@ defmodule Astral.Template do
     end
   end
 
+  @doc "Return the template source currently being rendered in this process."
+  @spec current_source() :: String.t() | nil
+  def current_source do
+    Process.get({__MODULE__, :current_source})
+  end
+
   defp render_source(%Source{} = source, function, assigns, config) do
     module = module_name(config, source.path)
     components = component_sources(config.components)
 
     with {:ok, quoted} <- module_ast(module, components, {function, source}),
          {:ok, _modules} <- compile_module(quoted, source.path) do
-      rendered = apply(module, function, [assigns_map(assigns)])
-      {:ok, rendered_to_html(rendered)}
+      html =
+        with_current_source(source.path, fn ->
+          module
+          |> apply(function, [assigns_map(assigns)])
+          |> rendered_to_html()
+        end)
+
+      {:ok, html}
     end
   end
 
@@ -176,6 +188,21 @@ defmodule Astral.Template do
     rendered
     |> Phoenix.HTML.Safe.to_iodata()
     |> IO.iodata_to_binary()
+  end
+
+  defp with_current_source(path, fun) do
+    previous_source = current_source()
+    Process.put({__MODULE__, :current_source}, path)
+
+    try do
+      fun.()
+    after
+      if previous_source do
+        Process.put({__MODULE__, :current_source}, previous_source)
+      else
+        Process.delete({__MODULE__, :current_source})
+      end
+    end
   end
 
   defp module_name(config, path) do
