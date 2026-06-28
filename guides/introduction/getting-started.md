@@ -44,6 +44,8 @@ Astral writes static HTML and copied public files to `dist/` by default. The bui
 
 To preview exactly what you last built, serve `dist/` with any static file server. Re-run `mix astral.build` after changes; a static preview does not update live like `mix astral.dev`.
 
+For browser formatting, linting, TypeScript checks, and `import.meta.env`, see [Editor Setup and TypeScript](../features/editor-and-typescript.md) and [Environment Variables](../features/environment-variables.md).
+
 ## Starter layout
 
 A typical project looks like this:

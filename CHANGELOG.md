@@ -15,6 +15,7 @@
 - Clearer content collection documentation for schema defaults and userland tag page patterns.
 - Setup-declared dynamic `.astral` page paths through strict `Astral.Route.Path` values and the `path/1` setup helper.
 - Clearer develop/build/configuration docs covering dev server options, static build preview expectations, and metadata placement.
+- Editor setup, TypeScript, and environment variable guides that map Astral's Elixir site layer to Volt browser tooling.
 
 ### Changed
 

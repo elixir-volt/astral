@@ -54,6 +54,14 @@ end
 
 Reference asset entries from layouts with `Astral.asset_path/2`. In development this points at Volt's dev server; in static builds it resolves through the emitted manifest.
 
+## Browser environment variables
+
+```elixir
+config :volt, env_prefix: ["VOLT_", "PUBLIC_"]
+```
+
+Variables matching `env_prefix` are exposed to browser assets through `import.meta.env`. Keep secrets outside exposed prefixes.
+
 ## Dynamic file routes
 
 ```text

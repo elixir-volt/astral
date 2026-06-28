@@ -29,7 +29,7 @@ You get the pieces expected from a modern static site framework:
 - Optimized build-time images with `<.image>`, `<.picture>`, and `<.figure>` components.
 - Client-only islands for Volt-powered framework components.
 - Public files copied as-is.
-- TypeScript, CSS, imported assets, dev serving, and HMR through Volt.
+- TypeScript, CSS, imported assets, browser environment variables, dev serving, and HMR through Volt.
 - Plug/Bandit dev server with full reloads for pages, layouts, components, and public files.
 - Igniter-powered starter scaffolding.
 
@@ -221,7 +221,7 @@ Reference source frontend assets from layouts:
 
 In development this points to Volt's dev server. In static builds it resolves through Volt's manifest to content-hashed output files.
 
-See the [Assets guide](https://hexdocs.pm/astral/assets.html) and the [Volt documentation](https://hexdocs.pm/volt) for frontend tooling details.
+See the [Assets guide](https://hexdocs.pm/astral/assets.html), [Editor Setup and TypeScript guide](https://hexdocs.pm/astral/editor-and-typescript.html), [Environment Variables guide](https://hexdocs.pm/astral/environment-variables.html), and the [Volt documentation](https://hexdocs.pm/volt) for frontend tooling details.
 
 ## Icons
 
