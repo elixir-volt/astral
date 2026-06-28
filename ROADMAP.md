@@ -50,7 +50,7 @@ Astral's long-term goal is to become an Elixir-native static and hybrid site fra
 - Route params in page/layout assigns as string-keyed `@params`.
 - Collection-backed detail routes such as `pages/blog/[slug].astral`.
 - Dynamic route diagnostics.
-- Ecto-style content collection schema fields.
+- Ecto-style content collection schema fields with defaults and casting.
 - Markdown rendering with Astral HEEx components.
 - Optimized local and remote image pipeline, including image, picture, figure, metadata, Markdown image, dev-server, and collection image field support.
 - Client-only islands for Vue, Svelte, React, and Solid.
@@ -67,6 +67,9 @@ Astral's long-term goal is to become an Elixir-native static and hybrid site fra
 - Phoenix-shaped `get` declarations in `astral.config.exs` for one-off generated static routes.
 - Plug-compatible middleware for generated config routes via `plug`.
 - Userland head metadata component pattern in the basic example and pages/layouts guide.
+- Root custom 404 pages that build to `dist/404.html` and return 404 in development.
+- Deterministic static output precedence documented and tested: public files, then pages, then generated routes.
+- Custom 404 page in the basic example site.
 
 ## Current priorities
 
@@ -78,12 +81,9 @@ Goal: make Astral feel complete for practical blogs, docs, and marketing sites.
 
 - Richer dynamic route examples for blogs, docs, tags, categories, and paginated archives.
 - Document userland tag/category pages without making taxonomy a core abstraction.
-- Frontmatter defaults.
 - Non-collection dynamic route enumeration if a clear Elixir-native API emerges.
 - Better diagnostics for unmatched dynamic routes, duplicate routes, missing params, and ambiguous collection matches.
-- More complete content collection guide examples.
-- Custom `404.html` convention.
-- Clarify static assets, generated routes, and public file precedence.
+- More complete content collection guide examples, including schema field defaults.
 
 ### v0.3 — Metadata and document head
 
