@@ -75,6 +75,7 @@ Astral's long-term goal is to become an Elixir-native static and hybrid site fra
 - Documentation classifying current CSS, font, syntax-highlighting, script, and framework-island boundaries after auditing Astro's UI-building features.
 - Documentation classifying current Markdown, content collection, data-fetching, and live-content boundaries after auditing Astro's content guides.
 - Documentation classifying current on-demand rendering, server island, action, session, and route caching boundaries after auditing Astro's server-rendering guides.
+- Documentation classifying current static deployment and future adapter boundaries after auditing Astro's deployment and adapter guides.
 
 ## Current priorities
 
@@ -146,7 +147,7 @@ Goal: move beyond static-only without making Volt responsible for site semantics
 - Decide whether an Astral-native action/form layer is worth adding on top of Plug/Phoenix endpoints.
 - Decide whether runtime route caching needs an Astral API or should stay deployment/host-owned for Elixir targets.
 - First-class i18n routing decisions for locale prefixes, fallbacks, domain mapping, link helpers, route verification, and browser-language detection.
-- Deployment adapter shape for common static and server targets.
+- Deployment adapter shape for common static and server targets, including which host-specific static files belong in adapters versus userland `public/` files or generated routes.
 
 ### v0.7 — Client navigation runtime
 
