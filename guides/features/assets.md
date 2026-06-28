@@ -152,6 +152,19 @@ Static builds fetch allowed remote originals during generation. Because the orig
 
 Development mirrors Astro's endpoint model: page rendering emits `/_astral/image/...` without downloading the remote original, and the remote request happens when the browser asks for that optimized image. In dev, specify both `width` and `height` for remote images so Astral can avoid fetching during page render.
 
+## Image service and CDN boundaries
+
+Astro exposes a public Image Service API with local services, external CDN services, `getImage()`, on-demand `/_image` endpoints, and adapter integrations such as Netlify Image CDN. Those APIs let image transformations move between build time, request time, and provider CDNs.
+
+Astral's current image service boundary is narrower and Elixir-native:
+
+- `Astral.Image.Service` is an internal backend behaviour used by Astral's Vips/libvips transformer.
+- Static builds generate optimized image files into the asset output directory.
+- Development uses Astral's `/_astral/image/...` endpoint for on-demand local/dev transforms only.
+- Production on-demand image transformation, external image services, provider image CDNs, and a public `getImage()` helper are not implemented yet.
+
+Use ordinary `<img>` or host/CDN URLs when a provider should own transformation. Use `<.image>`, `<.picture>`, and `<.figure>` when Astral should transform files during the static build. Future deployment adapters may add provider-specific image service integration, but that belongs in Astral's site/runtime layer rather than Volt's browser asset layer.
+
 ## Volt browser assets
 
 Astral delegates browser assets to Volt.

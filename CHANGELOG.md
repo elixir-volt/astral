@@ -24,6 +24,7 @@
 - Server/runtime documentation covering current on-demand rendering, server island, action, session, and route caching boundaries.
 - Deployment documentation covering current static-host deployment and future adapter boundaries.
 - Backend, authentication, and testing documentation covering current composition boundaries.
+- Image documentation covering current build-time image service and future adapter/CDN boundaries.
 
 ### Changed
 
