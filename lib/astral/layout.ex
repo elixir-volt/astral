@@ -59,7 +59,7 @@ defmodule Astral.Layout do
   end
 
   defp assigns(content, page, site) do
-    [
+    %{
       content: content,
       page: page.content,
       metadata: page.content.metadata,
@@ -69,7 +69,9 @@ defmodule Astral.Layout do
       collections: site.entries,
       entry: page.entry,
       routes: site.routes
-    ]
+    }
+    |> Map.merge(page.assigns)
+    |> Map.to_list()
   end
 
   defp template_assigns(assigns) do

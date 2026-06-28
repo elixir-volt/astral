@@ -164,6 +164,24 @@ defmodule Astral.TemplateTest do
     assert html =~ "<p>Jun 25, 2026</p>"
   end
 
+  test "returns setup bindings for discovery-time contracts" do
+    write("page.astral", """
+    ---
+    paths = [path tag: @tag, assigns: %{title: "Tag"}]
+    ---
+    <p>{@tag}</p>
+    """)
+
+    config = Astral.Config.new(root: tmp(), pages: ".")
+
+    assert {:ok, binding} =
+             Astral.Template.setup_binding_file(path("page.astral"), %{tag: "elixir"}, config)
+
+    assert Keyword.fetch!(binding, :paths) == [
+             %Astral.Route.Path{params: %{tag: "elixir"}, assigns: %{title: "Tag"}}
+           ]
+  end
+
   defp tmp, do: Process.get(:astral_template_tmp) || raise("missing tmp_dir")
 
   defp path(path), do: Path.join(tmp(), path)

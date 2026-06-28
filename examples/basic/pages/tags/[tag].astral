@@ -1,0 +1,20 @@
+---
+posts = Astral.Collection.entries(@site, :posts)
+
+paths =
+  for tag <- Astral.Collection.tags(posts) do
+    posts_for_tag = Enum.filter(posts, &(tag in &1.data.tags))
+    path tag: tag, assigns: %{posts: posts_for_tag}
+  end
+---
+
+<section class="tag-page" data-tag={@params["tag"]}>
+  <p class="eyebrow">Tag</p>
+  <h1>{@params["tag"]}</h1>
+
+  <ul>
+    <li :for={post <- @posts}>
+      <a href={post.route_path}>{post.data.title}</a>
+    </li>
+  </ul>
+</section>

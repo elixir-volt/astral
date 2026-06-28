@@ -9,7 +9,8 @@ defmodule Astral.Discovery do
   @spec discover(Astral.Config.t()) :: {:ok, Astral.Site.t()} | {:error, term()}
   def discover(%Astral.Config{} = config) do
     with {:ok, entries} <- discover_collections(config),
-         {:ok, pages} <- discover_pages(config, entries),
+         site = site_for_page_discovery(config, entries),
+         {:ok, pages} <- discover_pages(site),
          {:ok, layouts} <- read_layouts(config) do
       site = %Astral.Site{
         config: config,
@@ -29,11 +30,15 @@ defmodule Astral.Discovery do
     end
   end
 
-  defp discover_pages(config, entries) do
+  defp site_for_page_discovery(config, entries) do
+    %Astral.Site{config: config, collections: config.collections, entries: entries}
+  end
+
+  defp discover_pages(%Astral.Site{config: config} = site) do
     if File.dir?(config.pages) do
       config.pages
       |> page_paths()
-      |> build_pages(config, entries)
+      |> build_pages(site)
     else
       {:error, {:missing_pages_dir, config.pages}}
     end
@@ -47,9 +52,9 @@ defmodule Astral.Discovery do
     |> Enum.sort()
   end
 
-  defp build_pages(paths, config, entries) do
+  defp build_pages(paths, site) do
     Enum.reduce_while(paths, {:ok, []}, fn path, {:ok, pages} ->
-      case pages(path, config, entries) do
+      case pages(path, site) do
         {:ok, path_pages} -> {:cont, {:ok, [path_pages | pages]}}
         {:error, _} = error -> {:halt, error}
       end
@@ -60,13 +65,13 @@ defmodule Astral.Discovery do
     end
   end
 
-  defp pages(path, config, entries) do
+  defp pages(path, %Astral.Site{config: config} = site) do
     with {:ok, content} <- read_content(path) do
       relative = Path.relative_to(path, config.pages)
       file_route = Astral.Route.File.parse(relative)
 
       if file_route.dynamic? do
-        dynamic_pages(path, content, file_route, entries, config)
+        dynamic_pages(path, content, file_route, site)
       else
         {:ok, [static_page(path, content, file_route, config)]}
       end
@@ -84,18 +89,88 @@ defmodule Astral.Discovery do
     }
   end
 
-  defp dynamic_pages(path, content, file_route, entries, config) do
-    pages =
-      entries
-      |> Map.values()
-      |> List.flatten()
-      |> Enum.flat_map(fn entry -> dynamic_page(path, content, file_route, entry, config) end)
-
-    if pages == [] do
-      {:error, {:unmatched_dynamic_route, path, file_route.pattern.source}}
-    else
-      {:ok, pages}
+  defp dynamic_pages(path, content, file_route, %Astral.Site{config: config} = site) do
+    case entry_dynamic_pages(path, content, file_route, site.entries, config) do
+      [] -> route_path_pages(path, content, file_route, site)
+      pages -> {:ok, pages}
     end
+  end
+
+  defp route_path_pages(path, content, file_route, site) do
+    if Astral.Template.template?(path) do
+      case Astral.Template.setup_binding_file(path, page_discovery_assigns(site), site.config) do
+        {:ok, binding} ->
+          binding
+          |> route_paths_from_binding(path)
+          |> case do
+            {:ok, nil} ->
+              {:error, {:unmatched_dynamic_route, path, file_route.pattern.source}}
+
+            {:ok, route_paths} ->
+              build_route_path_pages(path, content, file_route, route_paths, site.config)
+
+            {:error, reason} ->
+              {:error, {:dynamic_route_paths_failed, path, reason}}
+          end
+
+        {:error, reason} ->
+          {:error, {:dynamic_route_paths_failed, path, reason}}
+      end
+    else
+      {:error, {:unmatched_dynamic_route, path, file_route.pattern.source}}
+    end
+  end
+
+  defp entry_dynamic_pages(path, content, file_route, entries, config) do
+    entries
+    |> Map.values()
+    |> List.flatten()
+    |> Enum.flat_map(fn entry -> dynamic_page(path, content, file_route, entry, config) end)
+  end
+
+  defp route_paths_from_binding(binding, path) do
+    case Keyword.fetch(binding, :paths) do
+      {:ok, paths} -> validate_route_paths(paths, path)
+      :error -> {:ok, nil}
+    end
+  end
+
+  defp validate_route_paths(paths, _path) when is_list(paths) do
+    if Enum.all?(paths, &match?(%Astral.Route.Path{}, &1)) do
+      {:ok, paths}
+    else
+      {:error, {:invalid_route_paths, paths}}
+    end
+  end
+
+  defp validate_route_paths(paths, _path), do: {:error, {:invalid_route_paths, paths}}
+
+  defp build_route_path_pages(path, content, file_route, route_paths, config) do
+    {:ok, Enum.map(route_paths, &route_path_page(path, content, file_route, &1, config))}
+  rescue
+    error in [ArgumentError] -> {:error, {:dynamic_route_paths_failed, path, error}}
+  end
+
+  defp route_path_page(path, content, file_route, route_path, config) do
+    page_route = Astral.Route.File.generate(file_route, route_path)
+
+    %Astral.Page{
+      source_path: path,
+      route_path: page_route,
+      output_path: Path.join(config.outdir, Astral.Route.output_relative(page_route)),
+      content: content,
+      params: Astral.Route.Pattern.normalize_params(route_path.params),
+      assigns: route_path.assigns
+    }
+  end
+
+  defp page_discovery_assigns(site) do
+    %{
+      site: site,
+      config: site.config,
+      collections: site.entries,
+      routes: []
+    }
   end
 
   defp dynamic_page(path, content, file_route, entry, config) do

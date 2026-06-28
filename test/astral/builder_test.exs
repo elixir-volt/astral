@@ -733,6 +733,112 @@ defmodule Astral.BuilderTest do
     refute read("dist/blog/hello/index.html") =~ "Entry Body"
   end
 
+  test "does not evaluate collection-backed dynamic setup during discovery" do
+    write("pages/blog/[slug].astral", ~S'''
+    ---
+    assigns = assign(assigns, :title, @entry.data.title)
+    ---
+    <h1>{@title}</h1>
+    ''')
+
+    write("content/posts/hello.md", """
+    ---
+    title: Hello Dynamic Setup
+    ---
+    """)
+
+    config =
+      Astral.Config.new(
+        root: tmp(),
+        layout: false,
+        collections: [
+          [
+            name: :posts,
+            dir: "content/posts",
+            permalink: "/blog/:slug/",
+            schema: schema(%{required(:title) => String.t()})
+          ]
+        ]
+      )
+
+    assert {:ok, _result} = Astral.build(config)
+    assert read("dist/blog/hello/index.html") =~ "<h1>Hello Dynamic Setup</h1>"
+  end
+
+  test "renders dynamic Astral routes declared in setup paths" do
+    write("pages/tags/[tag].astral", ~S'''
+    ---
+    posts = @collections.posts
+
+    paths =
+      for tag <- Astral.Collection.tags(posts) do
+        posts_for_tag = Enum.filter(posts, &(tag in &1.data.tags))
+        path tag: tag, assigns: %{posts: posts_for_tag}
+      end
+    ---
+    <section data-tag={@params["tag"]}>
+      <h1>{@params["tag"]}</h1>
+      <ul :for={post <- @posts}>
+        <li>{post.data.title}</li>
+      </ul>
+    </section>
+    ''')
+
+    write("content/posts/elixir.md", """
+    ---
+    title: Elixir Post
+    tags: [elixir]
+    ---
+    """)
+
+    write("content/posts/volt.md", """
+    ---
+    title: Volt Post
+    tags: [volt, elixir]
+    ---
+    """)
+
+    config =
+      Astral.Config.new(
+        root: tmp(),
+        layout: false,
+        collections: [
+          [
+            name: :posts,
+            dir: "content/posts",
+            permalink: "/blog/:slug/",
+            schema: schema(%{required(:title) => String.t(), required(:tags) => list(String.t())})
+          ]
+        ]
+      )
+
+    assert {:ok, result} = Astral.build(config)
+
+    assert result.site.pages
+           |> Enum.map(& &1.route_path)
+           |> Enum.filter(&String.starts_with?(&1, "/tags/")) == ["/tags/elixir/", "/tags/volt/"]
+
+    assert read("dist/tags/elixir/index.html") =~ ~s(<section data-tag="elixir">)
+    assert read("dist/tags/elixir/index.html") =~ "Elixir Post"
+    assert read("dist/tags/elixir/index.html") =~ "Volt Post"
+    assert read("dist/tags/volt/index.html") =~ "Volt Post"
+    refute read("dist/tags/volt/index.html") =~ "Elixir Post"
+  end
+
+  test "rejects dynamic Astral setup paths with unexpected params" do
+    write("pages/tags/[tag].astral", ~S'''
+    ---
+    paths = [path tag: "elixir", extra: "nope"]
+    ---
+    <h1>{@params["tag"]}</h1>
+    ''')
+
+    assert {:error, {:dynamic_route_paths_failed, _path, %ArgumentError{} = error}} =
+             Astral.build(root: tmp(), layout: false)
+
+    assert Exception.message(error) =~ "unexpected route parameters"
+  end
+
   test "renders glob dynamic Markdown routes with params in layouts" do
     write("pages/docs/[...path].md", "# Dynamic Doc")
     write("layouts/doc.html", ~S(<%= @params["path"] %>:<%= @entry.data.title %>:<%= @content %>))

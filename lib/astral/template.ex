@@ -47,6 +47,15 @@ defmodule Astral.Template do
     end
   end
 
+  @doc "Evaluate a `.astral` setup block and return its Elixir binding."
+  @spec setup_binding_file(String.t(), map() | keyword(), Astral.Config.t()) ::
+          {:ok, keyword()} | {:error, term()}
+  def setup_binding_file(path, assigns, %Astral.Config{} = config) do
+    with {:ok, source} <- File.read(path) do
+      setup_binding(%Source{path: path, source: source}, assigns, config)
+    end
+  end
+
   @doc "Return the template source currently being rendered in this process."
   @spec current_source() :: String.t() | nil
   def current_source do
@@ -78,6 +87,7 @@ defmodule Astral.Template do
        defmodule unquote(module) do
          use Phoenix.Component
          import Astral.Components
+         import Astral.Route.Path, only: [path: 1, path: 2]
          import PhoenixIconify, only: [icon: 1]
          import Phoenix.HTML
          require Astral.Template.HEEx
@@ -100,7 +110,20 @@ defmodule Astral.Template do
         var!(assigns) = Map.put_new(var!(assigns), :__changed__, nil)
         _ = var!(assigns)
         unquote(setup_ast)
+        _ = binding()
         Astral.Template.HEEx.compile(unquote(template), unquote(source.path), unquote(line))
+      end
+    end
+  end
+
+  defp setup_function_ast(setup_ast) do
+    quote do
+      def __astral_setup__(var!(assigns)) do
+        var!(assigns) = Map.new(var!(assigns))
+        var!(assigns) = Map.put_new(var!(assigns), :__changed__, nil)
+        _ = var!(assigns)
+        unquote(setup_ast)
+        binding()
       end
     end
   end
@@ -118,6 +141,47 @@ defmodule Astral.Template do
     source
     |> Code.string_to_quoted!(file: path, line: 2, columns: true)
     |> rewrite_setup_assigns()
+  end
+
+  defp setup_binding(%Source{} = source, assigns, config) do
+    {setup, _template, _line} = split_source(source.source)
+    module = module_name(config, source.path)
+
+    with {:ok, setup_ast} <- quoted_setup(setup, source.path),
+         {:ok, _modules} <-
+           compile_module(setup_module_ast(module, setup_function_ast(setup_ast)), source.path) do
+      try do
+        binding =
+          with_current_source(source.path, fn ->
+            apply(module, :__astral_setup__, [assigns_map(assigns)])
+          end)
+
+        {:ok, binding}
+      rescue
+        error in [RuntimeError, ArgumentError, KeyError, UndefinedFunctionError] ->
+          {:error, error}
+      end
+    end
+  end
+
+  defp quoted_setup(source, path) do
+    {:ok, setup_ast(source, path)}
+  rescue
+    error in [SyntaxError, TokenMissingError] -> {:error, error}
+  end
+
+  defp setup_module_ast(module, definition) do
+    quote generated: true do
+      defmodule unquote(module) do
+        use Phoenix.Component
+        import Astral.Components
+        import Astral.Route.Path, only: [path: 1, path: 2]
+        import PhoenixIconify, only: [icon: 1]
+        import Phoenix.HTML
+
+        unquote(definition)
+      end
+    end
   end
 
   defp rewrite_setup_assigns(ast) do

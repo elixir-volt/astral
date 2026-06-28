@@ -29,4 +29,11 @@ defmodule Astral.Route.FileTest do
     assert File.match(route, "/docs/intro/getting-started/") ==
              {:ok, %{"path" => "intro/getting-started"}}
   end
+
+  test "generates concrete route paths from route path contracts" do
+    route = File.parse("tags/[tag].astral")
+    path = Astral.Route.Path.new(tag: "elixir")
+
+    assert File.generate(route, path) == "/tags/elixir/"
+  end
 end

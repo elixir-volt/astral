@@ -10,6 +10,7 @@ This is a minimal Astral site that exercises the current core features:
 - Volt-managed TypeScript and CSS
 - schema-validated posts in `content/posts`
 - dynamic collection detail pages with `pages/blog/[slug].astral`
+- setup-declared dynamic tag pages with `pages/tags/[tag].astral`
 - custom root 404 page written to `dist/404.html`
 - generated `/feed.xml` and `/sitemap.xml` routes
 - Astral's development server
@@ -54,6 +55,7 @@ The output is written to `dist/`.
 - `/`
 - `/about/`
 - `/blog/hello-astral/` from `content/posts/hello-astral.md` rendered by `pages/blog/[slug].astral`
+- `/tags/astral/` generated from `pages/tags/[tag].astral`
 - `/components/`
 - `/landing/`
 - `/raw/`

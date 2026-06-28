@@ -38,11 +38,20 @@ defmodule Astral.Template.Assets do
   @doc "Return only embedded modules for Volt's embedded module hook."
   @spec modules(String.t(), keyword()) :: [EmbeddedModule.t()]
   def modules(source, opts \\ []) do
-    case extract(source, opts) do
+    case source |> template_source() |> extract(opts) do
       {:ok, %__MODULE__{modules: modules}} -> modules
       {:error, _reason} -> []
     end
   end
+
+  defp template_source("---\n" <> rest) do
+    case String.split(rest, "\n---\n", parts: 2) do
+      [_setup, template] -> template
+      [_] -> "---\n" <> rest
+    end
+  end
+
+  defp template_source(source), do: source
 
   defp parse(source, opts) do
     Phoenix.LiveView.TagEngine.Parser.parse(source,

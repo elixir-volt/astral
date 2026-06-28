@@ -46,6 +46,16 @@ defmodule Astral.Route.File do
   def static_path(relative) when is_binary(relative), do: relative |> parse() |> static_path()
   def static_path(%__MODULE__{} = route), do: trailing_slash(route.pattern.source)
 
+  @doc "Generate a concrete route path from a dynamic file route path contract."
+  @spec generate(t(), Astral.Route.Path.t()) :: String.t()
+  def generate(%__MODULE__{} = route, %Astral.Route.Path{} = path) do
+    validate_path_params!(route, path)
+
+    route.pattern
+    |> Pattern.generate(path.params)
+    |> trailing_slash()
+  end
+
   @doc "Match a concrete path and return string-keyed params for template assigns."
   @spec match(t(), String.t()) :: {:ok, map()} | :error
   def match(%__MODULE__{} = route, path) do
@@ -118,5 +128,15 @@ defmodule Astral.Route.File do
         raise ArgumentError, "unexpected route parameter #{inspect(name)}"
       end
     end)
+  end
+
+  defp validate_path_params!(route, path) do
+    allowed = MapSet.new(route.params)
+    actual = path.params |> Map.keys() |> Enum.map(&Atom.to_string/1) |> MapSet.new()
+
+    case MapSet.difference(actual, allowed) |> MapSet.to_list() |> Enum.sort() do
+      [] -> :ok
+      params -> raise ArgumentError, "unexpected route parameters #{inspect(params)}"
+    end
   end
 end

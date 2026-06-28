@@ -9,7 +9,8 @@ defmodule Astral.Page do
           output_path: String.t(),
           content: Astral.Content.t(),
           entry: Astral.Entry.t() | nil,
-          params: map()
+          params: map(),
+          assigns: %{atom() => term()}
         }
 
   defstruct source_path: nil,
@@ -17,5 +18,6 @@ defmodule Astral.Page do
             output_path: nil,
             content: nil,
             entry: nil,
-            params: %{}
+            params: %{},
+            assigns: %{}
 end

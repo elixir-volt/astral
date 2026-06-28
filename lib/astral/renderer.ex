@@ -37,6 +37,7 @@ defmodule Astral.Renderer do
       entry: page.entry,
       routes: site.routes
     }
+    |> Map.merge(page.assigns)
   end
 
   defp page_layout(%{content: %{layout: false}}, _site), do: {:ok, nil}

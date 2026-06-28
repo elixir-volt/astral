@@ -159,13 +159,13 @@ posts =
   |> Astral.Collection.sort_by_date(:desc)
 ```
 
-Tags and categories are userland. If your site needs tag pages, build them from schema-normalized `entry.data` and generated routes instead of waiting for a core taxonomy abstraction. Declare fields such as `tags` in your collection schema so helpers can use normalized atom-keyed data.
+Tags and categories are userland. If your site needs tag pages, build them from schema-normalized `entry.data` and dynamic pages instead of waiting for a core taxonomy abstraction. Declare fields such as `tags` in your collection schema so helpers can use normalized atom-keyed data.
 
 For a tag index page, ordinary `.astral` pages can read collection data directly:
 
 ```astral
 ---
-posts = Astral.Collection.entries(assigns[:site], :posts)
+posts = Astral.Collection.entries(@site, :posts)
 assigns = assign(assigns, :tags, Astral.Collection.tags(posts))
 ---
 
@@ -176,56 +176,25 @@ assigns = assign(assigns, :tags, Astral.Collection.tags(posts))
 </ul>
 ```
 
-For one generated page per tag, implement a small plugin that returns ordinary `Astral.Route` values:
+For one generated page per tag, create a dynamic `.astral` page and declare its `paths` in the setup block:
 
-```elixir
-defmodule MySite.TagPages do
-  @behaviour Astral.Plugin
+```astral
+---
+posts = Astral.Collection.entries(@site, :posts)
 
-  def name, do: "tag-pages"
-
-  def routes(site) do
-    site
-    |> Astral.Collection.entries(:posts)
-    |> Astral.Collection.tags()
-    |> Enum.map(fn tag ->
-      Astral.Route.new("/tags/#{tag}/", site.config,
-        kind: :tag_page,
-        assigns: %{tag: tag}
-      )
-    end)
+paths =
+  for tag <- Astral.Collection.tags(posts) do
+    posts_for_tag = Enum.filter(posts, &(tag in &1.data.tags))
+    path tag: tag, assigns: %{posts: posts_for_tag}
   end
+---
 
-  def render_route(%Astral.Route{kind: :tag_page, assigns: %{tag: tag}} = route, site) do
-    posts =
-      site
-      |> Astral.Collection.entries(:posts)
-      |> Enum.filter(&(tag in Map.get(&1.data, :tags, [])))
-
-    html =
-      posts
-      |> Enum.map_join("\n", fn post ->
-        title = html_escape(post.data.title)
-        ~s(<li><a href="#{post.route_path}">#{title}</a></li>)
-      end)
-      |> then(&"<h1>#{html_escape(tag)}</h1><ul>#{&1}</ul>")
-
-    Astral.Layout.render_route(html, site.layouts[site.config.layout], route, site)
-    |> case do
-      {:ok, html} -> {:ok, html, "text/html"}
-      error -> error
-    end
-  end
-
-  def render_route(_route, _site), do: nil
-
-  defp html_escape(value) do
-    value
-    |> Phoenix.HTML.html_escape()
-    |> Phoenix.HTML.Safe.to_iodata()
-    |> IO.iodata_to_binary()
-  end
-end
+<h1>{@params["tag"]}</h1>
+<ul>
+  <li :for={post <- @posts}>
+    <a href={post.route_path}>{post.data.title}</a>
+  </li>
+</ul>
 ```
 
-Then add `MySite.TagPages` to `plugins` in `astral.config.exs`.
+Save this as `pages/tags/[tag].astral`. Each item in `paths` is an `Astral.Route.Path` contract produced by `path/1`, not an arbitrary map. Route params are exposed as `@params`, and atom-keyed `assigns` are merged into the page assigns.
