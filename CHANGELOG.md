@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.1.8 - 2026-06-29
+
+### Fixed
+
+- Preserved external `<script src="...">` tags in `.astral` templates while still extracting inline script blocks into Volt modules.
+
 ## 0.1.7 - 2026-06-28
 
 ### Changed
