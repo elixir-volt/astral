@@ -67,9 +67,16 @@ defmodule Astral.Template.Assets do
     Enum.flat_map(nodes, &collect_block(&1, source))
   end
 
-  defp collect_block({:block, :tag, name, attrs, _children, open_meta, close_meta}, source)
-       when name in ["style", "script"] do
-    [asset_block(name, attrs, source, open_meta, close_meta)]
+  defp collect_block({:block, :tag, "script", attrs, _children, open_meta, close_meta}, source) do
+    if attr_present?(attrs, "src") do
+      []
+    else
+      [asset_block("script", attrs, source, open_meta, close_meta)]
+    end
+  end
+
+  defp collect_block({:block, :tag, "style", attrs, _children, open_meta, close_meta}, source) do
+    [asset_block("style", attrs, source, open_meta, close_meta)]
   end
 
   defp collect_block({:block, _type, _name, _attrs, children, _open_meta, _close_meta}, source) do
@@ -151,6 +158,13 @@ defmodule Astral.Template.Assets do
     Enum.find_value(attrs, fn
       {^name, {:string, value, _meta}, _attr_meta} -> value
       _attr -> nil
+    end)
+  end
+
+  defp attr_present?(attrs, name) do
+    Enum.any?(attrs, fn
+      {^name, _value, _attr_meta} -> true
+      _attr -> false
     end)
   end
 end

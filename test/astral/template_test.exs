@@ -65,6 +65,27 @@ defmodule Astral.TemplateTest do
     assert script.source == "const answer: number = 42"
   end
 
+  test "keeps external script tags in the server template" do
+    source = """
+    <head>
+      <script type="module" src={Astral.asset_path(@site, "app.ts")}></script>
+      <script lang="ts">const answer: number = 42</script>
+    </head>
+    """
+
+    assert {:ok, result} = Astral.Template.Assets.extract(source, file: "layout.astral")
+
+    assert result.source =~
+             "<script type=\"module\" src={Astral.asset_path(@site, \"app.ts\")}></script>"
+
+    refute result.source =~ "const answer"
+
+    assert [script] = result.modules
+    assert script.type == :script
+    assert script.extension == ".ts"
+    assert script.source == "const answer: number = 42"
+  end
+
   test "renders Iconify icons in Astral templates" do
     PhoenixIconify.Manifest.add_icon("ri:external-link-fill", %Iconify.Icon{
       name: "ri:external-link-fill",

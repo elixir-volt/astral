@@ -98,26 +98,32 @@ defmodule Astral.Discovery do
 
   defp route_path_pages(path, content, file_route, site) do
     if Astral.Template.template?(path) do
-      case Astral.Template.setup_binding_file(path, page_discovery_assigns(site), site.config) do
-        {:ok, binding} ->
-          binding
-          |> route_paths_from_binding()
-          |> case do
-            {:ok, nil} ->
-              {:error, {:unmatched_dynamic_route, path, file_route.pattern.source}}
-
-            {:ok, route_paths} ->
-              build_route_path_pages(path, content, file_route, route_paths, site.config)
-
-            {:error, reason} ->
-              {:error, {:dynamic_route_paths_failed, path, reason}}
-          end
-
-        {:error, reason} ->
-          {:error, {:dynamic_route_paths_failed, path, reason}}
-      end
+      route_path_pages_from_setup(path, content, file_route, site)
     else
       {:error, {:unmatched_dynamic_route, path, file_route.pattern.source}}
+    end
+  end
+
+  defp route_path_pages_from_setup(path, content, file_route, site) do
+    case Astral.Template.setup_binding_file(path, page_discovery_assigns(site), site.config) do
+      {:ok, binding} ->
+        build_route_path_pages_from_binding(path, content, file_route, binding, site.config)
+
+      {:error, reason} ->
+        {:error, {:dynamic_route_paths_failed, path, reason}}
+    end
+  end
+
+  defp build_route_path_pages_from_binding(path, content, file_route, binding, config) do
+    case route_paths_from_binding(binding) do
+      {:ok, nil} ->
+        {:error, {:unmatched_dynamic_route, path, file_route.pattern.source}}
+
+      {:ok, route_paths} ->
+        build_route_path_pages(path, content, file_route, route_paths, config)
+
+      {:error, reason} ->
+        {:error, {:dynamic_route_paths_failed, path, reason}}
     end
   end
 

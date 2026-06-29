@@ -153,7 +153,7 @@ defmodule Astral.Template do
       try do
         binding =
           with_current_source(source.path, fn ->
-            apply(module, :__astral_setup__, [assigns_map(assigns)])
+            module.__astral_setup__(assigns_map(assigns))
           end)
 
         {:ok, binding}
