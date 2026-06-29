@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.2.0 - 2026-06-29
+
+### Changed
+
+- Rebuilt the configuration DSL on the shared `dsl` package while preserving existing `site do ... end` syntax and generated route behavior.
+
 ## 0.1.8 - 2026-06-29
 
 ### Fixed

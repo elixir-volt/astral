@@ -1,7 +1,7 @@
 defmodule Astral.MixProject do
   use Mix.Project
 
-  @version "0.1.8"
+  @version "0.2.0"
   @source_url "https://github.com/elixir-volt/astral"
 
   def project do
