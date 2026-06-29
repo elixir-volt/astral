@@ -44,6 +44,7 @@ defmodule Astral.MixProject do
       {:zoi, "~> 0.18"},
       {:xm, "~> 0.2"},
       {:ecto, "~> 3.13"},
+      {:dsl, "~> 0.1.2"},
       {:image, "~> 0.68"},
       {:req, "~> 0.6"},
       {:phoenix_live_view, "~> 1.2"},

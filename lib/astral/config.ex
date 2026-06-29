@@ -42,123 +42,219 @@ defmodule Astral.Config do
             collections: [],
             plugins: []
 
-  @top_level_key {__MODULE__, :top_level_opts}
+  use DSL.Macros
+
+  alias Astral.Config.Scope
 
   @doc "Declare an Astral site configuration."
-  defmacro site(do: block) do
-    opts = block_to_opts(block)
+  defaround site() do
+    import Astral.Config
 
-    quote do
-      Astral.Config.new(unquote(keyword_ast(opts)))
+    Scope.reset_all()
+    yield()
+    Astral.Config.new(Scope.flush_top_level())
+  end
+
+  @doc false
+  defdirective(root(path), do: Scope.put_top_level(root: path))
+
+  @doc false
+  defdirective(pages(path), do: Scope.put_top_level(pages: path))
+
+  @doc false
+  defdirective(public(path), do: Scope.put_top_level(public: path))
+
+  @doc false
+  defdirective outdir(path) do
+    if Scope.assets_active?() do
+      Scope.put_top_level(asset_outdir: path)
+    else
+      Scope.put_top_level(outdir: path)
     end
   end
 
   @doc false
-  defmacro root(path), do: put_opts_ast(root: path)
-
-  @doc false
-  defmacro pages(path), do: put_opts_ast(pages: path)
-
-  @doc false
-  defmacro public(path), do: put_opts_ast(public: path)
-
-  @doc false
-  defmacro outdir(path), do: put_opts_ast(outdir: path)
-
-  @doc false
-  defmacro layout(path), do: put_opts_ast(layout: path)
-
-  @doc false
-  defmacro components(path), do: put_opts_ast(components: path)
-
-  @doc false
-  defmacro plugin(module), do: put_opts_ast(plugins: [plugin_ast(module, [])])
-
-  @doc false
-  defmacro plugin(module, opts), do: put_opts_ast(plugins: [plugin_ast(module, opts)])
-
-  @doc false
-  defmacro plug(module), do: put_opts_ast(plugs: [plug_ast(module, [])])
-
-  @doc false
-  defmacro plug(module, opts), do: put_opts_ast(plugs: [plug_ast(module, opts)])
-
-  @doc false
-  defmacro get(path, do: block),
-    do: put_opts_ast(generated_routes: [generated_route_ast(path, [], block)])
-
-  @doc false
-  defmacro get(path, opts, do: block),
-    do: put_opts_ast(generated_routes: [generated_route_ast(path, opts, block)])
-
-  @doc false
-  defmacro asset_entry(path), do: put_opts_ast(asset_entry: path)
-
-  @doc false
-  defmacro asset_outdir(path), do: put_opts_ast(asset_outdir: path)
-
-  @doc false
-  defmacro asset_url_prefix(prefix), do: put_opts_ast(asset_url_prefix: prefix)
-
-  @doc false
-  defmacro image(do: block), do: put_opts_ast(image: image_block_to_opts(block))
-
-  @doc false
-  defmacro image(opts), do: put_opts_ast(image: opts)
-
-  @doc false
-  defmacro islands(do: block), do: put_opts_ast(islands: islands_block_to_opts(block))
-
-  @doc false
-  defmacro layouts, do: put_opts_ast(layouts: "layouts")
-
-  @doc false
-  defmacro layouts(do: block),
-    do: put_opts_ast([layouts: "layouts"] ++ layout_block_to_opts(block))
-
-  @doc false
-  defmacro layouts(path), do: put_opts_ast(layouts: path)
-
-  @doc false
-  defmacro layouts(path, do: block),
-    do: put_opts_ast([layouts: path] ++ layout_block_to_opts(block))
-
-  @doc false
-  defmacro assets, do: put_opts_ast(assets: "assets")
-
-  @doc false
-  defmacro assets(do: block), do: put_opts_ast([assets: "assets"] ++ asset_block_to_opts(block))
-
-  @doc false
-  defmacro assets(path), do: put_opts_ast(assets: path)
-
-  @doc false
-  defmacro assets(path, do: block), do: put_opts_ast([assets: path] ++ asset_block_to_opts(block))
-
-  @doc false
-  defmacro collection(name, dir), do: put_opts_ast(collections: [collection_ast(name, dir, [])])
-
-  @doc false
-  defmacro collection(name, dir, do: block),
-    do: put_opts_ast(collections: [collection_ast(name, dir, collection_options_to_opts(block))])
-
-  @doc false
-  def __reset_top_level__ do
-    Process.delete(@top_level_key)
-    :ok
+  defdirective layout(path) do
+    if Scope.collection_active?() do
+      Scope.put_collection(layout: path)
+    else
+      Scope.put_top_level(layout: path)
+    end
   end
 
   @doc false
-  def __put_top_level__(opts) do
-    Process.put(@top_level_key, Process.get(@top_level_key, []) ++ opts)
-    :ok
+  defdirective(components(path), do: Scope.put_top_level(components: path))
+
+  @doc false
+  defdirective(plugin(module), do: Scope.put_top_level(plugins: [module]))
+
+  @doc false
+  defdirective(plugin(module, opts), do: Scope.put_top_level(plugins: [{module, opts}]))
+
+  @doc false
+  defdirective(plug(module), do: Scope.put_top_level(plugs: [{module, []}]))
+
+  @doc false
+  defdirective(plug(module, opts), do: Scope.put_top_level(plugs: [{module, opts}]))
+
+  @doc false
+  defdirective get(path, opts \\ []), quoted: [:block] do
+    Scope.put_top_level(generated_routes: [Astral.Config.generated_route(path, opts, block)])
   end
 
   @doc false
-  def __flush_top_level__ do
-    opts = Process.get(@top_level_key, [])
-    Process.delete(@top_level_key)
-    opts
+  defdirective(asset_entry(path), do: Scope.put_top_level(asset_entry: path))
+
+  @doc false
+  defdirective(asset_outdir(path), do: Scope.put_top_level(asset_outdir: path))
+
+  @doc false
+  defdirective(asset_url_prefix(prefix), do: Scope.put_top_level(asset_url_prefix: prefix))
+
+  @doc false
+  defblock image() do
+    start(Scope.reset_image())
+    finish(Scope.put_top_level(image: Scope.flush_image()))
+  end
+
+  @doc false
+  defdirective(image(opts), do: Scope.put_top_level(image: opts))
+
+  @doc false
+  defblock islands() do
+    start(Scope.reset_islands())
+    finish(Scope.put_top_level(islands: Scope.flush_islands()))
+  end
+
+  @doc false
+  defdirective(layouts(), do: Scope.put_top_level(layouts: "layouts"))
+
+  @doc false
+  defblock layouts() do
+    start(Scope.put_top_level(layouts: "layouts"))
+    finish(:ok)
+  end
+
+  @doc false
+  defdirective(layouts(path), do: Scope.put_top_level(layouts: path))
+
+  @doc false
+  defblock layouts(path) do
+    start(Scope.put_top_level(layouts: path))
+    finish(:ok)
+  end
+
+  @doc false
+  defdirective(assets(), do: Scope.put_top_level(assets: "assets"))
+
+  @doc false
+  defblock assets() do
+    start do
+      Scope.start_assets()
+      Scope.put_top_level(assets: "assets")
+    end
+
+    finish(Scope.finish_assets())
+  end
+
+  @doc false
+  defdirective(assets(path), do: Scope.put_top_level(assets: path))
+
+  @doc false
+  defblock assets(path) do
+    start do
+      Scope.start_assets()
+      Scope.put_top_level(assets: path)
+    end
+
+    finish(Scope.finish_assets())
+  end
+
+  @doc false
+  defdirective collection(name, dir) do
+    Scope.put_top_level(collections: [[name: name, dir: dir]])
+  end
+
+  @doc false
+  defblock collection(name, dir) do
+    start do
+      Scope.start_collection()
+      Scope.put_collection(name: name, dir: dir)
+    end
+
+    finish(Scope.put_top_level(collections: [Scope.flush_collection()]))
+  end
+
+  @doc false
+  def __reset_top_level__, do: Scope.reset_all()
+
+  @doc false
+  def __put_top_level__(opts), do: Scope.put_top_level(opts)
+
+  @doc false
+  def __flush_top_level__, do: Scope.flush_top_level()
+
+  @doc false
+  defdirective(default(path), do: Scope.put_top_level(layout: path))
+
+  @doc false
+  defdirective(entry(path), do: Scope.put_top_level(asset_entry: path))
+
+  @doc false
+  defdirective(url_prefix(prefix), do: Scope.put_top_level(asset_url_prefix: prefix))
+
+  @doc false
+  defdirective(hash(enabled), do: Scope.put_top_level(asset_hash: enabled))
+
+  @doc false
+  defdirective(allow_remote(pattern), do: Scope.put_image(allow_remote: [pattern]))
+
+  @doc false
+  defdirective(adapter(adapter), do: Scope.put_islands(adapter: adapter))
+
+  @doc false
+  defdirective(permalink(permalink), do: Scope.put_collection(permalink: permalink))
+
+  @doc false
+  defdirective(drafts(enabled), do: Scope.put_collection(drafts: enabled))
+
+  @doc false
+  defblock schema() do
+    start(Scope.reset_schema())
+    finish(Scope.put_collection(schema: %Astral.Schema.Fields{fields: Scope.flush_schema()}))
+  end
+
+  @doc false
+  defdirective schema(schema), quoted: [:schema] do
+    Scope.put_collection(schema: schema_value(schema))
+  end
+
+  @doc false
+  defdirective field(name, type \\ :string, opts \\ []) do
+    Scope.put_schema_field(%Astral.Schema.Field{
+      name: name,
+      type: type,
+      required?: Keyword.get(opts, :required, false),
+      default: Keyword.get(opts, :default)
+    })
+  end
+
+  @doc false
+  def generated_route(path, opts, block) do
+    content_type = Keyword.get(opts, :content_type)
+
+    %Astral.Route{
+      path: Astral.Route.normalize(path),
+      content_type: content_type || MIME.from_path(path),
+      kind: :generated,
+      assigns: %{
+        render: fn route, site ->
+          bindings = [route: route, site: site, config: site.config, assigns: route.assigns]
+          {result, _binding} = Code.eval_quoted(block, bindings)
+          result
+        end
+      }
+    }
   end
 
   @doc "Build a normalized config from keyword options."
@@ -224,6 +320,10 @@ defmodule Astral.Config do
     |> Astral.Image.Config.new(config)
   end
 
+  @doc false
+  def schema_value({:%{}, _meta, _pairs} = schema), do: JSONSpec.convert(schema)
+  def schema_value(schema), do: schema
+
   defp collections(opts, root) do
     opts
     |> Keyword.get(:collections, [])
@@ -237,288 +337,5 @@ defmodule Astral.Config do
         drafts: Keyword.get(opts, :drafts, false)
       }
     end)
-  end
-
-  defp put_opts_ast(opts) do
-    quote do
-      Astral.Config.__put_top_level__(unquote(keyword_ast(opts)))
-    end
-  end
-
-  defp keyword_ast(opts) do
-    pairs = Enum.map(opts, fn {key, value} -> pair_ast(key, value) end)
-
-    quote do
-      [unquote_splicing(pairs)]
-    end
-  end
-
-  defp pair_ast(:generated_routes, routes) do
-    quote do
-      {:generated_routes, [unquote_splicing(routes)]}
-    end
-  end
-
-  defp pair_ast(:plugs, plugs) do
-    quote do
-      {:plugs, [unquote_splicing(plugs)]}
-    end
-  end
-
-  defp pair_ast(key, value) do
-    quote do
-      {unquote(key), unquote(value_ast(value))}
-    end
-  end
-
-  defp value_ast(collections) when is_list(collections) do
-    if Enum.all?(collections, &Keyword.keyword?/1) do
-      items = Enum.map(collections, &keyword_ast/1)
-
-      quote do
-        [unquote_splicing(items)]
-      end
-    else
-      collections
-    end
-  end
-
-  defp value_ast(value), do: value
-
-  defp block_to_opts({:__block__, _meta, expressions}) do
-    Enum.flat_map(expressions, &expression_to_opts/1)
-  end
-
-  defp block_to_opts(expression), do: expression_to_opts(expression)
-
-  defp expression_to_opts({:root, _meta, [path]}), do: [root: path]
-  defp expression_to_opts({:pages, _meta, [path]}), do: [pages: path]
-  defp expression_to_opts({:public, _meta, [path]}), do: [public: path]
-  defp expression_to_opts({:outdir, _meta, [path]}), do: [outdir: path]
-  defp expression_to_opts({:layout, _meta, [path]}), do: [layout: path]
-  defp expression_to_opts({:image, _meta, [[do: block]]}), do: [image: image_block_to_opts(block)]
-  defp expression_to_opts({:image, _meta, [image]}), do: [image: image]
-
-  defp expression_to_opts({:islands, _meta, [[do: block]]}),
-    do: [islands: islands_block_to_opts(block)]
-
-  defp expression_to_opts({:plugin, _meta, [module]}), do: [plugins: [plugin_ast(module, [])]]
-
-  defp expression_to_opts({:plugin, _meta, [module, opts]}),
-    do: [plugins: [plugin_ast(module, opts)]]
-
-  defp expression_to_opts({:plug, _meta, [module]}), do: [plugs: [plug_ast(module, [])]]
-  defp expression_to_opts({:plug, _meta, [module, opts]}), do: [plugs: [plug_ast(module, opts)]]
-
-  defp expression_to_opts({:get, _meta, [path, [do: block]]}) do
-    [generated_routes: [generated_route_ast(path, [], block)]]
-  end
-
-  defp expression_to_opts({:get, _meta, [path, opts, [do: block]]}) do
-    [generated_routes: [generated_route_ast(path, opts, block)]]
-  end
-
-  defp expression_to_opts({:asset_entry, _meta, [path]}), do: [asset_entry: path]
-  defp expression_to_opts({:asset_outdir, _meta, [path]}), do: [asset_outdir: path]
-  defp expression_to_opts({:asset_url_prefix, _meta, [prefix]}), do: [asset_url_prefix: prefix]
-
-  defp expression_to_opts({:layouts, _meta, [path]}), do: [layouts: path]
-  defp expression_to_opts({:components, _meta, [path]}), do: [components: path]
-
-  defp expression_to_opts({:layouts, _meta, [[do: block]]}) do
-    [layouts: "layouts"] ++ layout_block_to_opts(block)
-  end
-
-  defp expression_to_opts({:layouts, _meta, [path, [do: block]]}) do
-    [layouts: path] ++ layout_block_to_opts(block)
-  end
-
-  defp expression_to_opts({:assets, _meta, [path]}), do: [assets: path]
-
-  defp expression_to_opts({:assets, _meta, [[do: block]]}) do
-    [assets: "assets"] ++ asset_block_to_opts(block)
-  end
-
-  defp expression_to_opts({:assets, _meta, [path, [do: block]]}) do
-    [assets: path] ++ asset_block_to_opts(block)
-  end
-
-  defp expression_to_opts({:collection, _meta, [name, dir]}) do
-    [collections: [collection_expression_to_opts({:collection, [], [name, dir]})]]
-  end
-
-  defp expression_to_opts({:collection, _meta, [name, dir, [do: block]]}) do
-    [collections: [collection_expression_to_opts({:collection, [], [name, dir, [do: block]]})]]
-  end
-
-  defp generated_route_ast(path, opts, block) do
-    content_type = Keyword.get(opts, :content_type)
-    bindings = generated_route_bindings(block)
-
-    quote do
-      %Astral.Route{
-        path: Astral.Route.normalize(unquote(path)),
-        content_type: unquote(content_type) || MIME.from_path(unquote(path)),
-        kind: :generated,
-        assigns: %{
-          render: fn var!(route_arg), var!(site_arg) ->
-            _ = var!(route_arg)
-            _ = var!(site_arg)
-            unquote_splicing(bindings)
-            unquote(block)
-          end
-        }
-      }
-    end
-  end
-
-  defp generated_route_bindings(block) do
-    used = used_vars(block)
-
-    [
-      if(:route in used, do: quote(do: var!(route) = var!(route_arg))),
-      if(:site in used, do: quote(do: var!(site) = var!(site_arg))),
-      if(:config in used, do: quote(do: var!(config) = var!(site_arg).config)),
-      if(:assigns in used, do: quote(do: var!(assigns) = var!(route_arg).assigns))
-    ]
-    |> Enum.reject(&is_nil/1)
-  end
-
-  defp used_vars(ast) do
-    {_ast, vars} =
-      Macro.prewalk(ast, MapSet.new(), fn
-        {name, _meta, context} = node, vars when is_atom(name) and is_atom(context) ->
-          {node, MapSet.put(vars, name)}
-
-        node, vars ->
-          {node, vars}
-      end)
-
-    vars
-  end
-
-  defp plugin_ast(module, []) do
-    quote do
-      unquote(module)
-    end
-  end
-
-  defp plugin_ast(module, opts) do
-    quote do
-      {unquote(module), unquote(opts)}
-    end
-  end
-
-  defp plug_ast(module, opts) do
-    quote do
-      {unquote(module), unquote(opts)}
-    end
-  end
-
-  defp layout_block_to_opts({:__block__, _meta, expressions}) do
-    Enum.flat_map(expressions, &layout_expression_to_opts/1)
-  end
-
-  defp layout_block_to_opts(expression), do: layout_expression_to_opts(expression)
-
-  defp layout_expression_to_opts({:default, _meta, [path]}), do: [layout: path]
-
-  defp asset_block_to_opts({:__block__, _meta, expressions}) do
-    Enum.flat_map(expressions, &asset_expression_to_opts/1)
-  end
-
-  defp asset_block_to_opts(expression), do: asset_expression_to_opts(expression)
-
-  defp image_block_to_opts({:__block__, _meta, expressions}) do
-    Enum.flat_map(expressions, &image_expression_to_opts/1)
-  end
-
-  defp image_block_to_opts(expression), do: image_expression_to_opts(expression)
-
-  defp image_expression_to_opts({:allow_remote, _meta, [pattern]}) do
-    [allow_remote: [pattern]]
-  end
-
-  defp islands_block_to_opts({:__block__, _meta, expressions}) do
-    Enum.flat_map(expressions, &island_expression_to_opts/1)
-  end
-
-  defp islands_block_to_opts(expression), do: island_expression_to_opts(expression)
-
-  defp island_expression_to_opts({:adapter, _meta, [adapter]}), do: [adapter: adapter]
-
-  defp asset_expression_to_opts({:entry, _meta, [path]}), do: [asset_entry: path]
-  defp asset_expression_to_opts({:outdir, _meta, [path]}), do: [asset_outdir: path]
-  defp asset_expression_to_opts({:url_prefix, _meta, [prefix]}), do: [asset_url_prefix: prefix]
-  defp asset_expression_to_opts({:hash, _meta, [enabled]}), do: [asset_hash: enabled]
-
-  defp collection_ast(name, dir, opts) do
-    quote do
-      [name: unquote(name), dir: unquote(dir)] ++ unquote(keyword_ast(opts))
-    end
-  end
-
-  defp collection_expression_to_opts({:collection, _meta, [name, dir]}) do
-    [name: name, dir: dir]
-  end
-
-  defp collection_expression_to_opts({:collection, _meta, [name, dir, [do: block]]}) do
-    [name: name, dir: dir] ++ collection_options_to_opts(block)
-  end
-
-  defp collection_options_to_opts({:__block__, _meta, expressions}) do
-    Enum.flat_map(expressions, &collection_option_to_opts/1)
-  end
-
-  defp collection_options_to_opts(expression), do: collection_option_to_opts(expression)
-
-  defp collection_option_to_opts({:schema, _meta, [[do: block]]}),
-    do: [schema: fields_schema_expression(block)]
-
-  defp collection_option_to_opts({:schema, _meta, [schema]}),
-    do: [schema: schema_expression(schema)]
-
-  defp collection_option_to_opts({:permalink, _meta, [permalink]}), do: [permalink: permalink]
-  defp collection_option_to_opts({:layout, _meta, [layout]}), do: [layout: layout]
-  defp collection_option_to_opts({:drafts, _meta, [enabled]}), do: [drafts: enabled]
-
-  defp schema_expression({:%{}, _meta, _pairs} = schema) do
-    Macro.escape(JSONSpec.convert(schema))
-  end
-
-  defp schema_expression(schema), do: schema
-
-  defp fields_schema_expression({:__block__, _meta, expressions}) do
-    field_asts = Enum.map(expressions, &field_expression/1)
-
-    quote do
-      %Astral.Schema.Fields{fields: [unquote_splicing(field_asts)]}
-    end
-  end
-
-  defp fields_schema_expression(expression) do
-    fields_schema_expression({:__block__, [], [expression]})
-  end
-
-  defp field_expression({:field, _meta, [name]}) do
-    field_expression({:field, [], [name, :string, []]})
-  end
-
-  defp field_expression({:field, _meta, [name, type]}) do
-    field_expression({:field, [], [name, type, []]})
-  end
-
-  defp field_expression({:field, _meta, [name, type, opts]}) do
-    required = Keyword.get(opts, :required, false)
-    default = Keyword.get(opts, :default)
-
-    quote do
-      %Astral.Schema.Field{
-        name: unquote(name),
-        type: unquote(Macro.escape(type)),
-        required?: unquote(required),
-        default: unquote(default)
-      }
-    end
   end
 end
