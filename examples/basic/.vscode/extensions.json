@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "elixir-volt.astral-vscode",
+    "phoenixframework.phoenix",
+    "elixir-lsp.elixir-ls"
+  ]
+}

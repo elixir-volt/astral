@@ -97,6 +97,7 @@ defmodule Astral.MixProject do
       LICENSE
       examples/basic/.formatter.exs
       examples/basic/.gitignore
+      examples/basic/.vscode/extensions.json
       examples/basic/README.md
       examples/basic/assets/app.ts
       examples/basic/assets/env.d.ts

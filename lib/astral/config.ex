@@ -110,7 +110,7 @@ defmodule Astral.Config do
   defmacro islands(do: block), do: put_opts_ast(islands: islands_block_to_opts(block))
 
   @doc false
-  defmacro layouts(), do: put_opts_ast(layouts: "layouts")
+  defmacro layouts, do: put_opts_ast(layouts: "layouts")
 
   @doc false
   defmacro layouts(do: block),
@@ -124,7 +124,7 @@ defmodule Astral.Config do
     do: put_opts_ast([layouts: path] ++ layout_block_to_opts(block))
 
   @doc false
-  defmacro assets(), do: put_opts_ast(assets: "assets")
+  defmacro assets, do: put_opts_ast(assets: "assets")
 
   @doc false
   defmacro assets(do: block), do: put_opts_ast([assets: "assets"] ++ asset_block_to_opts(block))

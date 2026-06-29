@@ -1,0 +1,91 @@
+{
+  "name": "astral-vscode",
+  "displayName": "Astral",
+  "description": "Language support for Astral .astral templates",
+  "version": "0.0.1",
+  "publisher": "elixir-volt",
+  "license": "MIT",
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "astral",
+    "elixir",
+    "phoenix",
+    "heex",
+    "volt",
+    "static site generator"
+  ],
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/elixir-volt/astral.git",
+    "directory": "packages/vscode"
+  },
+  "extensionPack": [
+    "elixir-lsp.elixir-ls",
+    "phoenixframework.phoenix"
+  ],
+  "extensionDependencies": [
+    "phoenixframework.phoenix"
+  ],
+  "scripts": {
+    "package": "vsce package",
+    "publish:openvsx": "ovsx publish",
+    "publish:vscode": "vsce publish",
+    "test:grammar": "node ./test/grammar/test.mjs",
+    "update-grammar-snapshots": "node ./test/grammar/test.mjs --updateSnapshot"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "^3.6.0",
+    "ovsx": "^0.10.5",
+    "vscode-tmgrammar-test": "^0.1.3"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "astral",
+        "extensions": [
+          ".astral"
+        ],
+        "aliases": [
+          "Astral",
+          "astral"
+        ],
+        "configuration": "./languages/astral-language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "astral",
+        "scopeName": "source.astral",
+        "path": "./syntaxes/astral.tmLanguage.json",
+        "embeddedLanguages": {
+          "source.heex": "phoenix-heex",
+          "source.elixir": "elixir",
+          "source.elixir.embedded.astral": "elixir",
+          "source.css": "css",
+          "source.css.less": "less",
+          "source.css.scss": "scss",
+          "source.sass": "sass",
+          "source.stylus": "stylus",
+          "source.js": "javascript",
+          "source.ts": "typescript",
+          "source.json": "json"
+        },
+        "unbalancedBracketScopes": [
+          "punctuation.definition.tag.begin.html",
+          "punctuation.definition.tag.end.html"
+        ]
+      }
+    ],
+    "snippets": [
+      {
+        "language": "astral",
+        "path": "./snippets/astral.code-snippets"
+      }
+    ]
+  }
+}

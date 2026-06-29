@@ -1,0 +1,72 @@
+>---
+#^^^ source.astral meta.setup.astral punctuation.definition.setup.begin.astral
+>posts = Astral.Collection.entries(@site, :posts)
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astral meta.setup.astral source.elixir.embedded.astral
+#                                  ^^^^^ source.astral meta.setup.astral source.elixir.embedded.astral variable.other.readwrite.module.elixir
+#                                       ^^ source.astral meta.setup.astral source.elixir.embedded.astral
+#                                         ^^^^^^ source.astral meta.setup.astral source.elixir.embedded.astral constant.other.symbol.elixir
+#                                               ^^ source.astral meta.setup.astral source.elixir.embedded.astral
+>
+>paths =
+#^^^^^^^^ source.astral meta.setup.astral source.elixir.embedded.astral
+>  for tag <- Astral.Collection.tags(posts) do
+#^^ source.astral meta.setup.astral source.elixir.embedded.astral
+#  ^^^ source.astral meta.setup.astral source.elixir.embedded.astral keyword.control.elixir
+#     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ source.astral meta.setup.astral source.elixir.embedded.astral
+#                                           ^^ source.astral meta.setup.astral source.elixir.embedded.astral keyword.control.elixir
+>    path tag: tag, assigns: %{posts: posts}
+#^^^^ source.astral meta.setup.astral source.elixir.embedded.astral
+#    ^^^^ source.astral meta.setup.astral source.elixir.embedded.astral keyword.control.elixir
+#        ^^^^^^^^^^^ source.astral meta.setup.astral source.elixir.embedded.astral
+#                   ^^^^^^^ source.astral meta.setup.astral source.elixir.embedded.astral keyword.control.elixir
+#                          ^^^^^^^^^^^^^^^^^^ source.astral meta.setup.astral source.elixir.embedded.astral
+>  end
+#^^ source.astral meta.setup.astral source.elixir.embedded.astral
+#  ^^^ source.astral meta.setup.astral source.elixir.embedded.astral keyword.control.elixir
+>---
+#^^^ source.astral meta.setup.astral punctuation.definition.setup.end.astral
+>
+><section data-tag={@params.tag}>
+#^ source.astral meta.tag.heex punctuation.definition.tag.begin.html
+# ^^^^^^^ source.astral meta.tag.heex entity.name.tag.html
+#        ^^^^^^^^^^^^^^^^^^^^^^^ source.astral meta.tag.heex
+#                               ^ source.astral meta.tag.heex punctuation.definition.tag.end.html
+>  <h1>{@params.tag}</h1>
+#^^ source.astral
+#  ^ source.astral meta.tag.heex punctuation.definition.tag.begin.html
+#   ^^ source.astral meta.tag.heex entity.name.tag.html
+#     ^ source.astral meta.tag.heex punctuation.definition.tag.end.html
+#      ^ source.astral source.elixir.embedded.heex punctuation.section.embedded.begin.heex
+#       ^^^^^^^ source.astral source.elixir.embedded.heex variable.other.readwrite.module.elixir
+#              ^^^^ source.astral source.elixir.embedded.heex
+#                  ^ source.astral source.elixir.embedded.heex punctuation.section.embedded.end.heex
+#                   ^^ source.astral meta.tag.heex punctuation.definition.tag.begin.html
+#                     ^^ source.astral meta.tag.heex entity.name.tag.html
+#                       ^ source.astral meta.tag.heex punctuation.definition.tag.end.html
+>  <ul>
+#^^ source.astral
+#  ^ source.astral meta.tag.heex punctuation.definition.tag.begin.html
+#   ^^ source.astral meta.tag.heex entity.name.tag.html
+#     ^ source.astral meta.tag.heex punctuation.definition.tag.end.html
+>    <li :for={post <- @posts}>{post.data.title}</li>
+#^^^^ source.astral
+#    ^ source.astral meta.tag.heex punctuation.definition.tag.begin.html
+#     ^^ source.astral meta.tag.heex entity.name.tag.html
+#       ^^^^^^^^^^^^^^^^^^^^^^ source.astral meta.tag.heex
+#                             ^ source.astral meta.tag.heex punctuation.definition.tag.end.html
+#                              ^ source.astral source.elixir.embedded.heex punctuation.section.embedded.begin.heex
+#                               ^^^^^^^^^^^^^^^ source.astral source.elixir.embedded.heex
+#                                              ^ source.astral source.elixir.embedded.heex punctuation.section.embedded.end.heex
+#                                               ^^ source.astral meta.tag.heex punctuation.definition.tag.begin.html
+#                                                 ^^ source.astral meta.tag.heex entity.name.tag.html
+#                                                   ^ source.astral meta.tag.heex punctuation.definition.tag.end.html
+>  </ul>
+#^^ source.astral
+#  ^^ source.astral meta.tag.heex punctuation.definition.tag.begin.html
+#    ^^ source.astral meta.tag.heex entity.name.tag.html
+#      ^ source.astral meta.tag.heex punctuation.definition.tag.end.html
+></section>
+#^^ source.astral meta.tag.heex punctuation.definition.tag.begin.html
+#  ^^^^^^^ source.astral meta.tag.heex entity.name.tag.html
+#         ^ source.astral meta.tag.heex punctuation.definition.tag.end.html
+>

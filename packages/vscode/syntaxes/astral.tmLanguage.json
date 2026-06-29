@@ -1,0 +1,36 @@
+{
+  "name": "Astral",
+  "scopeName": "source.astral",
+  "fileTypes": ["astral"],
+  "patterns": [
+    {
+      "include": "#setup"
+    },
+    {
+      "include": "source.heex"
+    }
+  ],
+  "repository": {
+    "setup": {
+      "begin": "\\A(-{3})\\s*$",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.setup.begin.astral"
+        }
+      },
+      "end": "(^|\\G)(-{3})\\s*$",
+      "endCaptures": {
+        "2": {
+          "name": "punctuation.definition.setup.end.astral"
+        }
+      },
+      "name": "meta.setup.astral",
+      "contentName": "source.elixir.embedded.astral",
+      "patterns": [
+        {
+          "include": "source.elixir"
+        }
+      ]
+    }
+  }
+}

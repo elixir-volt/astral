@@ -23,6 +23,11 @@ defmodule Mix.Tasks.Astral.InstallTest do
     |> assert_creates("assets/styles.css", &assert(&1 =~ ".site-header"))
     |> assert_creates("public/robots.txt", &assert(&1 =~ "Allow: /"))
     |> assert_creates("tsconfig.json", &assert(&1 =~ ~s("strict": true)))
+    |> assert_creates(".vscode/extensions.json", fn content ->
+      assert content =~ "elixir-volt.astral-vscode"
+      assert content =~ "phoenixframework.phoenix"
+      assert content =~ "elixir-lsp.elixir-ls"
+    end)
   end
 
   test "configures Volt formatter and linting" do

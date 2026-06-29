@@ -95,6 +95,16 @@ Markdown can use the same local components:
 
 See the [`.astral` Templates guide](https://hexdocs.pm/astral/astral-templates.html) and [Pages and Layouts guide](https://hexdocs.pm/astral/pages-and-layouts.html).
 
+## Editor support
+
+Astral ships a thin VS Code extension package for `.astral` files. It registers the file type, highlights setup blocks as Elixir, and delegates template highlighting to the Phoenix HEEx grammar. Generated starter projects recommend:
+
+- `elixir-volt.astral-vscode` for `.astral` file registration and snippets.
+- `phoenixframework.phoenix` for HEEx syntax highlighting.
+- `elixir-lsp.elixir-ls` for Elixir project support.
+
+Longer-term language intelligence is planned as an Elixir/GenLSP server launched from the user's Mix project so it can reuse Astral, Phoenix/HEEx, Elixir, and Volt semantics.
+
 ## Content collections
 
 Define typed content collections in Elixir:

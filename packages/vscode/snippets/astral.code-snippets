@@ -1,0 +1,22 @@
+{
+  "setup block": {
+    "prefix": "setup",
+    "body": [
+      "---",
+      "assigns = assign(assigns, :${1:name}, ${2:value})",
+      "---",
+      "",
+      "$0"
+    ],
+    "description": "Add an Astral setup block"
+  },
+  "local component": {
+    "prefix": "component",
+    "body": [
+      "<.${1:name}>",
+      "  $0",
+      "</.${1:name}>"
+    ],
+    "description": "Call a local Astral/HEEx component"
+  }
+}

@@ -15,8 +15,8 @@ if Code.ensure_loaded?(Igniter) do
         mix astral.install
 
     The installer creates Astral config, starter pages, EEx layouts, TypeScript
-    assets, public files, TypeScript configuration, and Volt formatter/linter
-    configuration.
+    assets, public files, TypeScript configuration, VS Code extension
+    recommendations, and Volt formatter/linter configuration.
     """
 
     use Igniter.Mix.Task
@@ -143,7 +143,8 @@ if Code.ensure_loaded?(Igniter) do
         {"assets/app.ts", app_ts()},
         {"assets/styles.css", styles_css()},
         {"public/robots.txt", robots_txt()},
-        {"tsconfig.json", tsconfig()}
+        {"tsconfig.json", tsconfig()},
+        {".vscode/extensions.json", vscode_extensions()}
       ]
     end
 
@@ -309,6 +310,18 @@ if Code.ensure_loaded?(Igniter) do
           "lib": ["ES2022", "DOM", "DOM.Iterable"]
         },
         "include": ["assets/**/*.ts"]
+      }
+      """
+    end
+
+    defp vscode_extensions do
+      """
+      {
+        "recommendations": [
+          "elixir-volt.astral-vscode",
+          "phoenixframework.phoenix",
+          "elixir-lsp.elixir-ls"
+        ]
       }
       """
     end

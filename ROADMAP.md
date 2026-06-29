@@ -9,6 +9,7 @@ Astral's long-term goal is to become an Elixir-native static and hybrid site fra
 - **Elixir-first configuration.** Site config is real Elixir returning structs and DSL data, not app-env state or a JavaScript config clone.
 - **HEEx-first templates.** `.astral` uses Phoenix/HEEx semantics instead of inventing a JSX-like component language.
 - **Parser-backed processing.** Use real parsers for Markdown, HEEx-like templates, HTML-like markup, JavaScript/TypeScript, CSS, XML/SVG, and frontmatter.
+- **Elixir-native editor intelligence.** Long-term `.astral` language intelligence should run in the user's Mix project through an Elixir/GenLSP server, reusing Astral, Phoenix/HEEx, Elixir, and Volt semantics instead of reimplementing them in TypeScript.
 - **Value before abstraction.** Add hooks and APIs when they unlock user-facing capabilities, not just to mirror another framework's names.
 
 ## Implemented foundation
@@ -113,7 +114,8 @@ Goal: make Astral easy to try for real sites.
 - `mix astral.new --template docs`.
 - `mix astral.new --template marketing`.
 - Search integration for docs/blog templates.
-- Syntax highlighting defaults.
+- Syntax highlighting defaults for rendered Markdown code blocks.
+- Workspace recommendation for the official Astral editor extension in generated starter projects.
 - Font examples and, if warranted, a small Elixir-native font helper for local fonts/preload links.
 - Related posts examples.
 - Redirects.
@@ -162,6 +164,22 @@ Goal: add optional navigation enhancement without changing the static-first defa
 - Browser cache and deployment guidance for prefetched static pages.
 - Decide whether Astral needs a client router, or whether browser-native cross-document view transitions plus userland scripts are enough.
 - If a client router is added, design Elixir/HEEx-native APIs for transition names, animation policy, link opt-outs, lifecycle events, and island persistence.
+
+### v0.8 — Editor tooling and language server
+
+Goal: make `.astral` authoring feel first-class without moving site semantics out of Elixir.
+
+- Official VS Code/OpenVSX extension package for `.astral` files, with TextMate grammar, language configuration, file icon, and starter snippets.
+- Keep the editor extension thin: file registration, syntax-highlighting fallback, snippets, and LSP process launch.
+- Elixir `mix astral.lsp --stdio` task backed by GenLSP, running inside the user's Mix project so it can use the project's Astral, Phoenix/LiveView, Elixir, Volt, and dependency versions.
+- Reuse Astral's existing template parser and Phoenix/HEEx parsing for diagnostics instead of maintaining a second TypeScript parser.
+- Reuse Elixir tooling where possible for frontmatter/setup-block intelligence, hover, completions, definitions, and diagnostics.
+- `.astral` diagnostics for template parse errors, setup block errors, unknown local components, missing layouts, invalid dynamic route declarations, and asset/component references where the project can resolve them cheaply.
+- Completions for local components, assigns, slots, layouts, collections, routes, island directives, and common `.astral` snippets.
+- Go-to-definition for local components, layouts, pages/routes, content entries, assets, and setup-block Elixir symbols where upstream Elixir tooling can provide locations.
+- Document-symbol and outline support for setup blocks, headings, components, style/script blocks, and significant template nodes.
+- Formatting strategy that delegates to existing Elixir/HEEx/Volt formatters where possible rather than inventing a separate formatter.
+- Longer-term non-VS-Code support through a `tree-sitter-astral` package if Neovim, Helix, Zed, or other tree-sitter-first editors need richer native highlighting.
 
 ### v1.0 — Stable Astro-class foundation
 
