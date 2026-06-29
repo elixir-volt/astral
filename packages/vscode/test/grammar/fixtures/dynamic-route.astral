@@ -1,0 +1,15 @@
+---
+posts = Astral.Collection.entries(@site, :posts)
+
+paths =
+  for tag <- Astral.Collection.tags(posts) do
+    path tag: tag, assigns: %{posts: posts}
+  end
+---
+
+<section data-tag={@params.tag}>
+  <h1>{@params.tag}</h1>
+  <ul>
+    <li :for={post <- @posts}>{post.data.title}</li>
+  </ul>
+</section>

@@ -1,0 +1,14 @@
+{
+  "name": "Dummy TypeScript",
+  "scopeName": "source.ts",
+  "patterns": [
+    {
+      "match": "\\b(document|querySelector|classList|add)\\b",
+      "name": "support.variable.dom.ts"
+    },
+    {
+      "match": "\"[^\"]*\"",
+      "name": "string.quoted.double.ts"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+<section class="hero">
+  <h1>{@title}</h1>
+</section>
+
+<style>
+  .hero { padding: 4rem; }
+</style>
+
+<script lang="ts">
+  document.querySelector(".hero")?.classList.add("ready");
+</script>

@@ -1,0 +1,29 @@
+><article>
+#^ source.astral meta.tag.heex punctuation.definition.tag.begin.html
+# ^^^^^^^ source.astral meta.tag.heex entity.name.tag.html
+#        ^ source.astral meta.tag.heex punctuation.definition.tag.end.html
+>  <h1>{@title}</h1>
+#^^ source.astral
+#  ^ source.astral meta.tag.heex punctuation.definition.tag.begin.html
+#   ^^ source.astral meta.tag.heex entity.name.tag.html
+#     ^ source.astral meta.tag.heex punctuation.definition.tag.end.html
+#      ^ source.astral source.elixir.embedded.heex punctuation.section.embedded.begin.heex
+#       ^^^^^^ source.astral source.elixir.embedded.heex variable.other.readwrite.module.elixir
+#             ^ source.astral source.elixir.embedded.heex punctuation.section.embedded.end.heex
+#              ^^ source.astral meta.tag.heex punctuation.definition.tag.begin.html
+#                ^^ source.astral meta.tag.heex entity.name.tag.html
+#                  ^ source.astral meta.tag.heex punctuation.definition.tag.end.html
+>  <.pill>Elixir</.pill>
+#^^ source.astral
+#  ^ source.astral meta.tag.heex punctuation.definition.tag.begin.html
+#   ^^^^^ source.astral meta.tag.heex entity.name.tag.html
+#        ^ source.astral meta.tag.heex punctuation.definition.tag.end.html
+#         ^^^^^^ source.astral
+#               ^^ source.astral meta.tag.heex punctuation.definition.tag.begin.html
+#                 ^^^^^ source.astral meta.tag.heex entity.name.tag.html
+#                      ^ source.astral meta.tag.heex punctuation.definition.tag.end.html
+></article>
+#^^ source.astral meta.tag.heex punctuation.definition.tag.begin.html
+#  ^^^^^^^ source.astral meta.tag.heex entity.name.tag.html
+#         ^ source.astral meta.tag.heex punctuation.definition.tag.end.html
+>

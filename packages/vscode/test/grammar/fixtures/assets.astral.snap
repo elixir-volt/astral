@@ -1,0 +1,60 @@
+><section class="hero">
+#^ source.astral meta.tag.heex punctuation.definition.tag.begin.html
+# ^^^^^^^ source.astral meta.tag.heex entity.name.tag.html
+#        ^^^^^^^^^^^^^ source.astral meta.tag.heex
+#                     ^ source.astral meta.tag.heex punctuation.definition.tag.end.html
+>  <h1>{@title}</h1>
+#^^ source.astral
+#  ^ source.astral meta.tag.heex punctuation.definition.tag.begin.html
+#   ^^ source.astral meta.tag.heex entity.name.tag.html
+#     ^ source.astral meta.tag.heex punctuation.definition.tag.end.html
+#      ^ source.astral source.elixir.embedded.heex punctuation.section.embedded.begin.heex
+#       ^^^^^^ source.astral source.elixir.embedded.heex variable.other.readwrite.module.elixir
+#             ^ source.astral source.elixir.embedded.heex punctuation.section.embedded.end.heex
+#              ^^ source.astral meta.tag.heex punctuation.definition.tag.begin.html
+#                ^^ source.astral meta.tag.heex entity.name.tag.html
+#                  ^ source.astral meta.tag.heex punctuation.definition.tag.end.html
+></section>
+#^^ source.astral meta.tag.heex punctuation.definition.tag.begin.html
+#  ^^^^^^^ source.astral meta.tag.heex entity.name.tag.html
+#         ^ source.astral meta.tag.heex punctuation.definition.tag.end.html
+>
+><style>
+#^ source.astral meta.tag.style.heex punctuation.definition.tag.begin.html
+# ^^^^^ source.astral meta.tag.style.heex entity.name.tag.style.html
+#      ^ source.astral meta.tag.style.heex punctuation.definition.tag.end.html
+>  .hero { padding: 4rem; }
+#^^ source.astral meta.tag.style.heex
+#  ^^^^^ source.astral meta.tag.style.heex entity.other.attribute-name.class.css
+#       ^^^ source.astral meta.tag.style.heex
+#          ^^^^^^^ source.astral meta.tag.style.heex support.type.property-name.css
+#                 ^^^^^^^^^^ source.astral meta.tag.style.heex
+></style>
+#^^ source.astral meta.tag.style.heex punctuation.definition.tag.begin.html
+#  ^^^^^ source.astral meta.tag.style.heex entity.name.tag.style.html
+#       ^ source.astral meta.tag.style.heex punctuation.definition.tag.end.html
+>
+><script lang="ts">
+#^ source.astral meta.tag.script.heex punctuation.definition.tag.begin.html
+# ^^^^^^ source.astral meta.tag.script.heex entity.name.tag.script.html
+#       ^^^^^^^^^^ source.astral meta.tag.script.heex meta.attribute.script.heex
+#                 ^ source.astral meta.tag.script.heex punctuation.definition.tag.end.html
+>  document.querySelector(".hero")?.classList.add("ready");
+#^^ source.astral meta.tag.script.heex
+#  ^^^^^^^^ source.astral meta.tag.script.heex support.variable.dom.ts
+#          ^ source.astral meta.tag.script.heex
+#           ^^^^^^^^^^^^^ source.astral meta.tag.script.heex support.variable.dom.ts
+#                        ^ source.astral meta.tag.script.heex
+#                         ^^^^^^^ source.astral meta.tag.script.heex string.quoted.double.ts
+#                                ^^^ source.astral meta.tag.script.heex
+#                                   ^^^^^^^^^ source.astral meta.tag.script.heex support.variable.dom.ts
+#                                            ^ source.astral meta.tag.script.heex
+#                                             ^^^ source.astral meta.tag.script.heex support.variable.dom.ts
+#                                                ^ source.astral meta.tag.script.heex
+#                                                 ^^^^^^^ source.astral meta.tag.script.heex string.quoted.double.ts
+#                                                        ^^^ source.astral meta.tag.script.heex
+></script>
+#^^ source.astral meta.tag.script.heex punctuation.definition.tag.begin.html
+#  ^^^^^^ source.astral meta.tag.script.heex entity.name.tag.script.html
+#        ^ source.astral meta.tag.script.heex punctuation.definition.tag.end.html
+>

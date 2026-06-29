@@ -1,0 +1,14 @@
+{
+  "name": "Dummy CSS",
+  "scopeName": "source.css",
+  "patterns": [
+    {
+      "match": "\\.[A-Za-z_-][A-Za-z0-9_-]*",
+      "name": "entity.other.attribute-name.class.css"
+    },
+    {
+      "match": "\\b(padding|color|display)\\b",
+      "name": "support.type.property-name.css"
+    }
+  ]
+}
