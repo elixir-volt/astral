@@ -36,7 +36,7 @@ defmodule Astral.MixProject do
 
   defp deps do
     [
-      {:volt, "~> 0.14.12"},
+      {:volt, "~> 0.15.0"},
       {:mdex, "~> 0.13"},
       {:yaml_elixir, "~> 2.12"},
       {:json_spec, "~> 1.1"},
@@ -58,7 +58,8 @@ defmodule Astral.MixProject do
       {:ex_dna, "~> 1.0", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.35", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.35", only: :dev, runtime: false},
+      {:playwright_ex, "~> 0.5", only: :test}
     ]
   end
 

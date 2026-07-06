@@ -74,6 +74,7 @@ defmodule Astral.Builder do
         asset_url_prefix: config.asset_url_prefix,
         root: config.root,
         hash: config.asset_hash,
+        node_modules: Path.join(config.root, "node_modules"),
         plugins: [Astral.Template.AssetPlugin, Astral.Islands.RuntimePlugin]
       )
     end
