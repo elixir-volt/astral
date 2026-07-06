@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## 0.2.1 - 2026-07-06
+
+### Added
+
+- Added Volt browser tests for island runtime behavior and framework adapters across React, Vue, Solid, and Svelte.
+
+### Changed
+
+- Updated Volt to 0.15.2 for package import specifier resolution used by Svelte's browser runtime internals.
+
 ## 0.2.0 - 2026-06-29
 
 ### Changed
