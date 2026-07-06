@@ -5,6 +5,7 @@ import { mountReactIsland } from 'astral:islands/react'
 import { mountSolidIsland } from 'astral:islands/solid'
 import { mountSvelteIsland } from 'astral:islands/svelte'
 import { mountVueIsland } from 'astral:islands/vue'
+import SvelteComponent from './components/SvelteIsland.svelte'
 
 describe('framework island adapters', () => {
   beforeEach(() => {
@@ -94,24 +95,6 @@ describe('framework island adapters', () => {
   })
 
   test('mounts Svelte islands with props and slot HTML', async () => {
-    function SvelteComponent(props: {
-      label: string
-      children?: () => Node
-      aside?: () => Node
-    }): Node {
-      const section = document.createElement('section')
-      section.id = 'svelte-result'
-      section.append(props.label)
-
-      const children = props.children?.()
-      if (children) section.append(children)
-
-      const aside = props.aside?.()
-      if (aside) section.append(aside)
-
-      return section
-    }
-
     renderIsland('svelte-island', [
       ['default', '<strong>Svelte slot</strong>'],
       ['aside', '<em>Svelte aside</em>']
