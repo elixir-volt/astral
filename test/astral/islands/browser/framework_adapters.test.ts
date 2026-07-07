@@ -5,7 +5,7 @@ import { mountReactIsland } from 'astral:islands/react'
 import { mountSolidIsland } from 'astral:islands/solid'
 import { mountSvelteIsland } from 'astral:islands/svelte'
 import { mountVueIsland } from 'astral:islands/vue'
-import SvelteComponent from './components/SvelteIsland.svelte'
+import SvelteComponent from '../fixtures/components/SvelteIsland.svelte'
 
 describe('framework island adapters', () => {
   beforeEach(() => {
@@ -114,6 +114,88 @@ describe('framework island adapters', () => {
     expect(section.innerHTML).toContain('Svelte aside')
   })
 
+  test('mounts mixed framework islands on the same page', async () => {
+    renderIsland('mixed-react', [['default', '<strong>React child</strong>']])
+    renderIsland('mixed-vue', [['heading', '<em>Vue heading</em>']])
+    renderIsland('mixed-solid', [['default', '<span>Solid child</span>']])
+    renderIsland('mixed-svelte', [['default', '<strong>Svelte child</strong>']])
+
+    function ReactComponent(props: { label: string; children?: React.ReactNode }) {
+      return React.createElement('button', { id: 'mixed-react-result' }, props.label, props.children)
+    }
+
+    const VueComponent = defineComponent({
+      props: {
+        label: {
+          type: String,
+          required: true
+        }
+      },
+      setup(props, { slots }) {
+        return () => h('section', { id: 'mixed-vue-result' }, [props.label, slots.heading?.()])
+      }
+    })
+
+    function SolidComponent(props: { label: string; children?: Element }) {
+      const button = document.createElement('button')
+      button.id = 'mixed-solid-result'
+      button.append(props.label)
+
+      if (props.children) {
+        button.append(props.children)
+      }
+
+      return button
+    }
+
+    mountReactIsland({
+      id: 'mixed-react',
+      component: ReactComponent,
+      props: { label: 'React mixed ' },
+      client: 'load',
+      media: null
+    })
+
+    mountVueIsland({
+      id: 'mixed-vue',
+      component: VueComponent,
+      props: { label: 'Vue mixed ' },
+      client: 'load',
+      media: null
+    })
+
+    mountSolidIsland({
+      id: 'mixed-solid',
+      component: SolidComponent,
+      props: { label: 'Solid mixed ' },
+      client: 'load',
+      media: null
+    })
+
+    mountSvelteIsland({
+      id: 'mixed-svelte',
+      component: SvelteComponent,
+      props: { label: 'Svelte mixed ' },
+      client: 'load',
+      media: null
+    })
+
+    await nextTick()
+
+    const react = await waitForElement('#mixed-react-result')
+    const vue = await waitForElement('#mixed-vue-result')
+    const solid = await waitForElement('#mixed-solid-result')
+    const svelte = await waitForElement('#svelte-result')
+
+    expect(react.textContent).toContain('React mixed')
+    expect(react.innerHTML).toContain('React child')
+    expect(vue.textContent).toContain('Vue mixed')
+    expect(vue.innerHTML).toContain('Vue heading')
+    expect(solid.textContent).toContain('Solid mixed')
+    expect(solid.innerHTML).toContain('Solid child')
+    expect(svelte.textContent).toContain('Svelte mixed')
+    expect(svelte.innerHTML).toContain('Svelte child')
+  })
 })
 
 function renderIsland(id: string, slots: Array<[string, string]> = []): HTMLElement {

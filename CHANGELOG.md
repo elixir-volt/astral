@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+## 0.2.2 - 2026-07-07
+
+### Added
+
+- Documented and tested mixed Vue, Svelte, React, and Solid islands on the same page, including repeated same-framework islands and mixed client directives.
+- Added Solid island build support using `.solid.jsx` and `.solid.tsx` component filenames.
+
+### Changed
+
+- Production island assets now build as ES modules and share common framework/runtime chunks through Volt 0.15.5.
+- Moved island browser tests under `test/astral/islands/browser/` and added Elixir build/integration coverage for mixed framework islands.
+- Updated Volt to 0.15.5.
+
 ## 0.2.1 - 2026-07-06
 
 ### Added

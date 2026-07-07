@@ -98,14 +98,15 @@ config :volt,
   import_source: "react"
 ```
 
-Then `.astral` pages can mount client islands:
+Then `.astral` pages can mount client islands. Multiple framework adapters may appear on the same page:
 
 ```astral
 <.vue component="islands/Gallery.vue" client={:visible} props={%{title: "Gallery"}} />
+<.svelte component="islands/Newsletter.svelte" client={:idle} props={%{title: "Updates"}} />
 <.react component="islands/ReactCounter.jsx" client={:load} props={%{count: 1}} />
 ```
 
-See the assets, islands, and Volt plugin documentation when the integration affects browser code rather than site discovery or rendering.
+See the assets, islands, and Volt plugin documentation when the integration affects browser code rather than site discovery or rendering. Solid islands are supported too; use `.solid.jsx` or `.solid.tsx` filenames for Solid JSX/TSX components so they can coexist with React `.jsx` and `.tsx` files.
 
 ## Installation and scaffolding
 

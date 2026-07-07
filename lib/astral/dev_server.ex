@@ -24,7 +24,11 @@ defmodule Astral.DevServer do
           root: config.assets,
           prefix: config.asset_url_prefix,
           public_dir: false,
-          plugins: [Astral.Template.AssetPlugin, Astral.Islands.RuntimePlugin]
+          plugins: [
+            Astral.Template.AssetPlugin,
+            Astral.Islands.RuntimePlugin,
+            Astral.Islands.SolidPlugin
+          ]
         )
     }
   end

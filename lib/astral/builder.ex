@@ -75,7 +75,12 @@ defmodule Astral.Builder do
         root: config.root,
         hash: config.asset_hash,
         node_modules: Path.join(config.root, "node_modules"),
-        plugins: [Astral.Template.AssetPlugin, Astral.Islands.RuntimePlugin]
+        format: if(island_entries == [], do: :iife, else: :esm),
+        plugins: [
+          Astral.Template.AssetPlugin,
+          Astral.Islands.RuntimePlugin,
+          Astral.Islands.SolidPlugin
+        ]
       )
     end
   end

@@ -121,13 +121,47 @@ For external scripts or files you want to serve exactly as written, place them u
 
 ## Frontend frameworks and islands
 
-Astral supports client-only islands for Vue, Svelte, React, and Solid using Volt-managed framework compilation:
+Astral supports client-only islands for Vue, Svelte, React, and Solid using Volt-managed framework compilation. Different framework islands can be mixed on the same `.astral` page:
 
 ```astral
 <.vue component="islands/Gallery.vue" client={:visible} props={%{title: "Gallery"}} />
+<.svelte component="islands/Newsletter.svelte" client={:idle} props={%{title: "Updates"}} />
 <.react component="islands/ReactCounter.jsx" client={:load} props={%{count: 1}} />
+<.solid component="islands/SolidBadge.solid.tsx" client={:media} media="(min-width: 640px)" props={%{label: "New"}} />
 ```
 
 Supported client directives are `:load`, `:idle`, `:visible`, and `:media`. Island props must be JSON-shaped values or structs with explicit JSON encoding. Static HEEx children can be passed through the framework slot/children channel.
+
+A page can also repeat the same framework and use different loading strategies for each island. Production island entries are ES modules, allowing Volt to extract shared runtime/framework chunks for repeated islands when multi-entry shared chunks are available:
+
+```astral
+<section class="dashboard-widgets">
+  <.vue component="islands/Chart.vue" client={:visible} props={%{id: "traffic"}}>
+    <p>Static caption rendered by Astral.</p>
+  </.vue>
+
+  <.vue component="islands/Chart.vue" client={:load} props={%{id: "sales"}} />
+
+  <.react component="islands/SearchBox.jsx" client={:load} props={%{placeholder: "Search"}} />
+  <.react component="islands/FeedbackButton.jsx" client={:idle} props={%{label: "Feedback"}} />
+
+  <.svelte component="islands/Newsletter.svelte" client={:idle} props={%{source: "footer"}} />
+  <.solid component="islands/BreakpointBadge.solid.tsx" client={:media} media="(min-width: 768px)" props={%{label: "Desktop"}} />
+</section>
+```
+
+Configure browser dependencies and framework plugins in Volt, not in Astral site plugins. Vue (`.vue`), Svelte (`.svelte`), and React JSX use Volt's built-in/default framework support. Solid JSX/TSX components should use the `.solid.jsx` or `.solid.tsx` filename convention so Astral can route those files through Volt's Solid compiler without changing how React `.jsx` and `.tsx` files are handled.
+
+Current island support:
+
+| Capability | Status |
+| --- | --- |
+| Mix Vue, Svelte, React, and Solid islands on one page | Supported |
+| Repeat multiple islands from the same framework | Supported |
+| Use `:load`, `:idle`, `:visible`, and `:media` on different islands | Supported |
+| Pass static HEEx children into framework slot/children APIs | Supported |
+| Nest a hydrated island inside another island's slot | Not supported yet; use sibling islands instead |
+| Server-render framework components before hydration | Not supported yet |
+| Hydrate `.astral` components | Not supported |
 
 Astral does not currently SSR arbitrary framework components, hydrate `.astral` components, or provide `client:only` as a separate directive. The current island model is intentionally client-only while the native `.astral` and HEEx APIs stabilize.
