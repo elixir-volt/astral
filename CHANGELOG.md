@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Added
+
+- Added nested hydrated island support for islands rendered inside another island's slot.
+- Hardened island tests for nested JSON-safe props, repeated same-component mounts, async mount idempotency, and static browser integration coverage.
+
 ## 0.2.2 - 2026-07-07
 
 ### Added

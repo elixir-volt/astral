@@ -59,6 +59,61 @@ defmodule Astral.Islands.SiteFixtures do
     ''')
   end
 
+  def write_hardened_island_site!(root) do
+    write(root, "assets/islands/Echo.jsx", ~S'''
+    import React from "react"
+
+    export default function Echo(props) {
+      window.__astralMounts = window.__astralMounts || {}
+      window.__astralMounts[props.id] = (window.__astralMounts[props.id] || 0) + 1
+
+      return React.createElement(
+        "section",
+        { id: props.id, "data-mounts": window.__astralMounts[props.id] },
+        props.label,
+        " ",
+        JSON.stringify(props.data),
+        " ",
+        props.children
+      )
+    }
+    ''')
+
+    write(root, "assets/islands/Failure.jsx", ~S'''
+    export default function Failure() {
+      throw new Error("intentional island failure")
+    }
+    ''')
+
+    write(root, "assets/islands/Ok.vue", ~S'''
+    <template><p :id="id">Vue {{ label }}</p></template>
+    <script setup>
+    defineProps({ id: String, label: String })
+    </script>
+    ''')
+
+    write(root, "assets/islands/Styled.svelte", ~S'''
+    <script>
+    let { id, label } = $props()
+    </script>
+    <div id={id} class="styled-island">Styled {label}</div>
+    <style>
+    .styled-island { color: rgb(1, 2, 3); }
+    </style>
+    ''')
+
+    write(root, "pages/index.astral", ~S'''
+    <.react component="islands/Echo.jsx" client={:load} props={%{id: "echo-load", label: "Load", data: %{"nil" => nil, atom_key: :atom_value, list: [1, "two", false], date: ~D[2026-07-07]}}}>
+      <strong>Load slot</strong>
+    </.react>
+    <.react component="islands/Echo.jsx" client={:idle} props={%{id: "echo-idle", label: "Idle", data: %{mode: :idle}}} />
+    <.react component="islands/Echo.jsx" client={:visible} props={%{id: "echo-visible", label: "Visible", data: %{mode: :visible}}} />
+    <.react component="islands/Failure.jsx" client={:load} id="failing-island" />
+    <.vue component="islands/Ok.vue" client={:load} props={%{id: "after-failure", label: "After failure"}} />
+    <.svelte component="islands/Styled.svelte" client={:load} props={%{id: "styled-result", label: "CSS"}} />
+    ''')
+  end
+
   def write_nested_island_site!(root) do
     write(root, "assets/islands/Shell.jsx", ~S'''
     import React from "react"

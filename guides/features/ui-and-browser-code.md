@@ -130,7 +130,7 @@ Astral supports client-only islands for Vue, Svelte, React, and Solid using Volt
 <.solid component="islands/SolidBadge.solid.tsx" client={:media} media="(min-width: 640px)" props={%{label: "New"}} />
 ```
 
-Supported client directives are `:load`, `:idle`, `:visible`, and `:media`. Island props must be JSON-shaped values or structs with explicit JSON encoding. Static HEEx children can be passed through the framework slot/children channel.
+Supported client directives are `:load`, `:idle`, `:visible`, and `:media`. Island props must be JSON-shaped values or structs with explicit JSON encoding. Static HEEx children can be passed through the framework slot/children channel, and those children may include nested hydrated islands. Nested islands hydrate after their parent island finishes mounting.
 
 A page can also repeat the same framework and use different loading strategies for each island. Production island entries are ES modules, allowing Volt to extract shared runtime/framework chunks for repeated islands when multi-entry shared chunks are available:
 
@@ -160,7 +160,7 @@ Current island support:
 | Repeat multiple islands from the same framework | Supported |
 | Use `:load`, `:idle`, `:visible`, and `:media` on different islands | Supported |
 | Pass static HEEx children into framework slot/children APIs | Supported |
-| Nest a hydrated island inside another island's slot | Not supported yet; use sibling islands instead |
+| Nest a hydrated island inside another island's slot | Supported |
 | Server-render framework components before hydration | Not supported yet |
 | Hydrate `.astral` components | Not supported |
 

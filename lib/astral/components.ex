@@ -143,7 +143,7 @@ defmodule Astral.Components do
     >
       <template :if={@inner_block != []} data-astral-template="default">{render_slot(@inner_block)}</template>
     </div>
-    <script type="module" src={@entry_path}></script>
+    <script type="module" src={@entry_path} data-astral-entry={@island.id}></script>
     """
   end
 

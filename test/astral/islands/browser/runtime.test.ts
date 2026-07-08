@@ -9,7 +9,6 @@ type MountCall = {
 const originalRequestIdleCallback = (window as any).requestIdleCallback
 const originalIntersectionObserver = (window as any).IntersectionObserver
 const originalMatchMedia = window.matchMedia
-const originalSetTimeout = globalThis.setTimeout
 
 describe('mountIsland', () => {
   beforeEach(() => {
@@ -17,7 +16,6 @@ describe('mountIsland', () => {
     ;(window as any).requestIdleCallback = originalRequestIdleCallback
     ;(window as any).IntersectionObserver = originalIntersectionObserver
     window.matchMedia = originalMatchMedia
-    globalThis.setTimeout = originalSetTimeout
   })
 
   afterEach(() => {
@@ -25,7 +23,6 @@ describe('mountIsland', () => {
     ;(window as any).requestIdleCallback = originalRequestIdleCallback
     ;(window as any).IntersectionObserver = originalIntersectionObserver
     window.matchMedia = originalMatchMedia
-    globalThis.setTimeout = originalSetTimeout
   })
 
   test('mounts load islands immediately and collects template slots', () => {
@@ -65,6 +62,31 @@ describe('mountIsland', () => {
     expect(calls).toHaveLength(0)
   })
 
+  test('marks islands mounted before async mount completes', () => {
+    const island = renderIsland('async')
+    const calls: MountCall[] = []
+    let resolveMount: (() => void) | undefined
+
+    mountIsland({
+      id: 'async',
+      client: 'load',
+      media: null,
+      mount(target, slots) {
+        calls.push({ island: target, slots })
+        return new Promise<void>((resolve) => {
+          resolveMount = resolve
+        })
+      }
+    })
+
+    mountIsland({ id: 'async', client: 'load', media: null, mount: record(calls) })
+
+    expect(island.dataset.astralMounted).toBe('true')
+    expect(calls).toHaveLength(1)
+
+    resolveMount?.()
+  })
+
   test('defers idle islands to requestIdleCallback when available', () => {
     renderIsland('idle')
     const calls: MountCall[] = []
@@ -85,25 +107,17 @@ describe('mountIsland', () => {
     expect(calls).toHaveLength(1)
   })
 
-  test('falls back to a timeout for idle islands without requestIdleCallback', () => {
+  test('falls back to a microtask for idle islands after load without requestIdleCallback', async () => {
     renderIsland('idle-fallback')
     const calls: MountCall[] = []
-    let timeoutCallback: (() => void) | undefined
-    let timeoutDelay: number | undefined
 
     delete (window as any).requestIdleCallback
-    globalThis.setTimeout = ((callback: () => void, delay?: number) => {
-      timeoutCallback = callback
-      timeoutDelay = delay
-      return 1
-    }) as typeof setTimeout
 
     mountIsland({ id: 'idle-fallback', client: 'idle', media: null, mount: record(calls) })
 
     expect(calls).toHaveLength(0)
-    expect(timeoutDelay).toBe(200)
 
-    timeoutCallback?.()
+    await Promise.resolve()
 
     expect(calls).toHaveLength(1)
   })
@@ -166,6 +180,67 @@ describe('mountIsland', () => {
     expect(calls).toHaveLength(1)
     expect(calls[0].island.id).toBe('wide')
   })
+
+  test('waits for island elements inserted after their entry executes', async () => {
+    const calls: MountCall[] = []
+
+    mountIsland({ id: 'late-child', client: 'load', media: null, mount: record(calls) })
+
+    expect(calls).toHaveLength(0)
+
+    const island = renderIsland('late-child')
+
+    await eventually(() => {
+      expect(calls).toHaveLength(1)
+      expect(calls[0].island).toBe(island)
+    })
+  })
+
+  test('hydrates nested islands after parent islands finish mounting', async () => {
+    const parent = renderIsland('parent')
+    parent.dataset.astralIsland = 'react'
+    const child = document.createElement('div')
+    child.id = 'child'
+    child.dataset.astralIsland = 'svelte'
+    parent.appendChild(child)
+    const calls: MountCall[] = []
+
+    mountIsland({ id: 'child', client: 'load', media: null, mount: record(calls) })
+
+    expect(calls).toHaveLength(0)
+
+    parent.dataset.astralMounted = 'true'
+    parent.dispatchEvent(new CustomEvent('astral:hydrate', { bubbles: true }))
+
+    await eventually(() => {
+      expect(calls).toHaveLength(1)
+      expect(calls[0].island).toBe(child)
+    })
+  })
+
+  test('activates nested island entry scripts inserted from slot HTML', async () => {
+    const code = '(globalThis.__astralNestedScript = (globalThis.__astralNestedScript || 0) + 1)'
+    const src = `data:text/javascript,${encodeURIComponent(code)}`
+    renderIsland('parent-with-script', [
+      [
+        'default',
+        `<div id="nested-from-slot" data-astral-island="svelte"></div><script type="module" src="${src}" data-astral-entry="nested-from-slot"></script>`
+      ]
+    ])
+
+    mountIsland({
+      id: 'parent-with-script',
+      client: 'load',
+      media: null,
+      mount(island, slots) {
+        island.innerHTML = slots.default
+      }
+    })
+
+    await eventually(() => {
+      expect((globalThis as any).__astralNestedScript).toBe(1)
+    })
+  })
 })
 
 function renderIsland(id: string, slots: Array<[string, string]> = []): HTMLElement {
@@ -181,6 +256,22 @@ function renderIsland(id: string, slots: Array<[string, string]> = []): HTMLElem
 
   document.body.appendChild(island)
   return island
+}
+
+async function eventually(assertion: () => void): Promise<void> {
+  let lastError: unknown
+
+  for (let attempt = 0; attempt < 20; attempt++) {
+    try {
+      assertion()
+      return
+    } catch (error) {
+      lastError = error
+      await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)))
+    }
+  }
+
+  throw lastError
 }
 
 function record(calls: MountCall[]) {

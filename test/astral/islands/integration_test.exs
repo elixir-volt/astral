@@ -85,7 +85,7 @@ defmodule Astral.Islands.IntegrationTest do
     end
   end
 
-  test "does not execute islands nested inside another island slot" do
+  test "hydrates islands nested inside another island slot" do
     tmp = tmp()
     File.rm_rf!(tmp)
     File.mkdir_p!(tmp)
@@ -110,9 +110,9 @@ defmodule Astral.Islands.IntegrationTest do
       assert {:ok, _response} =
                Frame.goto(frame.guid, url: url(port), wait_until: "load", timeout: 15_000)
 
-      assert_eventually_text(frame, "#outer-shell", "Outer shell")
+      assert_eventually_text(frame, "#outer-shell", "Outer shell Nested Button")
       assert_selector?(frame, "#nested-svelte-island")
-      refute_selector?(frame, "#nested-result")
+      assert_eventually_text(frame, "#nested-result", "Nested Button")
 
       BrowserContext.close(context.guid, timeout: 10_000)
       Browser.close(browser.guid, timeout: 10_000)
@@ -142,10 +142,6 @@ defmodule Astral.Islands.IntegrationTest do
 
   defp assert_selector?(frame, selector) do
     assert {:ok, true} = selector?(frame, selector)
-  end
-
-  defp refute_selector?(frame, selector) do
-    assert {:ok, false} = selector?(frame, selector)
   end
 
   defp selector?(frame, selector) do

@@ -196,7 +196,9 @@ defmodule Astral.BuilderTest do
     assert html =~ ~s(data-astral-island="vue")
     assert html =~ ~s(data-astral-client="load")
     assert html =~ ~s(class="gallery-shell")
-    assert html =~ ~r/<script type="module" src="\/assets\/astral-island-[^"]+\.js"><\/script>/
+
+    assert html =~
+             ~r/<script type="module" src="\/assets\/astral-island-[^"]+\.js" data-astral-entry="astral-island-[^"]+"><\/script>/
 
     [entry] = Path.wildcard(Path.join(tmp(), "dist/assets/astral-island-*.js"))
     code = File.read!(entry)
@@ -283,7 +285,7 @@ defmodule Astral.BuilderTest do
     assert html =~ ~s(data-astral-client="media")
     assert html =~ "data-astral-media=\"(min-width: 768px)\""
     assert html =~ "<script type=\"module\" src=\"/assets/astral-island-"
-    assert html =~ ".js\"></script>"
+    assert html =~ ".js\" data-astral-entry=\"astral-island-"
 
     [entry] = Path.wildcard(Path.join(tmp(), "dist/assets/astral-island-*.js"))
     code = File.read!(entry)

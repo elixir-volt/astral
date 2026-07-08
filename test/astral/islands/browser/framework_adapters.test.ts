@@ -114,6 +114,73 @@ describe('framework island adapters', () => {
     expect(section.innerHTML).toContain('Svelte aside')
   })
 
+  test('mounts repeated React islands once with independent props and slots', async () => {
+    renderIsland('repeat-one', [['default', '<strong>First child</strong>']])
+    renderIsland('repeat-two', [['default', '<em>Second child</em>']])
+    const mounts: Record<string, number> = {}
+
+    function Component(props: {
+      id: string
+      label: string
+      data: Record<string, unknown>
+      children?: React.ReactNode
+    }) {
+      mounts[props.id] = (mounts[props.id] || 0) + 1
+
+      return React.createElement(
+        'article',
+        { id: props.id, 'data-mounts': mounts[props.id] },
+        props.label,
+        ' ',
+        JSON.stringify(props.data),
+        props.children
+      )
+    }
+
+    mountReactIsland({
+      id: 'repeat-one',
+      component: Component,
+      props: {
+        id: 'repeat-one-result',
+        label: 'First',
+        data: { atom_key: 'atom_value', nil: null, list: [1, 'two', false] }
+      },
+      client: 'load',
+      media: null
+    })
+
+    mountReactIsland({
+      id: 'repeat-two',
+      component: Component,
+      props: {
+        id: 'repeat-two-result',
+        label: 'Second',
+        data: { mode: 'visible' }
+      },
+      client: 'load',
+      media: null
+    })
+
+    mountReactIsland({
+      id: 'repeat-one',
+      component: Component,
+      props: { id: 'repeat-one-duplicate', label: 'Duplicate', data: {} },
+      client: 'load',
+      media: null
+    })
+
+    const first = await waitForElement('#repeat-one-result')
+    expect(first.textContent).toContain('First {"atom_key":"atom_value","nil":null,"list":[1,"two",false]}')
+    expect(first.innerHTML).toContain('First child')
+    expect(first.getAttribute('data-mounts')).toBe('1')
+
+    const second = await waitForElement('#repeat-two-result')
+    expect(second.textContent).toContain('Second {"mode":"visible"}')
+    expect(second.innerHTML).toContain('Second child')
+    expect(second.getAttribute('data-mounts')).toBe('1')
+    expect(document.querySelector('#repeat-one-duplicate')).toBeNull()
+  })
+
   test('mounts mixed framework islands on the same page', async () => {
     renderIsland('mixed-react', [['default', '<strong>React child</strong>']])
     renderIsland('mixed-vue', [['heading', '<em>Vue heading</em>']])

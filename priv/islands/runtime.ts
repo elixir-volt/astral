@@ -10,36 +10,56 @@ export type IslandMount = {
 }
 
 export function mountIsland({ id, client, media, mount }: IslandMount): void {
-  const island = document.getElementById(id)
-  if (!island || island.dataset.astralMounted === 'true') return
+  const start = (island: HTMLElement) => {
+    if (island.dataset.astralMounted === 'true') return
 
-  const run = async () => {
-    if (!island || island.dataset.astralMounted === 'true') return
-    const slots = collectSlots(island)
-    island.dataset.astralMounted = 'true'
-    await mount(island, slots)
-  }
+    const run = async () => {
+      if (island.dataset.astralMounted === 'true') return
 
-  if (client === 'idle') {
-    if ('requestIdleCallback' in window) {
-      window.requestIdleCallback(() => void run())
-    } else {
-      setTimeout(() => void run(), 200)
+      const parent = parentIsland(island)
+
+      if (parent && parent.dataset.astralMounted !== 'true') {
+        listenOnce(parent, 'astral:hydrate', () => void run())
+        return
+      }
+
+      const slots = collectSlots(island)
+      island.dataset.astralMounted = 'true'
+
+      try {
+        await mount(island, slots)
+        await afterFrameworkRender()
+        activateNestedIslandScripts(island)
+      } finally {
+        island.dispatchEvent(new CustomEvent('astral:hydrate', { bubbles: true }))
+      }
     }
-  } else if (client === 'visible') {
-    const observer = new IntersectionObserver((entries) => {
-      if (entries.some((entry) => entry.isIntersecting)) {
-        observer.disconnect()
+
+    if (client === 'idle') {
+      onIdle(() => void run())
+    } else if (client === 'visible') {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          observer.disconnect()
+          void run()
+        }
+      })
+      observer.observe(island)
+    } else if (client === 'media') {
+      if (media && window.matchMedia(media).matches) {
         void run()
       }
-    })
-    observer.observe(island)
-  } else if (client === 'media') {
-    if (media && window.matchMedia(media).matches) {
+    } else {
       void run()
     }
+  }
+
+  const island = document.getElementById(id)
+
+  if (island) {
+    start(island)
   } else {
-    void run()
+    waitForIsland(id, start)
   }
 }
 
@@ -54,4 +74,55 @@ function collectSlots(island: HTMLElement): IslandSlots {
   }
 
   return slots
+}
+
+function onIdle(callback: () => void): void {
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(callback)
+  } else if (document.readyState === 'complete') {
+    queueMicrotask(callback)
+  } else {
+    listenOnce(window, 'load', callback)
+  }
+}
+
+function listenOnce(target: EventTarget, type: string, callback: EventListener): void {
+  target.addEventListener(type, callback, { once: true })
+}
+
+function afterFrameworkRender(): Promise<void> {
+  return new Promise((resolve) => {
+    if ('requestAnimationFrame' in window) {
+      requestAnimationFrame(() => resolve())
+    } else {
+      queueMicrotask(resolve)
+    }
+  })
+}
+
+function waitForIsland(id: string, callback: (island: HTMLElement) => void): void {
+  const observer = new MutationObserver(() => {
+    const island = document.getElementById(id)
+
+    if (island) {
+      observer.disconnect()
+      callback(island)
+    }
+  })
+
+  observer.observe(document.documentElement, { childList: true, subtree: true })
+}
+
+function parentIsland(island: HTMLElement): HTMLElement | null {
+  return island.parentElement?.closest<HTMLElement>('[data-astral-island]') ?? null
+}
+
+function activateNestedIslandScripts(island: HTMLElement): void {
+  for (const script of island.querySelectorAll<HTMLScriptElement>(
+    'script[type="module"][data-astral-entry]'
+  )) {
+    const src = script.src
+    script.remove()
+    void import(src)
+  }
 }

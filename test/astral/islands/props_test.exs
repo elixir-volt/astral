@@ -17,6 +17,15 @@ defmodule Astral.Islands.PropsTest do
              ~s({"count":1,"label":"Open","ok":true})
   end
 
+  test "normalizes nested JSON boundaries" do
+    assert Astral.Islands.Props.encode!(%{
+             atom_key: :atom_value,
+             keyword: [one: 1, two: nil],
+             mixed_list: [%{"string" => false}, :done]
+           }) ==
+             ~s({"atom_key":"atom_value","keyword":{"one":1,"two":null},"mixed_list":[{"string":false},"done"]})
+  end
+
   test "dumps JSONCodec structs before encoding" do
     assert Astral.Islands.Props.encode!(%CodecProps{label: "Open", count: 2}) ==
              ~s({"count":2,"label":"Open"})
