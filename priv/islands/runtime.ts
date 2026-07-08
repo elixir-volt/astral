@@ -18,7 +18,7 @@ export function mountIsland({ id, client, media, mount }: IslandMount): void {
 
       const parent = parentIsland(island)
 
-      if (parent && parent.dataset.astralMounted !== 'true') {
+      if (parent && parent.dataset.astralHydrated !== 'true') {
         listenOnce(parent, 'astral:hydrate', () => void run())
         return
       }
@@ -31,6 +31,7 @@ export function mountIsland({ id, client, media, mount }: IslandMount): void {
         await afterFrameworkRender()
         activateNestedIslandScripts(island)
       } finally {
+        island.dataset.astralHydrated = 'true'
         island.dispatchEvent(new CustomEvent('astral:hydrate', { bubbles: true }))
       }
     }

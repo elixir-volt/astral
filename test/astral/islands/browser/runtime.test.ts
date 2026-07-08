@@ -25,7 +25,7 @@ describe('mountIsland', () => {
     window.matchMedia = originalMatchMedia
   })
 
-  test('mounts load islands immediately and collects template slots', () => {
+  test('mounts load islands immediately and collects template slots', async () => {
     const island = renderIsland('demo', [
       ['default', '<p>Default slot</p>'],
       ['header', '<h1>Header slot</h1>']
@@ -49,6 +49,10 @@ describe('mountIsland', () => {
     })
     expect(island.dataset.astralMounted).toBe('true')
     expect(island.querySelector('template')).toBeNull()
+
+    await eventually(() => {
+      expect(island.dataset.astralHydrated).toBe('true')
+    })
   })
 
   test('does not mount missing or already-mounted islands', () => {
@@ -196,9 +200,10 @@ describe('mountIsland', () => {
     })
   })
 
-  test('hydrates nested islands after parent islands finish mounting', async () => {
+  test('hydrates nested islands after parent islands finish hydrating', async () => {
     const parent = renderIsland('parent')
     parent.dataset.astralIsland = 'react'
+    parent.dataset.astralMounted = 'true'
     const child = document.createElement('div')
     child.id = 'child'
     child.dataset.astralIsland = 'svelte'
@@ -209,7 +214,7 @@ describe('mountIsland', () => {
 
     expect(calls).toHaveLength(0)
 
-    parent.dataset.astralMounted = 'true'
+    parent.dataset.astralHydrated = 'true'
     parent.dispatchEvent(new CustomEvent('astral:hydrate', { bubbles: true }))
 
     await eventually(() => {
