@@ -239,6 +239,14 @@ Mount a browser component from your Volt assets:
 
 Astral provides framework-specific island components for every framework Volt supports: `<.vue>`, `<.svelte>`, `<.react>`, and `<.solid>`. Multiple framework island types may be mixed on the same page, repeated, nested inside another island's slot, and given different client directives. Production island entries are emitted as ES modules so Volt can share common runtime/framework chunks across repeated islands when the installed Volt version supports multi-entry shared chunks. All adapters are enabled by default; configure `islands do adapter :vue end` only if you want to restrict the allowed set. Client directives include `:load`, `:idle`, `:visible`, and `:media` with a media query string. The current island milestone is client-only: Astral renders a container, static slot template, and generated entry module, while Volt compiles the imported framework component.
 
+Nested islands can cross framework boundaries. The child island is rendered into the parent's static slot HTML, then hydrates after the parent framework has mounted:
+
+```astral
+<.react component="islands/Shell.jsx" client={:load}>
+  <.svelte component="islands/NestedButton.svelte" client={:load} props={%{label: "Buy"}} />
+</.react>
+```
+
 ## Development and builds
 
 ```bash
