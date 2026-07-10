@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.3 - 2026-07-10
+
 ### Added
 
 - Added nested hydrated island support for islands rendered inside another island's slot.
@@ -13,6 +15,7 @@
 - Hardened public-file, image-cache, island-component, page, plugin-route, and output-directory path boundaries.
 - Prevented unsafe explicit island IDs and collisions between explicit and generated island IDs.
 - Made `client={:media}` islands hydrate when their media query starts matching after page load.
+- Made React island mounts synchronous so nested island entry scripts are activated reliably.
 - Made `mix astral.dev` reject invalid command-line options consistently with `mix astral.build`.
 
 ## 0.2.2 - 2026-07-07
