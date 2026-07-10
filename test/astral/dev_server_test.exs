@@ -82,6 +82,15 @@ defmodule Astral.DevServerTest do
     assert get_resp_header(conn, "content-type") |> hd() =~ "text/plain"
   end
 
+  test "does not serve files outside the public directory" do
+    write("secret.txt", "private")
+
+    conn = call_dev_server("/%2e%2e/secret.txt")
+
+    assert conn.status == 404
+    refute conn.resp_body =~ "private"
+  end
+
   test "serves plugin generated routes" do
     opts = Astral.DevServer.init(root: tmp(), plugins: [TextRoutePlugin])
     conn = conn(:get, "/generated.txt") |> Astral.DevServer.call(opts)

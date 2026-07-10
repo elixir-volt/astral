@@ -63,11 +63,11 @@ defmodule Astral.Template do
   end
 
   defp render_source(%Source{} = source, function, assigns, config) do
-    module = module_name(config, source.path)
     components = component_sources(config.components)
+    module = module_name(config, function, components, source)
 
     with {:ok, quoted} <- module_ast(module, components, {function, source}),
-         {:ok, _modules} <- compile_module(quoted, source.path) do
+         {:ok, _module} <- compile_module(module, quoted, source.path) do
       html =
         with_current_source(source.path, fn ->
           module
@@ -145,11 +145,15 @@ defmodule Astral.Template do
 
   defp setup_binding(%Source{} = source, assigns, config) do
     {setup, _template, _line} = split_source(source.source)
-    module = module_name(config, source.path)
+    module = module_name(config, :__astral_setup__, [], source)
 
     with {:ok, setup_ast} <- quoted_setup(setup, source.path),
-         {:ok, _modules} <-
-           compile_module(setup_module_ast(module, setup_function_ast(setup_ast)), source.path) do
+         {:ok, _module} <-
+           compile_module(
+             module,
+             setup_module_ast(module, setup_function_ast(setup_ast)),
+             source.path
+           ) do
       try do
         binding =
           with_current_source(source.path, fn ->
@@ -195,8 +199,13 @@ defmodule Astral.Template do
     end)
   end
 
-  defp compile_module(quoted, path) do
-    {:ok, Code.compile_quoted(quoted, path)}
+  defp compile_module(module, quoted, path) do
+    if Code.ensure_loaded?(module) do
+      {:ok, module}
+    else
+      Code.compile_quoted(quoted, path)
+      {:ok, module}
+    end
   rescue
     error in [
       CompileError,
@@ -269,8 +278,19 @@ defmodule Astral.Template do
     end
   end
 
-  defp module_name(config, path) do
-    hash = :erlang.phash2({config.root, path, System.unique_integer([:positive])})
+  defp module_name(config, function, components, %Source{} = source) do
+    fingerprint =
+      {config.root, function,
+       Enum.map(components ++ [{function, source}], fn
+         {name, %Source{path: path, source: source}} -> {name, path, source}
+       end)}
+
+    hash =
+      :sha256
+      |> :crypto.hash(:erlang.term_to_binary(fingerprint))
+      |> binary_part(0, 16)
+      |> Base.encode16(case: :lower)
+
     Module.concat([Astral.Compiled.Template, "T#{hash}"])
   end
 end

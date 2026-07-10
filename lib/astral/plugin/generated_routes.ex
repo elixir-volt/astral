@@ -91,15 +91,13 @@ defmodule Astral.Plugin.GeneratedRoutes do
         send_resp(conn, conn.status || 200, body)
 
       {:error, _reason} = error ->
-        throw(error)
+        error
 
       body ->
         conn
         |> put_resp_content_type(content_type)
         |> send_resp(conn.status || 200, body)
     end
-  catch
-    {:error, reason} -> {:error, reason}
   end
 
   defp response_tuple({:error, _reason} = error, _content_type), do: error

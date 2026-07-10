@@ -56,7 +56,7 @@ defmodule Astral.Route do
   def output_relative("/404/"), do: "404.html"
 
   def output_relative(route_path) do
-    path = route_path |> String.trim_leading("/") |> String.trim_trailing("/")
+    path = route_path |> safe_path!() |> String.trim_leading("/") |> String.trim_trailing("/")
 
     cond do
       path == "" -> "index.html"
@@ -73,6 +73,16 @@ defmodule Astral.Route do
     path
     |> String.trim_trailing("/")
     |> then(&if(&1 == "", do: "/", else: &1))
+  end
+
+  defp safe_path!(path) do
+    segments = String.split(path, "/", trim: true)
+
+    if String.contains?(path, "\\") or Enum.any?(segments, &(&1 in [".", ".."])) do
+      raise ArgumentError, "route paths cannot contain traversal segments: #{inspect(path)}"
+    end
+
+    path
   end
 
   defp content_type(path) do

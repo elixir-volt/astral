@@ -38,23 +38,13 @@ defmodule Mix.Tasks.Astral.Build do
         ]
       )
 
-    reject_invalid!(invalid)
+    Astral.MixTask.reject_invalid_options!(invalid)
 
     parsed
     |> build_opts()
     |> Astral.build()
     |> report_result()
   end
-
-  defp reject_invalid!([]), do: :ok
-
-  defp reject_invalid!(invalid) do
-    options = Enum.map_join(invalid, ", ", &invalid_option/1)
-    Mix.raise("invalid option(s): #{options}")
-  end
-
-  defp invalid_option({flag, _value}), do: flag
-  defp invalid_option(flag), do: to_string(flag)
 
   defp build_opts(parsed) do
     parsed

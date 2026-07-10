@@ -165,7 +165,8 @@ describe('mountIsland', () => {
     renderIsland('narrow')
     const calls: MountCall[] = []
 
-    window.matchMedia = ((query: string) => ({ matches: query === '(min-width: 768px)' })) as any
+    window.matchMedia = ((query: string) =>
+      mediaQuery(query === '(min-width: 768px)')) as any
 
     mountIsland({
       id: 'wide',
@@ -183,6 +184,29 @@ describe('mountIsland', () => {
 
     expect(calls).toHaveLength(1)
     expect(calls[0].island.id).toBe('wide')
+  })
+
+  test('mounts a media island when its query starts matching later', () => {
+    renderIsland('responsive')
+    const calls: MountCall[] = []
+    const query = mediaQuery(false)
+
+    window.matchMedia = (() => query) as any
+
+    mountIsland({
+      id: 'responsive',
+      client: 'media',
+      media: '(min-width: 768px)',
+      mount: record(calls)
+    })
+
+    expect(calls).toHaveLength(0)
+
+    query.matches = true
+    query.dispatchEvent(new Event('change'))
+
+    expect(calls).toHaveLength(1)
+    expect(calls[0].island.id).toBe('responsive')
   })
 
   test('waits for island elements inserted after their entry executes', async () => {
@@ -247,6 +271,12 @@ describe('mountIsland', () => {
     })
   })
 })
+
+function mediaQuery(matches: boolean): MediaQueryList & { matches: boolean } {
+  const query = new EventTarget() as MediaQueryList & { matches: boolean }
+  query.matches = matches
+  return query
+}
 
 function renderIsland(id: string, slots: Array<[string, string]> = []): HTMLElement {
   const island = document.createElement('div')

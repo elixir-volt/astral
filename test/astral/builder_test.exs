@@ -75,6 +75,22 @@ defmodule Astral.BuilderTest do
     def render_route(_route, _site), do: nil
   end
 
+  defmodule UnsafeOutputPlugin do
+    @behaviour Astral.Plugin
+
+    @impl true
+    def name, do: "unsafe-output-test"
+
+    @impl true
+    def routes(site) do
+      [%Astral.Route{path: "/unsafe.txt", output_path: Path.join(site.config.root, "unsafe.txt")}]
+    end
+
+    @impl true
+    def render_route(%Astral.Route{path: "/unsafe.txt"}, _site), do: {:ok, "unsafe"}
+    def render_route(_route, _site), do: nil
+  end
+
   @moduletag :tmp_dir
 
   setup %{tmp_dir: tmp_dir} do
@@ -94,6 +110,24 @@ defmodule Astral.BuilderTest do
     assert read("dist/index.html") == "<html><body><h1>Home</h1></body></html>"
     assert read("dist/about/index.html") == "<html><body><h1>About</h1></body></html>"
     assert read("dist/blog/post/index.html") == "<html><body><h1>Post</h1></body></html>"
+  end
+
+  test "refuses to remove an output directory that contains the site root" do
+    write("pages/index.html", "<h1>Home</h1>")
+
+    assert {:error, {:unsafe_outdir, outdir}} = Astral.build(root: tmp(), outdir: tmp())
+    assert outdir == tmp()
+    assert File.regular?(Path.join(tmp(), "pages/index.html"))
+  end
+
+  test "refuses plugin output paths outside the configured output directory" do
+    write("pages/index.html", "<h1>Home</h1>")
+    unsafe_path = Path.join(tmp(), "unsafe.txt")
+
+    assert {:error, {:route_render_failed, "/unsafe.txt", {:unsafe_output_path, ^unsafe_path}}} =
+             Astral.build(root: tmp(), plugins: [UnsafeOutputPlugin])
+
+    refute File.exists?(unsafe_path)
   end
 
   test "builds Markdown pages through MDEx" do

@@ -13,4 +13,14 @@ defmodule Astral.RouteTest do
     assert Route.output_relative("/404") == "404.html"
     assert Route.output_relative("/404/") == "404.html"
   end
+
+  test "rejects route paths that could escape the output directory" do
+    assert_raise ArgumentError, ~r/cannot contain traversal segments/, fn ->
+      Route.output_relative("/../../outside.txt")
+    end
+
+    assert_raise ArgumentError, ~r/cannot contain traversal segments/, fn ->
+      Route.output_relative("/..\\outside.txt")
+    end
+  end
 end

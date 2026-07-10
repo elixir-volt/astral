@@ -12,7 +12,7 @@ defmodule Astral.Islands.IntegrationTest do
       root = Keyword.fetch!(opts, :root)
       path = static_path(conn.request_path, root)
 
-      if inside?(path, root) and File.regular?(path) do
+      if Volt.Path.inside?(path, root) and File.regular?(path) do
         conn
         |> put_resp_content_type(MIME.from_path(path))
         |> send_file(200, path)
@@ -29,11 +29,6 @@ defmodule Astral.Islands.IntegrationTest do
       |> String.trim_leading("/")
       |> then(&Path.join(root, &1))
       |> Path.expand()
-    end
-
-    defp inside?(path, root) do
-      relative = Path.relative_to(path, root)
-      relative != "." and not String.starts_with?(relative, "../") and relative != ".."
     end
   end
 
@@ -129,15 +124,39 @@ defmodule Astral.Islands.IntegrationTest do
     assert {:ok, _element} =
              Frame.wait_for_selector(frame.guid, selector: selector, timeout: 15_000)
 
-    assert {:ok, text} =
-             Frame.evaluate(frame.guid,
-               expression: "selector => document.querySelector(selector)?.textContent?.trim()",
-               is_function: true,
-               arg: selector,
-               timeout: 5_000
-             )
+    deadline = System.monotonic_time(:millisecond) + 15_000
+    assert :ok = wait_for_text(frame, selector, expected, deadline)
+  end
 
-    assert normalize_space(text) == expected
+  defp wait_for_text(frame, selector, expected, deadline) do
+    result =
+      Frame.evaluate(frame.guid,
+        expression: "selector => document.querySelector(selector)?.textContent?.trim()",
+        is_function: true,
+        arg: selector,
+        timeout: 5_000
+      )
+
+    case result do
+      {:ok, text} ->
+        if normalize_space(text) == expected do
+          :ok
+        else
+          retry_text(frame, selector, expected, deadline, text)
+        end
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  defp retry_text(frame, selector, expected, deadline, text) do
+    if System.monotonic_time(:millisecond) < deadline do
+      Process.sleep(50)
+      wait_for_text(frame, selector, expected, deadline)
+    else
+      {:error, {:unexpected_text, normalize_space(text), expected}}
+    end
   end
 
   defp assert_selector?(frame, selector) do

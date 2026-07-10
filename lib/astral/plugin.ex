@@ -58,13 +58,13 @@ defmodule Astral.Plugin do
 
   @doc "Transform rendered page HTML."
   @callback render_page(html :: String.t(), page :: Astral.Page.t(), site :: Astral.Site.t()) ::
-              {:ok, String.t()} | nil
+              {:ok, String.t()} | {:error, term()} | nil
   @callback render_page(
               html :: String.t(),
               page :: Astral.Page.t(),
               site :: Astral.Site.t(),
               opts :: keyword()
-            ) :: {:ok, String.t()} | nil
+            ) :: {:ok, String.t()} | {:error, term()} | nil
 
   @doc "Run after a successful static build."
   @callback build_done(result :: Astral.BuildResult.t()) :: :ok | {:error, term()}

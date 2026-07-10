@@ -9,6 +9,7 @@ defmodule Astral.Islands.Registry do
   alias Astral.Islands.Island
 
   @key {__MODULE__, :state}
+  @id_pattern ~r/\A[A-Za-z0-9][A-Za-z0-9_-]*\z/
 
   @type state :: %{
           site: Astral.Site.t(),
@@ -98,6 +99,11 @@ defmodule Astral.Islands.Registry do
 
   defp allocate_id!(state, explicit_id, _adapter, _component, _client, _media, _props_json)
        when is_binary(explicit_id) do
+    unless Regex.match?(@id_pattern, explicit_id) do
+      raise ArgumentError,
+            "island ids may contain only letters, numbers, underscores, and hyphens, got: #{inspect(explicit_id)}"
+    end
+
     if Map.has_key?(state.islands, explicit_id) do
       raise ArgumentError, "duplicate explicit island id: #{inspect(explicit_id)}"
     end
@@ -112,25 +118,30 @@ defmodule Astral.Islands.Registry do
 
   defp allocate_id!(state, nil, adapter, component, client, media, props_json) do
     base_id = island_id(adapter, component, client, media, props_json)
+    sequence = next_available_sequence(state, base_id, Map.get(state.ids, base_id, 0) + 1)
+    id = island_id_for_sequence(base_id, sequence)
 
-    {previous, ids} =
-      Map.get_and_update(state.ids, base_id, fn previous ->
-        previous = previous || 0
-        {previous, previous + 1}
-      end)
-
-    id = if previous == 0, do: base_id, else: "#{base_id}-#{previous + 1}"
-
-    {id, ids}
+    {id, Map.put(state.ids, base_id, sequence)}
   end
+
+  defp next_available_sequence(state, base_id, sequence) do
+    if Map.has_key?(state.islands, island_id_for_sequence(base_id, sequence)) do
+      next_available_sequence(state, base_id, sequence + 1)
+    else
+      sequence
+    end
+  end
+
+  defp island_id_for_sequence(base_id, 1), do: base_id
+  defp island_id_for_sequence(base_id, sequence), do: "#{base_id}-#{sequence}"
 
   defp resolve_component!(config, component) do
     path = Path.expand(component, config.assets)
 
-    if File.regular?(path) do
+    if Volt.Path.inside?(path, config.assets) and File.regular?(path) do
       path
     else
-      raise ArgumentError, "island component not found: #{component}"
+      raise ArgumentError, "island component not found under the assets directory: #{component}"
     end
   end
 

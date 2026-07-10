@@ -47,8 +47,14 @@ export function mountIsland({ id, client, media, mount }: IslandMount): void {
       })
       observer.observe(island)
     } else if (client === 'media') {
-      if (media && window.matchMedia(media).matches) {
-        void run()
+      if (media) {
+        const query = window.matchMedia(media)
+
+        if (query.matches) {
+          void run()
+        } else {
+          listenOnce(query, 'change', () => void run())
+        }
       }
     } else {
       void run()

@@ -203,6 +203,29 @@ defmodule Astral.TemplateTest do
            ]
   end
 
+  test "reuses compiled modules while template sources are unchanged" do
+    write("page.astral", "<p>Hello</p>")
+    config = Astral.Config.new(root: tmp(), pages: ".")
+
+    assert {:ok, "<p>Hello</p>"} = Astral.Template.render_file(path("page.astral"), %{}, config)
+    loaded_after_first_render = compiled_template_modules()
+
+    assert {:ok, "<p>Hello</p>"} = Astral.Template.render_file(path("page.astral"), %{}, config)
+    assert compiled_template_modules() == loaded_after_first_render
+
+    write("page.astral", "<p>Updated</p>")
+
+    assert {:ok, "<p>Updated</p>"} = Astral.Template.render_file(path("page.astral"), %{}, config)
+    assert MapSet.size(compiled_template_modules()) == MapSet.size(loaded_after_first_render) + 1
+  end
+
+  defp compiled_template_modules do
+    :code.all_loaded()
+    |> Enum.map(&elem(&1, 0))
+    |> Enum.filter(&String.starts_with?(Atom.to_string(&1), "Elixir.Astral.Compiled.Template.T"))
+    |> MapSet.new()
+  end
+
   defp tmp, do: Process.get(:astral_template_tmp) || raise("missing tmp_dir")
 
   defp path(path), do: Path.join(tmp(), path)

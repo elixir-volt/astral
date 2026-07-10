@@ -66,17 +66,12 @@ defmodule Astral.DevServer do
   defp serve_public(conn, config) do
     path = public_path(conn.request_path, config)
 
-    if inside?(path, config.public) and File.regular?(path) do
+    if Volt.Path.inside?(path, config.public) and File.regular?(path) do
       conn
       |> put_resp_content_type(MIME.from_path(path))
       |> send_file(200, path)
       |> halt()
     end
-  end
-
-  defp inside?(path, root) do
-    relative = Path.relative_to(path, root)
-    relative != "." and not String.starts_with?(relative, "../") and relative != ".."
   end
 
   defp public_path(request_path, config) do

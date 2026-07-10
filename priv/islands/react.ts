@@ -1,4 +1,5 @@
 import React from 'react'
+import { flushSync } from 'react-dom'
 import { createRoot } from 'react-dom/client'
 import { mountIsland, type ClientDirective, type IslandSlots } from 'astral:islands/runtime'
 
@@ -19,7 +20,8 @@ export function mountReactIsland({ id, component, props, client, media }: Framew
     client,
     media,
     mount(island, slots) {
-      createRoot(island).render(React.createElement(component, props, children(slots)))
+      const root = createRoot(island)
+      flushSync(() => root.render(React.createElement(component, props, children(slots))))
     }
   })
 }

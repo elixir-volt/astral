@@ -125,7 +125,7 @@ defmodule Astral.PluginRunner do
     end
   end
 
-  defp args_with_opts(args, opts), do: args |> Enum.reverse() |> then(&Enum.reverse([opts | &1]))
+  defp args_with_opts(args, opts), do: args ++ [opts]
 
   defp plugin_module({module, _opts}), do: module
   defp plugin_module(module), do: module

@@ -22,11 +22,12 @@ defmodule Mix.Tasks.Astral.Dev do
   def run(args) do
     Mix.Task.run("app.start")
 
-    {parsed, _argv, _invalid} =
+    {parsed, _argv, invalid} =
       OptionParser.parse(args,
         strict: [config: :string, host: :string, port: :integer, open: :boolean]
       )
 
+    Astral.MixTask.reject_invalid_options!(invalid)
     opts = dev_opts(parsed)
     {:ok, _pid} = Astral.Dev.start_link(opts)
 

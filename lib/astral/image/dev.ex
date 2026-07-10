@@ -114,20 +114,15 @@ defmodule Astral.Image.Dev do
   end
 
   defp safe_cache_path?(path, config) do
-    inside?(Path.expand(path), Path.expand(config.image.cache_dir))
+    Volt.Path.inside?(path, config.image.cache_dir)
   end
 
   defp safe_source_path?(path, config) do
     if Astral.Image.Remote.remote?(path) do
       Astral.Image.Remote.allowed?(path, config.image)
     else
-      Enum.any?(config.image.source_dirs, &inside?(Path.expand(path), Path.expand(&1)))
+      Enum.any?(config.image.source_dirs, &Volt.Path.inside?(path, &1))
     end
-  end
-
-  defp inside?(path, root) do
-    relative = Path.relative_to(path, root)
-    relative != "." and relative != ".." and not String.starts_with?(relative, "../")
   end
 
   defp not_found(conn, reason) do

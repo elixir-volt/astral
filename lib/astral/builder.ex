@@ -46,8 +46,12 @@ defmodule Astral.Builder do
   end
 
   defp prepare_outdir(config) do
-    File.rm_rf!(config.outdir)
-    File.mkdir_p(config.outdir)
+    if Volt.Path.inside?(config.root, config.outdir) do
+      {:error, {:unsafe_outdir, config.outdir}}
+    else
+      File.rm_rf!(config.outdir)
+      File.mkdir_p(config.outdir)
+    end
   end
 
   defp copy_public(config) do
@@ -146,7 +150,8 @@ defmodule Astral.Builder do
   end
 
   defp render_page(page, site) do
-    with {:ok, html} <- Astral.Renderer.render_page(site, page),
+    with :ok <- validate_output_path(page.output_path, site.config),
+         {:ok, html} <- Astral.Renderer.render_page(site, page),
          :ok <- File.mkdir_p(Path.dirname(page.output_path)),
          :ok <- File.write(page.output_path, html) do
       :ok
@@ -166,7 +171,8 @@ defmodule Astral.Builder do
   end
 
   defp render_route(route, site) do
-    with {:ok, body} <- render_route_body(site.config.plugins, route, site),
+    with :ok <- validate_output_path(route.output_path, site.config),
+         {:ok, body} <- render_route_body(site.config.plugins, route, site),
          :ok <- File.mkdir_p(Path.dirname(route.output_path)),
          :ok <- File.write(route.output_path, body) do
       :ok
@@ -175,6 +181,16 @@ defmodule Astral.Builder do
       {:error, reason} -> {:error, {:route_render_failed, route.path, reason}}
     end
   end
+
+  defp validate_output_path(path, config) when is_binary(path) do
+    if Volt.Path.inside?(path, config.outdir) do
+      :ok
+    else
+      {:error, {:unsafe_output_path, path}}
+    end
+  end
+
+  defp validate_output_path(path, _config), do: {:error, {:unsafe_output_path, path}}
 
   defp render_route_body(plugins, route, site) do
     case Astral.PluginRunner.render_route(plugins, route, site) do
