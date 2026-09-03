@@ -2,24 +2,40 @@
 
 Astral builds static sites from Elixir configuration, Markdown, HTML, and `.astral` templates. Volt handles browser assets.
 
-## Install
+## Create a project
+
+Install Igniter's project generator, then create and configure a named Astral site in one command:
+
+```bash
+mix archive.install hex igniter_new
+mix igniter.new my_site --install astral
+cd my_site
+```
+
+## Add Astral to an existing project
+
+Run the installer from the existing Mix project root:
 
 ```bash
 mix igniter.install astral
 ```
 
-Or add the dependency manually:
+Or add Astral and Igniter manually:
 
 ```elixir
 def deps do
-  [{:astral, "~> 0.1.1"}]
+  [
+    {:astral, "~> 0.2"},
+    {:igniter, "~> 0.8", only: [:dev, :test]}
+  ]
 end
 ```
 
-Then scaffold a starter site:
+Then fetch dependencies and scaffold the site:
 
 ```bash
-mix astral.new
+mix deps.get
+mix astral.install
 ```
 
 ## Run the site
@@ -51,6 +67,8 @@ For browser formatting, linting, TypeScript checks, and `import.meta.env`, see [
 A typical project looks like this:
 
 ```text
+AGENTS.md
+.gitignore
 astral.config.exs
 pages/
   index.md

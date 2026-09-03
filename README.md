@@ -4,10 +4,19 @@
 
 Static site generation for Elixir. Astral gives you Astro-class site features — pages, Markdown, layouts, content collections, pagination, feeds, sitemaps, and component templates — while Volt handles TypeScript, CSS, assets, dev serving, and HMR.
 
+Create a new site:
+
+```bash
+mix archive.install hex igniter_new
+mix igniter.new my_site --install astral
+cd my_site
+mix astral.dev
+```
+
+Or add Astral to an existing Mix project:
+
 ```bash
 mix igniter.install astral
-mix astral.dev
-mix astral.build
 ```
 
 Build docs, blogs, marketing pages, and content sites with Elixir config and templates. No JavaScript site config, no separate bundler process, no Node.js requirement for the default toolchain.

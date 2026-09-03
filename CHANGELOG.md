@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+## 0.2.4 - 2026-09-03
+
+### Added
+
+- Added Astral- and Volt-focused `AGENTS.md` guidance to starter projects while preserving existing project instructions.
+- Added starter `.gitignore` coverage for static output, browser dependencies, generated island entries, and local environment files.
+
+### Changed
+
+- Starter pages, layouts, and generated README files now use the Mix application name instead of generic Astral branding.
+- Replaced Mix's placeholder README in new sites with concise Astral development and build instructions while preserving existing project documentation.
+- Updated setup documentation with the one-command `mix igniter.new my_site --install astral` project creation flow.
+
 ## 0.2.3 - 2026-07-10
 
 ### Added
