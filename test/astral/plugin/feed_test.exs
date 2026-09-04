@@ -55,7 +55,7 @@ defmodule Astral.Plugin.FeedTest do
     assert feed =~ "<id>https://example.com/blog/hello/</id>"
 
     assert feed =~
-             ~s(<![CDATA[<h1><a href="#hello" aria-hidden="true" class="anchor" id="hello"></a>Hello</h1>]]>)
+             ~s(<![CDATA[<h1 id="hello">Hello<a href="#hello" aria-label="Link to heading 'Hello'" data-heading-content="Hello" class="anchor"></a></h1>]]>)
   end
 
   test "uses normalized entry data for feed dates", %{root: root} do

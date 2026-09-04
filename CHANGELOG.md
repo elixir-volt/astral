@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## 0.2.5 - 2026-09-04
+
+### Fixed
+
+- Prevent generated client-island entries from causing repeated full-page reloads in the development server.
+
+### Changed
+
+- Update Volt to 0.17.11 for configurable watcher exclusions and normalized filesystem events.
+
 ## 0.2.4 - 2026-09-03
 
 ### Added

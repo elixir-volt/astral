@@ -13,6 +13,7 @@ defmodule Astral.Dev do
     children = [
       {Volt.Watcher,
        root: config.assets,
+       watch_ignored: [Path.join(config.assets, ".astral/**")],
        reload_dirs:
          existing_dirs([
            config.pages,

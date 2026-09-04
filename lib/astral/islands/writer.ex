@@ -8,11 +8,17 @@ defmodule Astral.Islands.Writer do
   @component_specifier "astral:island-component"
   @runtime_specifier "astral:island-runtime"
 
-  @doc "Write the generated browser entry module for an island."
+  @doc "Write the generated browser entry module for an island when its source changed."
   @spec write!(Island.t()) :: :ok
   def write!(%Island{} = island) do
-    File.mkdir_p!(Path.dirname(island.entry_path))
-    File.write!(island.entry_path, source(island))
+    source = source(island)
+
+    if File.read(island.entry_path) == {:ok, source} do
+      :ok
+    else
+      File.mkdir_p!(Path.dirname(island.entry_path))
+      File.write!(island.entry_path, source)
+    end
   end
 
   defp source(%Island{} = island) do

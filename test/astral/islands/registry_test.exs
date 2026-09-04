@@ -22,6 +22,14 @@ defmodule Astral.Islands.RegistryTest do
     :ok
   end
 
+  test "does not rewrite unchanged generated entries" do
+    island = Astral.Islands.Registry.register(component: "islands/Widget.vue", adapter: :vue)
+    File.touch!(island.entry_path, 1_000_000_000)
+
+    assert :ok = Astral.Islands.Writer.write!(island)
+    assert File.stat!(island.entry_path, time: :posix).mtime == 1_000_000_000
+  end
+
   test "rejects non-string explicit island ids" do
     assert_raise ArgumentError, ~r/island ids must be strings/, fn ->
       Astral.Islands.Registry.register(component: "islands/Widget.vue", adapter: :vue, id: :bad)

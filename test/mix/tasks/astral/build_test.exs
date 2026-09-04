@@ -37,7 +37,7 @@ defmodule Mix.Tasks.Astral.BuildTest do
   end
 
   defp heading(text, id) do
-    ~s(<h1><a href="##{id}" aria-hidden="true" class="anchor" id="#{id}"></a>#{text}</h1>)
+    ~s(<h1 id="#{id}">#{text}<a href="##{id}" aria-label="Link to heading '#{text}'" data-heading-content="#{text}" class="anchor"></a></h1>)
   end
 
   defp in_tmp(fun) do

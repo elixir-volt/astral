@@ -180,7 +180,7 @@ defmodule Astral.BuilderTest do
     assert Enum.map(result.site.pages, & &1.route_path) == ["/"]
 
     assert read("dist/index.html") =~
-             ~s(<h1><a href="#component-markdown" aria-hidden="true" class="anchor" id="component-markdown"></a>Component Markdown</h1>)
+             ~s(<h1 id="component-markdown">Component Markdown<a href="#component-markdown" aria-label="Link to heading 'Component Markdown'" data-heading-content="Component Markdown" class="anchor"></a></h1>)
 
     assert read("dist/index.html") =~ "<p>Component Markdown</p>"
     assert read("dist/index.html") =~ ~s(<span class="pill">)
@@ -1272,7 +1272,7 @@ defmodule Astral.BuilderTest do
   end
 
   defp heading(text, id) do
-    ~s(<h1><a href="##{id}" aria-hidden="true" class="anchor" id="#{id}"></a>#{text}</h1>)
+    ~s(<h1 id="#{id}">#{text}<a href="##{id}" aria-label="Link to heading '#{text}'" data-heading-content="#{text}" class="anchor"></a></h1>)
   end
 
   defp unused_port do
