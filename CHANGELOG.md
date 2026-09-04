@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.2.6 - 2026-09-04
+
+### Fixed
+
+- Exclude generated `assets/.astral/` browser entries from the formatter configuration created by the Astral installer.
+
 ## 0.2.5 - 2026-09-04
 
 ### Fixed

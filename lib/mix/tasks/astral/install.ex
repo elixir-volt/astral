@@ -271,6 +271,7 @@ if Code.ensure_loaded?(Igniter) do
           ast
           |> ensure_formatter_plugin()
           |> ensure_formatter_input("assets/**/*.{js,ts,jsx,tsx}")
+          |> ensure_formatter_exclude("assets/.astral/**/*")
           |> Macro.to_string()
           |> Kernel.<>("\n")
 
@@ -289,6 +290,16 @@ if Code.ensure_loaded?(Igniter) do
       Keyword.update(ast, :inputs, [input], fn
         inputs when is_list(inputs) ->
           if input in inputs, do: inputs, else: inputs ++ [input]
+
+        other ->
+          other
+      end)
+    end
+
+    defp ensure_formatter_exclude(ast, exclude) do
+      Keyword.update(ast, :excludes, [exclude], fn
+        excludes when is_list(excludes) ->
+          if exclude in excludes, do: excludes, else: excludes ++ [exclude]
 
         other ->
           other
@@ -497,7 +508,8 @@ if Code.ensure_loaded?(Igniter) do
           "{mix,.formatter}.exs",
           "{config,lib,test}/**/*.{ex,exs}",
           "assets/**/*.{js,ts,jsx,tsx}"
-        ]
+        ],
+        excludes: ["assets/.astral/**/*"]
       ]
       """
     end

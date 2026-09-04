@@ -96,6 +96,7 @@ defmodule Mix.Tasks.Astral.InstallTest do
     assert_file(igniter, ".formatter.exs", fn content ->
       assert content =~ "Volt.Formatter"
       assert content =~ "assets/**/*.{js,ts,jsx,tsx}"
+      assert content =~ ~s(excludes: ["assets/.astral/**/*"])
     end)
 
     assert_file(igniter, "config/config.exs", fn content ->
@@ -103,6 +104,24 @@ defmodule Mix.Tasks.Astral.InstallTest do
       assert content =~ "format: ["
       assert content =~ "lint: ["
       assert content =~ "plugins: [:typescript]"
+    end)
+  end
+
+  test "preserves existing formatter exclusions" do
+    formatter = """
+    [
+      inputs: ["{mix,.formatter}.exs"],
+      excludes: ["vendor/**/*"]
+    ]
+    """
+
+    igniter =
+      test_project(files: %{".formatter.exs" => formatter})
+      |> Mix.Tasks.Astral.Install.igniter()
+
+    assert_file(igniter, ".formatter.exs", fn content ->
+      assert content =~ "vendor/**/*"
+      assert content =~ "assets/.astral/**/*"
     end)
   end
 

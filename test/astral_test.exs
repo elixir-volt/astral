@@ -4,6 +4,6 @@ defmodule AstralTest do
   doctest Astral
 
   test "returns the package version" do
-    assert Astral.version() == "0.2.4"
+    assert Astral.version() == "0.2.6"
   end
 end
