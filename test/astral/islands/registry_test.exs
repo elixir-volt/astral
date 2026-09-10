@@ -22,12 +22,55 @@ defmodule Astral.Islands.RegistryTest do
     :ok
   end
 
-  test "does not rewrite unchanged generated entries" do
-    island = Astral.Islands.Registry.register(component: "islands/Widget.vue", adapter: :vue)
-    File.touch!(island.entry_path, 1_000_000_000)
+  test "component identity is portable and independent of instance data", %{tmp_dir: tmp} do
+    first =
+      Astral.Islands.Registry.register(
+        component: "islands/Widget.vue",
+        adapter: :vue,
+        props: %{label: "First"}
+      )
 
-    assert :ok = Astral.Islands.Writer.write!(island)
-    assert File.stat!(island.entry_path, time: :posix).mtime == 1_000_000_000
+    {:ok, source} =
+      Astral.Islands.RuntimePlugin.load(first.entry_path, assets: Path.join(tmp, "assets"))
+
+    second =
+      Astral.Islands.Registry.register(
+        component: "islands/Widget.vue",
+        adapter: :vue,
+        props: %{label: "Second"},
+        client: :media,
+        media: "(min-width: 40rem)"
+      )
+
+    assert first.entry_source == second.entry_source
+
+    assert {:ok, ^source} =
+             Astral.Islands.RuntimePlugin.load(second.entry_path,
+               assets: Path.join(tmp, "assets")
+             )
+
+    refute source =~ "First"
+    refute source =~ "Second"
+    refute source =~ "40rem"
+    other = Path.join(tmp, "other-checkout")
+    File.mkdir_p!(Path.join(other, "assets/islands"))
+    File.cp!(first.component_path, Path.join(other, "assets/islands/Widget.vue"))
+    Astral.Islands.Registry.start(%Astral.Site{config: Astral.Config.new(root: other)})
+    relocated = Astral.Islands.Registry.register(component: "islands/Widget.vue", adapter: :vue)
+    assert relocated.entry_source == first.entry_source
+
+    assert {:ok, relocated_source} =
+             Astral.Islands.RuntimePlugin.load(relocated.entry_path,
+               assets: Path.join(other, "assets")
+             )
+
+    assert relocated_source =~ "Widget.vue"
+  end
+
+  test "registering virtual entries creates no generated directory", %{tmp_dir: tmp} do
+    island = Astral.Islands.Registry.register(component: "islands/Widget.vue", adapter: :vue)
+    assert String.starts_with?(island.entry_path, "astral:islands/entry/")
+    refute File.exists?(Path.join(tmp, "assets/.astral"))
   end
 
   test "rejects non-string explicit island ids" do

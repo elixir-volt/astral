@@ -5,11 +5,13 @@ defmodule Astral.DevConfig do
 
   @type t :: %__MODULE__{
           site: Astral.Config.t(),
+          volt_session: term(),
           host: String.t(),
           port: pos_integer()
         }
 
   defstruct site: nil,
+            volt_session: nil,
             host: "localhost",
             port: 4000
 

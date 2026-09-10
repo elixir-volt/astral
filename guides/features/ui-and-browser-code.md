@@ -50,7 +50,28 @@ For public, unprocessed stylesheets, put files under `public/` and link them nor
 
 ## Tailwind, PostCSS, and CSS preprocessors
 
-Tailwind, PostCSS, Sass, Less, and similar tools belong to the Volt/browser asset layer. Add the npm packages your asset pipeline needs, import CSS from your Volt entry, and configure the tool in the ordinary browser-tooling files for that package.
+Tailwind belongs to Volt. Configure a stylesheet root in Elixir:
+
+```elixir
+config :volt, :tailwind,
+  css: Path.expand("../assets/styles.css", __DIR__),
+  name: "site",
+  dev_url: "/assets/site.css"
+```
+
+Reference the source stylesheet from an Astral layout:
+
+```astral
+<link rel="stylesheet" href={Astral.asset_path(@site, "styles.css")} />
+```
+
+Astral supplies page, layout, component, collection, and asset source roots to Volt
+in development and production, preserving additional explicitly configured sources.
+The helper resolves the development URL or production manifest entry. No page-render
+compiler hook or site-specific Tailwind plugin is needed.
+
+PostCSS and preprocessors remain browser-tooling concerns; configure only integrations
+supported by the installed Volt version.
 
 Astral does not have an `astro add tailwind` equivalent. Keep the split explicit:
 

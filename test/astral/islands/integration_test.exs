@@ -43,6 +43,12 @@ defmodule Astral.Islands.IntegrationTest do
 
   test "mounts mixed framework islands from a static build in a browser" do
     assert {:ok, _result} = Astral.build(root: tmp(), layout: false, asset_hash: false)
+    html = File.read!(Path.join(tmp(), "dist/index.html")) |> Floki.parse_document!()
+    vue = html |> Floki.find("[data-astral-island=vue]")
+    assert [_, _] = vue
+    assert [_] = vue |> Floki.attribute("data-astral-component") |> Enum.uniq()
+    assert [_, _] = vue |> Floki.attribute("data-astral-props") |> Enum.uniq()
+    refute File.exists?(Path.join(tmp(), "assets/.astral/islands"))
 
     port = unused_port()
 

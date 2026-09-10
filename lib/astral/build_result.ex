@@ -5,7 +5,7 @@ defmodule Astral.BuildResult do
 
   @type t :: %__MODULE__{
           site: Astral.Site.t(),
-          assets: term() | nil
+          assets: Volt.Build.Result.t() | nil
         }
 
   defstruct site: nil,

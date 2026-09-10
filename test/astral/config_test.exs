@@ -39,7 +39,7 @@ defmodule Astral.ConfigTest do
     assert config.layouts == "/tmp/astral/src/layouts"
     assert config.layout == "page.html"
     assert config.assets == "/tmp/astral/frontend"
-    assert config.asset_entry == "/tmp/astral/frontend/main.ts"
+    assert config.asset_entry == ["/tmp/astral/frontend/main.ts"]
     assert config.asset_outdir == "/tmp/astral/_site/static/assets"
     assert config.asset_url_prefix == "/static/assets"
     refute config.asset_hash

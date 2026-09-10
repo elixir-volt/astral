@@ -15,18 +15,22 @@ defmodule Astral.DevServer do
 
   @impl true
   def init(opts) do
-    config = dev_config(opts).site
+    dev = dev_config(opts)
+    config = dev.site
 
     %__MODULE__{
       config: config,
       volt:
         Volt.DevServer.init(
           root: config.assets,
+          session_supervisor: dev.volt_session,
+          session: session_identity(dev.volt_session),
+          watch: false,
           prefix: config.asset_url_prefix,
           public_dir: false,
           plugins: [
             Astral.Template.AssetPlugin,
-            Astral.Islands.RuntimePlugin,
+            {Astral.Islands.RuntimePlugin, assets: config.assets},
             Astral.Islands.SolidPlugin
           ]
         )
@@ -39,6 +43,9 @@ defmodule Astral.DevServer do
     |> Volt.DevServer.call(state.volt)
     |> maybe_serve_astral(state.config)
   end
+
+  defp session_identity({:via, Registry, {Volt.Dev.WatcherRegistry, identity}}), do: identity
+  defp session_identity(nil), do: :default
 
   defp dev_config(%Astral.DevConfig{} = config), do: config
   defp dev_config(opts), do: Astral.DevConfig.new(opts)

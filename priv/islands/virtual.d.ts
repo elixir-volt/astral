@@ -1,7 +1,4 @@
-declare const $astral_id: string
-declare const $astral_props: Record<string, unknown>
-declare const $astral_client: 'load' | 'idle' | 'visible' | 'media'
-declare const $astral_media: string | null
+declare const $astral_component: string
 
 type IslandSlots = Record<string, string>
 

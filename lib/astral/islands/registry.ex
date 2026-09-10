@@ -63,8 +63,14 @@ defmodule Astral.Islands.Registry do
       allocate_id!(state, Keyword.get(opts, :id), adapter, component, client, media, props_json)
 
     component_path = resolve_component!(site.config, component)
-    entry_source = Path.join([".astral", "islands", "#{id}.ts"])
-    entry_path = Path.join(site.config.assets, entry_source)
+
+    entry_source =
+      Astral.Islands.VirtualEntry.id(
+        adapter,
+        Path.relative_to(component_path, site.config.assets)
+      )
+
+    entry_path = entry_source
 
     island = %Island{
       id: id,
@@ -78,8 +84,6 @@ defmodule Astral.Islands.Registry do
       entry_source: entry_source,
       entry_path: entry_path
     }
-
-    Astral.Islands.Writer.write!(island)
 
     islands = Map.put(state.islands, id, island)
     Process.put(@key, %{state | islands: islands, ids: ids})

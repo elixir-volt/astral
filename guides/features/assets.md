@@ -178,7 +178,13 @@ The source root is `assets/`; the browser URL prefix is `/assets`.
 
 ## Reference assets from layouts
 
-Use `Astral.asset_path/2` with the source entry name:
+Use `Astral.asset_path/2` with the source entry name. During static rendering,
+asset references are deferred until the single Volt build finishes. Deferred
+references must be the complete value of an HTML `src`, `href`, or `poster`
+attribute. Script/style bodies, text nodes, compound values such as `srcset`, and
+non-HTML generated routes are rejected rather than escaped heuristically. URLs
+are escaped when finalized, without reserializing the document.
+
 
 ```eex
 <script type="module" src="<%= Astral.asset_path(@site, "app.ts") %>"></script>

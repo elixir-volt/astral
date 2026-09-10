@@ -38,6 +38,16 @@ Volt handles browser asset HMR. Astral triggers full reloads for site-layer file
 
 Use plain browser JavaScript for static-site interactivity. `.astral` templates render static HTML; they do not imply LiveView server events.
 
+## Asset sessions and islands
+
+Astral supervises one Volt session and attaches its asset Plug to that session.
+The session owns compilation state, stylesheet workers, and filesystem watching;
+page rendering does not start another watcher or compile Tailwind.
+
+Island browser entries are virtual modules shared by component and adapter.
+Props and hydration directives belong to individual HTML instances. Rendering
+islands no longer writes TypeScript into `assets/.astral/islands`.
+
 ## Build preview
 
 `mix astral.dev` previews source files and updates as you edit. To check deploy output, run:

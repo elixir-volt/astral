@@ -14,7 +14,7 @@ defmodule Astral.Config do
           public: String.t(),
           assets: String.t(),
           outdir: String.t(),
-          asset_entry: String.t(),
+          asset_entry: [String.t()],
           asset_outdir: String.t(),
           asset_url_prefix: String.t(),
           asset_hash: boolean(),
@@ -103,7 +103,7 @@ defmodule Astral.Config do
   end
 
   @doc false
-  defdirective(asset_entry(path), do: Scope.put_top_level(asset_entry: path))
+  defdirective(asset_entry(path), do: Scope.put_top_level(asset_entry: [path]))
 
   @doc false
   defdirective(asset_outdir(path), do: Scope.put_top_level(asset_outdir: path))
@@ -198,7 +198,7 @@ defmodule Astral.Config do
   defdirective(default(path), do: Scope.put_top_level(layout: path))
 
   @doc false
-  defdirective(entry(path), do: Scope.put_top_level(asset_entry: path))
+  defdirective(entry(path), do: Scope.put_top_level(asset_entry: [path]))
 
   @doc false
   defdirective(url_prefix(prefix), do: Scope.put_top_level(asset_url_prefix: prefix))
@@ -274,7 +274,7 @@ defmodule Astral.Config do
       public: path(opts, :public, root, "public"),
       assets: assets,
       outdir: outdir,
-      asset_entry: path(opts, :asset_entry, assets, "app.js"),
+      asset_entry: asset_entries(opts, assets),
       asset_outdir: path(opts, :asset_outdir, outdir, "assets"),
       asset_url_prefix: Keyword.get(opts, :asset_url_prefix, "/assets"),
       asset_hash: Keyword.get(opts, :asset_hash, true),
@@ -288,6 +288,16 @@ defmodule Astral.Config do
     config = %{config | image: image_config(opts, config)}
 
     Astral.PluginRunner.config(plugins, config)
+  end
+
+  defp asset_entries(opts, assets) do
+    opts
+    |> Keyword.get_values(:asset_entry)
+    |> List.flatten()
+    |> case do
+      [] -> [Path.expand("app.js", assets)]
+      entries -> Enum.map(entries, &Path.expand(&1, assets))
+    end
   end
 
   defp path(opts, key, base, default) do
