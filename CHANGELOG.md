@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Changed
+
+- Replace generated TypeScript island files in `assets/.astral/islands` with shared virtual component entries; serialize instance props and hydration settings in HTML.
+- Compose development assets through one supervised Volt session and use Volt's complete production build API.
+- Normalize configured asset entries to lists and support multiple entries.
+- Render documents once, then resolve deferred asset references after building browser assets. Deferred references must be complete HTML `src`, `href`, or `poster` attribute values.
+
 ## 0.2.6 - 2026-09-04
 
 ### Fixed

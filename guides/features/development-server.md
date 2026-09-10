@@ -45,8 +45,7 @@ The session owns compilation state, stylesheet workers, and filesystem watching;
 page rendering does not start another watcher or compile Tailwind.
 
 Island browser entries are virtual modules shared by component and adapter.
-Props and hydration directives belong to individual HTML instances. Rendering
-islands no longer writes TypeScript into `assets/.astral/islands`.
+Props and hydration directives belong to individual HTML instances.
 
 ## Build preview
 
