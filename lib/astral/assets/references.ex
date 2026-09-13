@@ -1,5 +1,5 @@
 defmodule Astral.Assets.References do
-  @moduledoc "Per-render asset references finalized only in complete HTML URL attributes."
+  @moduledoc "Per-render asset references finalized only in complete quoted HTML URL attributes."
 
   @key __MODULE__
   @url_attributes ~w(src href poster)
@@ -34,7 +34,7 @@ defmodule Astral.Assets.References do
     end)
   end
 
-  @doc "Resolve complete src/href/poster values; reject raw-text, compound, and non-HTML uses."
+  @doc "Resolve complete quoted src/href/poster values using Phoenix HTML escaping."
   def finalize(body, references, content_type \\ "text/html") do
     used = Map.filter(references, fn {token, _url} -> String.contains?(body, token) end)
 
@@ -59,10 +59,15 @@ defmodule Astral.Assets.References do
 
     Enum.each(references, fn {token, _url} ->
       occurrences = length(:binary.matches(body, token))
+      quoted = length(:binary.matches(body, ["\"#{token}\"", "'#{token}'"]))
 
       if Map.get(allowed, token, 0) != occurrences do
         raise ArgumentError,
               "deferred asset references must be complete src, href, or poster attribute values; script/style bodies, text, and compound values are unsupported"
+      end
+
+      if quoted != occurrences do
+        raise ArgumentError, "deferred asset references require quoted HTML attribute values"
       end
     end)
   end
@@ -86,11 +91,5 @@ defmodule Astral.Assets.References do
     url
     |> Phoenix.HTML.html_escape()
     |> Phoenix.HTML.safe_to_string()
-    |> String.replace(" ", "&#32;")
-    |> String.replace("\t", "&#9;")
-    |> String.replace("\n", "&#10;")
-    |> String.replace("\r", "&#13;")
-    |> String.replace("=", "&#61;")
-    |> String.replace("`", "&#96;")
   end
 end
