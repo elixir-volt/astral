@@ -22,6 +22,11 @@ defmodule Astral.Config.ReaderTest do
         entry "client.js"
         url_prefix "/ui"
       end
+
+      islands do
+        component :vue, "Gallery.vue"
+        component :react, "Viewer.jsx"
+      end
     end
     """)
 
@@ -33,6 +38,7 @@ defmodule Astral.Config.ReaderTest do
     assert config.layout == "base.html"
     assert config.asset_entry == [Path.join(tmp_dir, "ui/client.js")]
     assert config.asset_url_prefix == "/ui"
+    assert config.islands.components == [vue: "Gallery.vue", react: "Viewer.jsx"]
   end
 
   test "reads top-level astral.config.exs declarations", %{tmp_dir: tmp_dir} do

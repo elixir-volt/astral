@@ -13,7 +13,8 @@ defmodule Astral.Site do
           collections: [Astral.Collection.t()],
           entries: entries(),
           routes: [Astral.Route.t()],
-          mode: :build | :dev
+          mode: :build | :dev,
+          asset_manifest: %{String.t() => Volt.Builder.ManifestEntry.t()} | nil
         }
 
   defstruct config: nil,
@@ -22,5 +23,6 @@ defmodule Astral.Site do
             collections: [],
             entries: %{},
             routes: [],
-            mode: :build
+            mode: :build,
+            asset_manifest: nil
 end

@@ -14,14 +14,40 @@ defmodule Astral.Islands.Registry do
   @type state :: %{
           site: Astral.Site.t(),
           islands: %{String.t() => Island.t()},
-          ids: %{String.t() => pos_integer()}
+          ids: %{String.t() => pos_integer()},
+          styles: MapSet.t(String.t())
         }
 
   @doc "Start an empty island registry for a site render."
   @spec start(Astral.Site.t()) :: :ok
   def start(%Astral.Site{} = site) do
-    Process.put(@key, %{site: site, islands: %{}, ids: %{}})
+    Process.put(@key, %{site: site, islands: %{}, ids: %{}, styles: MapSet.new()})
     :ok
+  end
+
+  @doc "Start document-local island identities and stylesheet deduplication."
+  def start_document do
+    Process.put(@key, %{state!() | islands: %{}, ids: %{}, styles: MapSet.new()})
+    :ok
+  end
+
+  @doc "Return styles needed by this island that have not been emitted in this document."
+  def styles(island) do
+    state = state!()
+
+    files =
+      case state.site.asset_manifest do
+        nil ->
+          []
+
+        manifest ->
+          key = Path.rootname(Path.basename(island.entry_source)) <> ".js"
+          Volt.Builder.ManifestEntry.stylesheets(manifest, key)
+      end
+
+    fresh = Enum.reject(files, &MapSet.member?(state.styles, &1))
+    Process.put(@key, %{state | styles: Enum.into(fresh, state.styles)})
+    Enum.map(fresh, &Volt.URL.join(state.site.config.asset_url_prefix, &1))
   end
 
   @doc "Clear the current process registry."
@@ -69,6 +95,16 @@ defmodule Astral.Islands.Registry do
         adapter,
         Path.relative_to(component_path, site.config.assets)
       )
+
+    if is_map(site.asset_manifest) do
+      key = Path.rootname(Path.basename(entry_source)) <> ".js"
+
+      unless Map.has_key?(site.asset_manifest, key) do
+        raise ArgumentError,
+              "island component #{inspect(component)} was not discovered before the asset build; " <>
+                "declare component #{inspect(adapter)}, #{inspect(component)} in the islands configuration"
+      end
+    end
 
     entry_path = entry_source
 

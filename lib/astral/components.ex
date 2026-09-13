@@ -132,8 +132,10 @@ defmodule Astral.Components do
       assigns
       |> assign(:island, island)
       |> assign(:entry_path, Astral.Assets.path(site, island.entry_source))
+      |> assign(:island_styles, Astral.Islands.Registry.styles(island))
 
     ~H"""
+    <link :for={href <- @island_styles} rel="stylesheet" href={href} />
     <div
       id={@island.id}
       data-astral-island={@island.adapter}

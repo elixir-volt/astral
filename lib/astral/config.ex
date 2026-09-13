@@ -213,6 +213,9 @@ defmodule Astral.Config do
   defdirective(adapter(adapter), do: Scope.put_islands(adapter: adapter))
 
   @doc false
+  defdirective(component(adapter, path), do: Scope.put_islands(component: {adapter, path}))
+
+  @doc false
   defdirective(permalink(permalink), do: Scope.put_collection(permalink: permalink))
 
   @doc false

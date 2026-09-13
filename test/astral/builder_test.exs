@@ -319,7 +319,7 @@ defmodule Astral.BuilderTest do
     assert {:ok, _} = Astral.build(root: tmp(), layout: false, asset_entry: "app.ts")
   end
 
-  test "renders island pages once and resolves their deferred asset references" do
+  test "renders island pages once with built asset URLs" do
     write("assets/app.ts", "console.log('entry')")
 
     write(

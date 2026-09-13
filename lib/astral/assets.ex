@@ -23,7 +23,7 @@ defmodule Astral.Assets do
     do: path(config, Path.basename(source))
 
   def path(%Astral.Config{} = config, source) do
-    Astral.Assets.References.register(config, source) || resolve_path(config, source)
+    resolve_path(config, source)
   end
 
   defp resolve_path(config, source) do

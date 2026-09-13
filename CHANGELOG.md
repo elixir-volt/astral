@@ -2,12 +2,21 @@
 
 ## Unreleased
 
+### Breaking changes
+
+- Require explicit `islands do component :vue, "path.vue" end` declarations for runtime-selected components that cannot be discovered from literal template references.
+
 ### Changed
 
 - Replace generated TypeScript island files in `assets/.astral/islands` with shared virtual component entries; serialize instance props and hydration settings in HTML.
 - Compose development assets through one supervised Volt session and use Volt's complete production build API.
 - Normalize configured asset entries to lists and support multiple entries.
-- Render documents once, then resolve deferred asset references after building browser assets. Deferred references must be complete quoted HTML `src`, `href`, or `poster` attribute values.
+- Build browser assets before rendering documents so asset URLs can be used in HTML, island props, and generated data routes without rendering pages twice.
+
+### Fixed
+
+- Include production island stylesheet dependencies in each document that uses them.
+- Respect explicitly disabled Tailwind configuration during builds and development startup.
 
 ## 0.2.6 - 2026-09-04
 

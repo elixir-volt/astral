@@ -42,6 +42,12 @@ defmodule Astral.Islands.IntegrationTest do
   end
 
   test "mounts mixed framework islands from a static build in a browser" do
+    File.write!(
+      Path.join(tmp(), "assets/islands/Gallery.vue"),
+      "\n<style scoped>button { color: rgb(12, 34, 56); }</style>",
+      [:append]
+    )
+
     assert {:ok, _result} = Astral.build(root: tmp(), layout: false, asset_hash: false)
     html = File.read!(Path.join(tmp(), "dist/index.html")) |> Floki.parse_document!()
     vue = html |> Floki.find("[data-astral-island=vue]")
@@ -70,6 +76,13 @@ defmodule Astral.Islands.IntegrationTest do
 
       assert_eventually_text(frame, "#vue-result", "Vue Gallery Vue slot")
       assert_eventually_text(frame, "#vue-secondary", "Vue Second")
+
+      assert {:ok, "rgb(12, 34, 56)"} =
+               Frame.evaluate(frame.guid,
+                 expression: "getComputedStyle(document.querySelector('#vue-result')).color",
+                 timeout: 5_000
+               )
+
       assert_eventually_text(frame, "#svelte-result", "Svelte Counter Svelte slot")
       assert_eventually_text(frame, "#react-result", "React Counter React slot")
       assert_eventually_text(frame, "#react-secondary", "React Second")

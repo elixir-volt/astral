@@ -26,7 +26,10 @@ defmodule Astral.Builder do
          {:ok, site} <- Astral.Discovery.discover(config),
          :ok <- prepare_outdir(config),
          :ok <- copy_public(config),
-         {:ok, assets} <- render_and_build(site) do
+         {:ok, assets} <- build_assets(config, Astral.Islands.Discovery.entries(config)),
+         site = %{site | asset_manifest: if(assets, do: assets.manifest, else: %{})},
+         {:ok, documents} <- render_site(site),
+         :ok <- write_documents(documents) do
       result = %Astral.BuildResult{site: site, assets: assets}
 
       with :ok <- Astral.PluginRunner.build_done(config.plugins, result) do
@@ -78,7 +81,7 @@ defmodule Astral.Builder do
         public_dir: false,
         tailwind: tailwind,
         tailwind_sources:
-          Astral.Assets.Sources.tailwind(config, Keyword.get(tailwind, :sources, [])),
+          Astral.Assets.Sources.tailwind(config, Volt.Config.Tailwind.new(tailwind).sources),
         outdir: config.asset_outdir,
         asset_url_prefix: config.asset_url_prefix,
         root: config.root,
@@ -113,30 +116,15 @@ defmodule Astral.Builder do
     |> Enum.any?()
   end
 
-  defp render_and_build(site) do
-    Astral.Assets.References.start()
-
-    try do
-      with {:ok, islands, documents} <- render_site(site),
-           {:ok, assets} <- build_assets(site.config, Enum.map(islands, & &1.entry_path)) do
-        references = Astral.Assets.References.resolve()
-
-        Enum.reduce_while(documents, {:ok, assets}, fn {path, body, content_type}, result ->
-          with :ok <- File.mkdir_p(Path.dirname(path)),
-               :ok <-
-                 File.write(
-                   path,
-                   Astral.Assets.References.finalize(body, references, content_type)
-                 ) do
-            {:cont, result}
-          else
-            {:error, _} = error -> {:halt, error}
-          end
-        end)
+  defp write_documents(documents) do
+    Enum.reduce_while(documents, :ok, fn {path, body, _content_type}, :ok ->
+      with :ok <- File.mkdir_p(Path.dirname(path)),
+           :ok <- File.write(path, body) do
+        {:cont, :ok}
+      else
+        {:error, _} = error -> {:halt, error}
       end
-    after
-      Astral.Assets.References.stop()
-    end
+    end)
   end
 
   defp render_site(site) do
@@ -147,7 +135,7 @@ defmodule Astral.Builder do
       with {:ok, pages} <- render_pages(site),
            {:ok, routes} <- render_routes(site),
            :ok <- Astral.Image.Builder.build(site) do
-        {:ok, Astral.Islands.Registry.islands(), pages ++ routes}
+        {:ok, pages ++ routes}
       end
     after
       Astral.Image.Registry.stop()
@@ -166,6 +154,8 @@ defmodule Astral.Builder do
   end
 
   defp render_page(page, site) do
+    Astral.Islands.Registry.start_document()
+
     with :ok <- validate_output_path(page.output_path, site.config),
          {:ok, html} <- Astral.Renderer.render_page(site, page) do
       {:ok, {page.output_path, html, "text/html"}}
@@ -186,6 +176,8 @@ defmodule Astral.Builder do
   end
 
   defp render_route(route, site) do
+    Astral.Islands.Registry.start_document()
+
     with :ok <- validate_output_path(route.output_path, site.config),
          {:ok, body, content_type} <- render_route_body(site.config.plugins, route, site) do
       {:ok, {route.output_path, IO.iodata_to_binary(body), content_type}}
