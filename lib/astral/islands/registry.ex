@@ -15,39 +15,39 @@ defmodule Astral.Islands.Registry do
           site: Astral.Site.t(),
           islands: %{String.t() => Island.t()},
           ids: %{String.t() => pos_integer()},
-          styles: MapSet.t(String.t())
+          entries: [String.t()]
         }
 
   @doc "Start an empty island registry for a site render."
   @spec start(Astral.Site.t()) :: :ok
   def start(%Astral.Site{} = site) do
-    Process.put(@key, %{site: site, islands: %{}, ids: %{}, styles: MapSet.new()})
+    Process.put(@key, %{site: site, islands: %{}, ids: %{}, entries: []})
     :ok
   end
 
-  @doc "Start document-local island identities and stylesheet deduplication."
+  @doc "Start document-local island identities and dependency collection."
   def start_document do
-    Process.put(@key, %{state!() | islands: %{}, ids: %{}, styles: MapSet.new()})
+    Process.put(@key, %{state!() | islands: %{}, ids: %{}, entries: []})
     :ok
   end
 
-  @doc "Return styles needed by this island that have not been emitted in this document."
-  def styles(island) do
+  @doc "Return the completed document's stylesheet dependencies in registration order."
+  @spec stylesheets() :: [String.t()]
+  def stylesheets do
     state = state!()
 
-    files =
-      case state.site.asset_manifest do
-        nil ->
-          []
+    case state.site.asset_manifest do
+      nil ->
+        []
 
-        manifest ->
-          key = Path.rootname(Path.basename(island.entry_source)) <> ".js"
-          Volt.Builder.ManifestEntry.stylesheets(manifest, key)
-      end
-
-    fresh = Enum.reject(files, &MapSet.member?(state.styles, &1))
-    Process.put(@key, %{state | styles: Enum.into(fresh, state.styles)})
-    Enum.map(fresh, &Volt.URL.join(state.site.config.asset_url_prefix, &1))
+      manifest ->
+        state.entries
+        |> Enum.reverse()
+        |> Enum.uniq()
+        |> Enum.flat_map(&Volt.Builder.ManifestEntry.stylesheets(manifest, &1))
+        |> Enum.uniq()
+        |> Enum.map(&Volt.URL.join(state.site.config.asset_url_prefix, &1))
+    end
   end
 
   @doc "Clear the current process registry."
@@ -122,7 +122,8 @@ defmodule Astral.Islands.Registry do
     }
 
     islands = Map.put(state.islands, id, island)
-    Process.put(@key, %{state | islands: islands, ids: ids})
+    key = Path.rootname(Path.basename(entry_source)) <> ".js"
+    Process.put(@key, %{state | islands: islands, ids: ids, entries: [key | state.entries]})
     island
   end
 

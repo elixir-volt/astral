@@ -67,6 +67,39 @@ defmodule Astral.Islands.RegistryTest do
     assert relocated_source =~ "Widget.vue"
   end
 
+  test "collects styles without consuming them and resets collection for each document" do
+    island = Astral.Islands.Registry.register(component: "islands/Widget.vue", adapter: :vue)
+    key = Path.rootname(Path.basename(island.entry_source)) <> ".js"
+
+    manifest = %{
+      key => %Volt.Builder.ManifestEntry{
+        file: "widget.js",
+        css: ["widget.css"],
+        imports: ["shared.js"]
+      },
+      "shared.js" => %Volt.Builder.ManifestEntry{file: "shared.js", css: ["shared.css"]}
+    }
+
+    site = %{Astral.Islands.Registry.site() | asset_manifest: manifest}
+    Astral.Islands.Registry.start(site)
+
+    for label <- ["First", "Second"] do
+      Astral.Islands.Registry.register(
+        component: "islands/Widget.vue",
+        adapter: :vue,
+        props: %{label: label}
+      )
+    end
+
+    expected =
+      Enum.map(["shared.css", "widget.css"], &Volt.URL.join(site.config.asset_url_prefix, &1))
+
+    assert Astral.Islands.Registry.stylesheets() == expected
+    assert Astral.Islands.Registry.stylesheets() == expected
+    Astral.Islands.Registry.start_document()
+    assert Astral.Islands.Registry.stylesheets() == []
+  end
+
   test "registering virtual entries creates no generated directory", %{tmp_dir: tmp} do
     island = Astral.Islands.Registry.register(component: "islands/Widget.vue", adapter: :vue)
     assert String.starts_with?(island.entry_path, "astral:islands/entry/")

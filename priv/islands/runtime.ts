@@ -130,6 +130,6 @@ function activateNestedIslandScripts(island: HTMLElement): void {
   )) {
     const src = script.src
     script.remove()
-    void import(src)
+    void import(src).then(({ mountIslands }) => mountIslands(island))
   }
 }

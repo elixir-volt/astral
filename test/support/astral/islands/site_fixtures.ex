@@ -137,6 +137,38 @@ defmodule Astral.Islands.SiteFixtures do
     ''')
   end
 
+  def write_delayed_shared_island_site!(root) do
+    write(root, "assets/islands/Shell.vue", ~S'''
+    <template><section id="delayed-shell"><slot /></section></template>
+    ''')
+
+    write(root, "assets/islands/Styled.vue", ~S'''
+    <script>
+    const Object = {};
+    export default {
+      props: ["label"],
+      mounted() { globalThis.astralMounts = (globalThis.astralMounts || 0) + 1; }
+    };
+    </script>
+    <template><p class="styled">{{ label }}</p></template>
+    <style scoped>.styled { color: rgb(12, 34, 56); }</style>
+    ''')
+
+    write(root, "pages/index.astral", ~S'''
+    <.vue component="islands/Shell.vue" client={:media} media="(min-width: 1500px)" id="delayed-parent">
+      <.vue component="islands/Styled.vue" props={%{label: "Nested one"}} id="nested-one" />
+      <.vue component="islands/Styled.vue" props={%{label: "Nested two"}} id="nested-two" />
+    </.vue>
+    ''')
+
+    write(root, "layouts/site.astral", ~S'''
+    <!doctype html><html><head></head><body>
+    {@content}
+    <.vue component="islands/Styled.vue" props={%{label: "Outside"}} id="outside" />
+    </body></html>
+    ''')
+  end
+
   defp write(root, path, content) do
     path = Path.join(root, path)
     File.mkdir_p!(Path.dirname(path))

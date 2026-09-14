@@ -158,6 +158,7 @@ defmodule Astral.Builder do
 
     with :ok <- validate_output_path(page.output_path, site.config),
          {:ok, html} <- Astral.Renderer.render_page(site, page) do
+      html = Astral.Assets.Stylesheets.inject(html, Astral.Islands.Registry.stylesheets())
       {:ok, {page.output_path, html, "text/html"}}
     else
       {:error, {:missing_layout, _path, _layout} = reason} -> {:error, reason}
@@ -180,7 +181,14 @@ defmodule Astral.Builder do
 
     with :ok <- validate_output_path(route.output_path, site.config),
          {:ok, body, content_type} <- render_route_body(site.config.plugins, route, site) do
-      {:ok, {route.output_path, IO.iodata_to_binary(body), content_type}}
+      body =
+        Astral.Assets.Stylesheets.inject(
+          IO.iodata_to_binary(body),
+          Astral.Islands.Registry.stylesheets(),
+          content_type
+        )
+
+      {:ok, {route.output_path, body, content_type}}
     else
       nil -> {:error, {:missing_route_renderer, route.path}}
       {:error, reason} -> {:error, {:route_render_failed, route.path, reason}}

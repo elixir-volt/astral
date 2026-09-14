@@ -15,7 +15,8 @@
 
 ### Fixed
 
-- Include production island stylesheet dependencies in each document that uses them.
+- Include production island stylesheet dependencies in the active document head, including dependencies first encountered inside inert slot templates.
+- Mount late-appearing nested islands when another instance has already loaded their shared component entry.
 - Respect explicitly disabled Tailwind configuration during builds and development startup.
 
 ## 0.2.6 - 2026-09-04

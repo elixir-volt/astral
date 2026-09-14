@@ -161,7 +161,11 @@ Nested islands can cross framework boundaries. The child island entry may execut
 </.react>
 ```
 
-A page can also repeat the same framework and use different loading strategies for each island. Production island entries are ES modules, allowing Volt to extract shared runtime/framework chunks for repeated islands when multi-entry shared chunks are available:
+A page can also repeat the same framework and use different loading strategies for each island. Production island entries are ES modules, allowing Volt to extract shared runtime/framework chunks for repeated islands when multi-entry shared chunks are available. Nested instances activate when their parent exposes the slot content, even if another instance already loaded the shared entry.
+
+Astral collects island stylesheet dependencies across the page and its layout, including islands inside slot templates. After rendering, it emits deduplicated links in the active document head, in component-registration order with static dependency styles first. HTML documents requiring these links are parsed and serialized as HTML5 with an explicit doctype; fragments gain document structure. Non-HTML routes and documents with no island stylesheet dependencies are left untouched. Deduplication applies to collected dependencies, not author-supplied links, which may be conditional or disabled.
+
+For example:
 
 ```astral
 <section class="dashboard-widgets">
