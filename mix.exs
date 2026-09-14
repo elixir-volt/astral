@@ -40,7 +40,7 @@ defmodule Astral.MixProject do
 
   defp deps do
     [
-      {:volt, github: "elixir-volt/volt", ref: "f9bb77d4fd409939045d2666f73f65a744f77b22"},
+      {:volt, github: "elixir-volt/volt", ref: "5cf6fd26827dbeb013bd77ffb0cf9e1f495a8dfd"},
       {:mdex, "~> 0.13"},
       {:yaml_elixir, "~> 2.12"},
       {:json_spec, "~> 1.1"},
