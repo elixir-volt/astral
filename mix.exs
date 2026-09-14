@@ -40,7 +40,7 @@ defmodule Astral.MixProject do
 
   defp deps do
     [
-      {:volt, github: "elixir-volt/volt", ref: "cdc4ecf618b99f75fa155c1a111ad8793156a464"},
+      {:volt, github: "elixir-volt/volt", ref: "f9bb77d4fd409939045d2666f73f65a744f77b22"},
       {:mdex, "~> 0.13"},
       {:yaml_elixir, "~> 2.12"},
       {:json_spec, "~> 1.1"},
@@ -52,12 +52,12 @@ defmodule Astral.MixProject do
       {:image, "~> 0.68"},
       {:req, "~> 0.6"},
       {:phoenix_live_view, "~> 1.2"},
-      {:bandit, "~> 1.12"},
+      {:bandit, ">= 1.12.5 and < 2.0.0"},
       {:floki, "~> 0.38"},
       {:lazy_html, "~> 0.1.12"},
       {:plug, "~> 1.20"},
       {:phoenix_iconify, "~> 0.3.5"},
-      {:igniter, "~> 0.8", optional: true},
+      {:igniter, ">= 0.8.4 and < 1.0.0", optional: true},
       {:ex_slop, "~> 0.4", only: [:dev, :test], runtime: false},
       {:reach, "~> 2.0", only: [:dev, :test], runtime: false},
       {:ex_dna, "~> 1.0", only: [:dev, :test], runtime: false},

@@ -19,6 +19,11 @@
 - Mount late-appearing nested islands when another instance has already loaded their shared component entry.
 - Respect explicitly disabled Tailwind configuration during builds and development startup.
 
+### Security
+
+- Require Bandit 1.12.5 or later to address HTTP/2 header validation and connection-window starvation (CVE-2026-75484, CVE-2026-74836).
+- Require Igniter 0.8.4 or later to prevent terminal escape injection through package metadata in installer confirmation prompts (CVE-2026-82584).
+
 ## 0.2.6 - 2026-09-04
 
 ### Fixed
