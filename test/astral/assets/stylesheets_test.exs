@@ -12,7 +12,7 @@ defmodule Astral.Assets.StylesheetsTest do
     </body></html>
     """
 
-    output = Stylesheets.inject(html, ["/asset.css", "/asset.css"])
+    output = Stylesheets.finalize(html, ["/asset.css", "/asset.css"])
     assert output =~ "<!DOCTYPE html>"
     document = LazyHTML.from_document(output)
     assert LazyHTML.attribute(document["html > head > link"], "href") == ["/asset.css"]
@@ -29,7 +29,7 @@ defmodule Astral.Assets.StylesheetsTest do
       "<html><head><link rel=stylesheet href=/existing.css media=print disabled></head><body></body></html>"
 
     href = ~s(/asset.css?x="quoted"&y=1)
-    output = Stylesheets.inject(html, ["/existing.css", href, href])
+    output = Stylesheets.finalize(html, ["/existing.css", href, href])
     document = LazyHTML.from_document(output)
 
     assert LazyHTML.attribute(document["head > link:not([disabled]):not([media])"], "href") == [
@@ -41,9 +41,9 @@ defmodule Astral.Assets.StylesheetsTest do
   end
 
   test "leaves documents without dependencies and non-HTML output untouched" do
-    assert Stylesheets.inject("<p>unchanged", []) == "<p>unchanged"
+    assert Stylesheets.finalize("<p>unchanged", []) == "<p>unchanged"
 
-    assert Stylesheets.inject(~s({"value":"<p>"}), ["/asset.css"], "application/json") ==
+    assert Stylesheets.finalize(~s({"value":"<p>"}), ["/asset.css"], "application/json") ==
              ~s({"value":"<p>"})
   end
 end

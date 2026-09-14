@@ -2,12 +2,12 @@ defmodule Astral.Assets.Stylesheets do
   @moduledoc "Emit collected island styles into the active head of an HTML5 document."
 
   @doc "Finalize document styles after all page and layout islands have rendered."
-  @spec inject(String.t(), [String.t()], String.t()) :: String.t()
-  def inject(html, styles, content_type \\ "text/html")
-  def inject(html, [], _content_type), do: html
+  @spec finalize(String.t(), [String.t()], String.t()) :: String.t()
+  def finalize(html, styles, content_type \\ "text/html")
+  def finalize(html, [], _content_type), do: html
 
-  def inject(html, styles, content_type) do
-    if html?(content_type), do: inject_html(html, styles), else: html
+  def finalize(html, styles, content_type) do
+    if html?(content_type), do: finalize_html(html, styles), else: html
   end
 
   defp html?(content_type) do
@@ -15,7 +15,7 @@ defmodule Astral.Assets.Stylesheets do
       "text/html"
   end
 
-  defp inject_html(html, styles) do
+  defp finalize_html(html, styles) do
     document = LazyHTML.from_document(html)
 
     links =
