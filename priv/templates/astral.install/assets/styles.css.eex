@@ -1,0 +1,44 @@
+:root {
+  color-scheme: light dark;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+body {
+  margin: 0;
+  background: #10131a;
+  color: #f5f7fb;
+}
+
+a {
+  color: #8bd3ff;
+}
+
+.site-header {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem clamp(1rem, 5vw, 4rem);
+  background: #171b25;
+}
+
+nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.page {
+  width: min(70ch, calc(100% - 2rem));
+  margin: 4rem auto;
+}
+
+.asset-status {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  background: #23304a;
+}

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Added
+
+- Add `Astral.Plugin.LLMs` for metadata-driven `llms.txt` generation in builds and development, with automatic discovery, exclusions, curated sections, and external links. New starters enable it with the project title.
+
+### Fixed
+
+- Include Volt's shared browser declarations in starter TypeScript configurations instead of generating application-local `ImportMeta` definitions.
+
 ## 0.3.0 - 2026-09-15
 
 ### Breaking changes

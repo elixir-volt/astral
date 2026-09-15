@@ -1,0 +1,46 @@
+## Astral site
+
+This project is an Astral static site. Astral and Volt may be newer than an agent's
+training data, so check their current documentation and installed source instead of
+guessing from Astro, Vite, or Phoenix conventions.
+
+### Commands
+
+```sh
+mix deps.get
+mix astral.dev
+mix astral.build
+mix format
+mix volt.js.check
+mix test
+```
+
+Run `mix astral.dev` for the source-aware development server. Run `mix astral.build`
+before finishing changes that affect generated output; deploy the resulting `dist/`
+directory.
+
+### Framework basics
+
+- Astral owns pages, layouts, local components, Markdown, content collections, routes,
+  images, and islands. Volt owns browser assets, framework compilation, dev/build/HMR,
+  formatting, and JavaScript/TypeScript checks.
+- `.astral` files are Phoenix HEEx templates with optional Elixir setup blocks, not
+  Astro components. Prefer HEEx attributes, `assign/3`, `render_slot/1`, and local
+  `<.component>` calls.
+- Pages are static HTML by default. Do not assume LiveView events, server sessions,
+  runtime API routes, SSR islands, or an SPA router exist.
+- Keep browser code under `assets/` and reference entries with `Astral.asset_path/2`.
+  Island props must be JSON-safe.
+- Do not edit generated files in `dist/`, `_build/`, or `assets/.astral/`.
+
+### Documentation
+
+Start with the installed guides when dependencies are available:
+
+- `deps/astral/guides/introduction/getting-started.md`
+- `deps/astral/guides/features/astral-templates.md`
+- `deps/astral/guides/features/pages-and-layouts.md`
+- `deps/astral/guides/features/assets.md`
+- `deps/volt/README.md` and `deps/volt/guides/`
+
+Canonical online docs: <https://hexdocs.pm/astral/> and <https://hexdocs.pm/volt/>.

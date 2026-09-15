@@ -11,6 +11,7 @@ defmodule Mix.Tasks.Astral.InstallTest do
     igniter
     |> assert_creates("astral.config.exs", fn content ->
       assert content =~ "entry(\"app.ts\")"
+      assert content =~ ~s|plugin(Astral.Plugin.LLMs, title: "Star Chart")|
       refute content =~ "site do"
     end)
     |> assert_creates("pages/index.md", &assert(&1 =~ "# Welcome to Star Chart"))
@@ -19,10 +20,17 @@ defmodule Mix.Tasks.Astral.InstallTest do
       assert content =~ "Astral.asset_path(@site, \"app.ts\")"
       assert content =~ ~s(<a class="brand" href="/">Star Chart</a>)
     end)
-    |> assert_creates("assets/app.ts", &assert(&1 =~ "import \"./styles.css\""))
+    |> assert_creates("assets/app.ts", fn content ->
+      assert content =~ "import \"./styles.css\""
+      refute content =~ "interface ImportMeta"
+    end)
     |> assert_creates("assets/styles.css", &assert(&1 =~ ".site-header"))
     |> assert_creates("public/robots.txt", &assert(&1 =~ "Allow: /"))
-    |> assert_creates("tsconfig.json", &assert(&1 =~ ~s("strict": true)))
+    |> assert_creates("tsconfig.json", fn content ->
+      config = Jason.decode!(content)
+      assert config["compilerOptions"]["strict"]
+      assert "deps/volt/priv/types/client/**/*.d.ts" in config["include"]
+    end)
   end
 
   test "replaces Mix's placeholder README with site instructions" do

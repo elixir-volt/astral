@@ -1,0 +1,8 @@
+---
+title: About <%= @project_name %>
+---
+
+# About <%= @project_name %>
+
+<%= @project_name %> is built with Astral. Astral owns site semantics while Volt builds and
+serves frontend assets.

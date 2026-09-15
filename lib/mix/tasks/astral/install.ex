@@ -58,8 +58,22 @@ if Code.ensure_loaded?(Igniter) do
     defp create_site_files(igniter) do
       project_name = project_name(igniter)
 
-      Enum.reduce(site_files(project_name), igniter, fn {path, content}, igniter ->
-        Igniter.create_new_file(igniter, path, content, on_exists: :warning)
+      igniter =
+        if Igniter.exists?(igniter, "tsconfig.json") do
+          Igniter.add_notice(
+            igniter,
+            "Astral preserves your existing tsconfig.json. Include " <>
+              "deps/volt/priv/types/client/**/*.d.ts in the browser configuration " <>
+              "and ensure the declarations are not excluded; no local ImportMeta definition is needed."
+          )
+        else
+          igniter
+        end
+
+      Enum.reduce(site_files(), igniter, fn path, igniter ->
+        Igniter.copy_template(igniter, template_path(path), path, [project_name: project_name],
+          on_exists: :warning
+        )
       end)
     end
 
@@ -81,25 +95,7 @@ if Code.ensure_loaded?(Igniter) do
     end
 
     defp readme(project_name) do
-      """
-      # #{project_name}
-
-      Static site built with [Astral](https://hexdocs.pm/astral/) and
-      [Volt](https://hexdocs.pm/volt/).
-
-      ## Development
-
-      ```sh
-      mix deps.get
-      mix astral.dev
-      ```
-
-      Build the deployable site in `dist/` with:
-
-      ```sh
-      mix astral.build
-      ```
-      """
+      EEx.eval_file(template_path("README.md"), assigns: [project_name: project_name])
     end
 
     defp configure_gitignore(igniter) do
@@ -165,54 +161,7 @@ if Code.ensure_loaded?(Igniter) do
     end
 
     defp agents_section do
-      """
-      ## Astral site
-
-      This project is an Astral static site. Astral and Volt may be newer than an agent's
-      training data, so check their current documentation and installed source instead of
-      guessing from Astro, Vite, or Phoenix conventions.
-
-      ### Commands
-
-      ```sh
-      mix deps.get
-      mix astral.dev
-      mix astral.build
-      mix format
-      mix volt.js.check
-      mix test
-      ```
-
-      Run `mix astral.dev` for the source-aware development server. Run `mix astral.build`
-      before finishing changes that affect generated output; deploy the resulting `dist/`
-      directory.
-
-      ### Framework basics
-
-      - Astral owns pages, layouts, local components, Markdown, content collections, routes,
-        images, and islands. Volt owns browser assets, framework compilation, dev/build/HMR,
-        formatting, and JavaScript/TypeScript checks.
-      - `.astral` files are Phoenix HEEx templates with optional Elixir setup blocks, not
-        Astro components. Prefer HEEx attributes, `assign/3`, `render_slot/1`, and local
-        `<.component>` calls.
-      - Pages are static HTML by default. Do not assume LiveView events, server sessions,
-        runtime API routes, SSR islands, or an SPA router exist.
-      - Keep browser code under `assets/` and reference entries with `Astral.asset_path/2`.
-        Island props must be JSON-safe.
-      - Do not edit generated files in `dist/`, `_build/`, or `assets/.astral/`.
-
-      ### Documentation
-
-      Start with the installed guides when dependencies are available:
-
-      - `deps/astral/guides/introduction/getting-started.md`
-      - `deps/astral/guides/features/astral-templates.md`
-      - `deps/astral/guides/features/pages-and-layouts.md`
-      - `deps/astral/guides/features/assets.md`
-      - `deps/volt/README.md` and `deps/volt/guides/`
-
-      Canonical online docs: <https://hexdocs.pm/astral/> and <https://hexdocs.pm/volt/>.
-      """
+      EEx.eval_file(template_path("agents-section.md"))
     end
 
     defp project_name(igniter) do
@@ -320,198 +269,17 @@ if Code.ensure_loaded?(Igniter) do
       quote(do: Volt.Formatter)
     end
 
-    defp site_files(project_name) do
-      [
-        {"astral.config.exs", astral_config()},
-        {"pages/index.md", index_page(project_name)},
-        {"pages/about.md", about_page(project_name)},
-        {"layouts/default.html", default_layout(project_name)},
-        {"assets/app.ts", app_ts()},
-        {"assets/styles.css", styles_css()},
-        {"public/robots.txt", robots_txt()},
-        {"tsconfig.json", tsconfig()}
-      ]
+    defp site_files do
+      ~w[astral.config.exs pages/index.md pages/about.md layouts/default.html
+         assets/app.ts assets/styles.css public/robots.txt tsconfig.json]
     end
 
-    defp astral_config do
-      """
-      import Astral.Config
-
-      root "."
-      outdir "dist"
-
-      layouts do
-        default "default.html"
-      end
-
-      assets do
-        entry "app.ts"
-        url_prefix "/assets"
-      end
-      """
-    end
-
-    defp index_page(project_name) do
-      """
-      ---
-      title: Welcome to #{project_name}
-      ---
-
-      # Welcome to #{project_name}
-
-      This page is rendered from Markdown with MDEx and wrapped in an EEx layout.
-      """
-    end
-
-    defp about_page(project_name) do
-      """
-      ---
-      title: About #{project_name}
-      ---
-
-      # About #{project_name}
-
-      #{project_name} is built with Astral. Astral owns site semantics while Volt builds and
-      serves frontend assets.
-      """
-    end
-
-    defp default_layout(project_name) do
-      """
-      <!doctype html>
-      <html lang="en">
-        <head>
-          <meta charset="utf-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <title><%= @page.title || "#{project_name}" %></title>
-          <script type="module" src="<%= Astral.asset_path(@site, "app.ts") %>"></script>
-        </head>
-        <body>
-          <header class="site-header">
-            <a class="brand" href="/">#{project_name}</a>
-            <nav aria-label="Main navigation">
-              <a href="/about/">About</a>
-            </nav>
-          </header>
-
-          <main class="page" data-route="<%= @route %>">
-            <%= @content %>
-          </main>
-        </body>
-      </html>
-      """
-    end
-
-    defp app_ts do
-      """
-      import "./styles.css";
-
-      declare global {
-        interface ImportMeta {
-          readonly hot?: {
-            accept(): void;
-          };
-        }
-      }
-
-      const status = document.createElement("p");
-      status.className = "asset-status";
-      status.textContent = "Volt assets loaded.";
-
-      document.addEventListener("DOMContentLoaded", () => {
-        document.body.appendChild(status);
-      });
-
-      if (import.meta.hot) {
-        import.meta.hot.accept();
-      }
-      """
-    end
-
-    defp styles_css do
-      """
-      :root {
-        color-scheme: light dark;
-        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-        line-height: 1.5;
-      }
-
-      body {
-        margin: 0;
-        background: #10131a;
-        color: #f5f7fb;
-      }
-
-      a {
-        color: #8bd3ff;
-      }
-
-      .site-header {
-        display: flex;
-        gap: 1rem;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem clamp(1rem, 5vw, 4rem);
-        background: #171b25;
-      }
-
-      nav {
-        display: flex;
-        gap: 1rem;
-      }
-
-      .page {
-        width: min(70ch, calc(100% - 2rem));
-        margin: 4rem auto;
-      }
-
-      .asset-status {
-        position: fixed;
-        right: 1rem;
-        bottom: 1rem;
-        margin: 0;
-        padding: 0.5rem 0.75rem;
-        border-radius: 999px;
-        background: #23304a;
-      }
-      """
-    end
-
-    defp robots_txt do
-      """
-      User-agent: *
-      Allow: /
-      """
-    end
-
-    defp tsconfig do
-      """
-      {
-        "compilerOptions": {
-          "target": "ES2022",
-          "module": "ESNext",
-          "moduleResolution": "Bundler",
-          "strict": true,
-          "noEmit": true,
-          "lib": ["ES2022", "DOM", "DOM.Iterable"]
-        },
-        "include": ["assets/**/*.ts"]
-      }
-      """
+    defp template_path(path) do
+      Application.app_dir(:astral, "priv/templates/astral.install/#{path}.eex")
     end
 
     defp formatter do
-      """
-      [
-        plugins: [Volt.Formatter],
-        inputs: [
-          "{mix,.formatter}.exs",
-          "{config,lib,test}/**/*.{ex,exs}",
-          "assets/**/*.{js,ts,jsx,tsx}"
-        ],
-        excludes: ["assets/.astral/**/*"]
-      ]
-      """
+      EEx.eval_file(template_path(".formatter.exs"))
     end
   end
 else
