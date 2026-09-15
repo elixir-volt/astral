@@ -2,17 +2,6 @@
 
 ## Unreleased
 
-### Fixed
-
-- Reject colliding destinations within pages or generated routes instead of silently overwriting documents, while preserving generated-route precedence over pages.
-- Coordinate concurrent first renders of a template so requests do not fail while its module is being compiled.
-- Resolve component-relative SVG references from the component file while preserving the caller's source context in slots.
-
-### Security
-
-- Reject symlinked document and image destinations, including copied public links, to prevent generated output from writing outside the output directory.
-- Reject symlinked output-directory parents within the project before clearing the previous build.
-
 ## 0.3.0 - 2026-09-15
 
 ### Breaking changes
@@ -31,11 +20,16 @@
 - Include production island stylesheet dependencies in the active document head, including dependencies first encountered inside inert slot templates.
 - Mount late-appearing nested islands when another instance has already loaded their shared component entry.
 - Respect explicitly disabled Tailwind configuration during builds and development startup.
+- Reject colliding destinations within pages or generated routes instead of silently overwriting documents, while preserving generated-route precedence over pages.
+- Coordinate concurrent first renders of a template so requests do not fail while its module is being compiled.
+- Resolve component-relative SVG references from the component file while preserving the caller's source context in slots.
 
 ### Security
 
 - Require Bandit 1.12.5 or later to address HTTP/2 header validation and connection-window starvation (CVE-2026-75484, CVE-2026-74836).
 - Require Igniter 0.8.4 or later to prevent terminal escape injection through package metadata in installer confirmation prompts (CVE-2026-82584).
+- Reject symlinked document and image destinations, including copied public links, to prevent generated output from writing outside the output directory.
+- Reject symlinked output-directory parents within the project before clearing the previous build.
 
 ### Compatibility
 
