@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.3.1 - 2026-09-15
+
 ### Added
 
 - Add `Astral.Plugin.LLMs` for metadata-driven `llms.txt` generation in builds and development, with automatic discovery, exclusions, curated sections, and external links. New starters enable it with the project title.
