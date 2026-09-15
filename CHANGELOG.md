@@ -2,6 +2,34 @@
 
 ## Unreleased
 
+## 0.3.0 - 2026-09-15
+
+### Breaking changes
+
+- Require explicit `islands do component :vue, "path.vue" end` declarations for runtime-selected components that cannot be discovered from literal template references.
+
+### Changed
+
+- Replace generated TypeScript island files in `assets/.astral/islands` with shared virtual component entries; serialize instance props and hydration settings in HTML.
+- Compose development assets through one supervised Volt session and use Volt's complete production build API.
+- Normalize configured asset entries to lists and support multiple entries.
+- Build browser assets before rendering documents so asset URLs can be used in HTML, island props, and generated data routes without rendering pages twice.
+
+### Fixed
+
+- Include production island stylesheet dependencies in the active document head, including dependencies first encountered inside inert slot templates.
+- Mount late-appearing nested islands when another instance has already loaded their shared component entry.
+- Respect explicitly disabled Tailwind configuration during builds and development startup.
+
+### Security
+
+- Require Bandit 1.12.5 or later to address HTTP/2 header validation and connection-window starvation (CVE-2026-75484, CVE-2026-74836).
+- Require Igniter 0.8.4 or later to prevent terminal escape injection through package metadata in installer confirmation prompts (CVE-2026-82584).
+
+### Compatibility
+
+- Require Volt 0.18 for the shared build and supervised development-session APIs.
+
 ## 0.2.6 - 2026-09-04
 
 ### Fixed

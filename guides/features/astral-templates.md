@@ -170,7 +170,27 @@ Islands can receive static HEEx children through the default framework slot/chil
 </.vue>
 ```
 
-Astral writes a generated island entry module and Volt compiles the imported framework component, so framework compilation remains Volt-owned. The initial implementation is client-only; SSR hydration can be layered on later.
+Astral discovers literal component references in `.astral` and Markdown sources
+without executing their setup or render code. Volt builds the corresponding
+virtual modules before document rendering. Each document includes the stylesheets
+required by its islands, with shared dependencies deduplicated.
+
+For components selected at render time, declare all possible entries explicitly:
+
+```elixir
+islands do
+  component :vue, "islands/Gallery.vue"
+  component :vue, "islands/CompactGallery.vue"
+end
+```
+
+Then a template can select one with `component={@gallery_component}`. The keyword
+configuration equivalent is `islands: [component: {:vue, "islands/Gallery.vue"}]`.
+Components invoked from arbitrary Elixir helpers also need explicit declarations.
+An undeclared runtime-selected component raises a build error.
+
+Islands are client-only. Keep essential static content outside the island so it
+remains available without JavaScript; slot templates are inert until mounting.
 
 ## Browser assets
 

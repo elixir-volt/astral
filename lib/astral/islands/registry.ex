@@ -14,14 +14,40 @@ defmodule Astral.Islands.Registry do
   @type state :: %{
           site: Astral.Site.t(),
           islands: %{String.t() => Island.t()},
-          ids: %{String.t() => pos_integer()}
+          ids: %{String.t() => pos_integer()},
+          entries: [String.t()]
         }
 
   @doc "Start an empty island registry for a site render."
   @spec start(Astral.Site.t()) :: :ok
   def start(%Astral.Site{} = site) do
-    Process.put(@key, %{site: site, islands: %{}, ids: %{}})
+    Process.put(@key, %{site: site, islands: %{}, ids: %{}, entries: []})
     :ok
+  end
+
+  @doc "Start document-local island identities and dependency collection."
+  def start_document do
+    Process.put(@key, %{state!() | islands: %{}, ids: %{}, entries: []})
+    :ok
+  end
+
+  @doc "Return the completed document's stylesheet dependencies in registration order."
+  @spec stylesheets() :: [String.t()]
+  def stylesheets do
+    state = state!()
+
+    case state.site.asset_manifest do
+      nil ->
+        []
+
+      manifest ->
+        state.entries
+        |> Enum.reverse()
+        |> Enum.uniq()
+        |> Enum.flat_map(&Volt.Builder.ManifestEntry.stylesheets(manifest, &1))
+        |> Enum.uniq()
+        |> Enum.map(&Volt.URL.join(state.site.config.asset_url_prefix, &1))
+    end
   end
 
   @doc "Clear the current process registry."
@@ -63,8 +89,24 @@ defmodule Astral.Islands.Registry do
       allocate_id!(state, Keyword.get(opts, :id), adapter, component, client, media, props_json)
 
     component_path = resolve_component!(site.config, component)
-    entry_source = Path.join([".astral", "islands", "#{id}.ts"])
-    entry_path = Path.join(site.config.assets, entry_source)
+
+    entry_source =
+      Astral.Islands.VirtualEntry.id(
+        adapter,
+        Path.relative_to(component_path, site.config.assets)
+      )
+
+    if is_map(site.asset_manifest) do
+      key = Path.rootname(Path.basename(entry_source)) <> ".js"
+
+      unless Map.has_key?(site.asset_manifest, key) do
+        raise ArgumentError,
+              "island component #{inspect(component)} was not discovered before the asset build; " <>
+                "declare component #{inspect(adapter)}, #{inspect(component)} in the islands configuration"
+      end
+    end
+
+    entry_path = entry_source
 
     island = %Island{
       id: id,
@@ -79,10 +121,9 @@ defmodule Astral.Islands.Registry do
       entry_path: entry_path
     }
 
-    Astral.Islands.Writer.write!(island)
-
     islands = Map.put(state.islands, id, island)
-    Process.put(@key, %{state | islands: islands, ids: ids})
+    key = Path.rootname(Path.basename(entry_source)) <> ".js"
+    Process.put(@key, %{state | islands: islands, ids: ids, entries: [key | state.entries]})
     island
   end
 

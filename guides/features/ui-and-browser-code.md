@@ -50,7 +50,28 @@ For public, unprocessed stylesheets, put files under `public/` and link them nor
 
 ## Tailwind, PostCSS, and CSS preprocessors
 
-Tailwind, PostCSS, Sass, Less, and similar tools belong to the Volt/browser asset layer. Add the npm packages your asset pipeline needs, import CSS from your Volt entry, and configure the tool in the ordinary browser-tooling files for that package.
+Tailwind belongs to Volt. Configure a stylesheet root in Elixir:
+
+```elixir
+config :volt, :tailwind,
+  css: Path.expand("../assets/styles.css", __DIR__),
+  name: "site",
+  dev_url: "/assets/site.css"
+```
+
+Reference the source stylesheet from an Astral layout:
+
+```astral
+<link rel="stylesheet" href={Astral.asset_path(@site, "styles.css")} />
+```
+
+Astral supplies page, layout, component, collection, and asset source roots to Volt
+in development and production, preserving additional explicitly configured sources.
+The helper resolves the development URL or production manifest entry. No page-render
+compiler hook or site-specific Tailwind plugin is needed.
+
+PostCSS and preprocessors remain browser-tooling concerns; configure only integrations
+supported by the installed Volt version.
 
 Astral does not have an `astro add tailwind` equivalent. Keep the split explicit:
 
@@ -140,7 +161,11 @@ Nested islands can cross framework boundaries. The child island entry may execut
 </.react>
 ```
 
-A page can also repeat the same framework and use different loading strategies for each island. Production island entries are ES modules, allowing Volt to extract shared runtime/framework chunks for repeated islands when multi-entry shared chunks are available:
+A page can also repeat the same framework and use different loading strategies for each island. Production island entries are ES modules, allowing Volt to extract shared runtime/framework chunks for repeated islands when multi-entry shared chunks are available. Nested instances activate when their parent exposes the slot content, even if another instance already loaded the shared entry.
+
+Astral collects island stylesheet dependencies across the page and its layout, including islands inside slot templates. After rendering, it emits deduplicated links in the active document head, in component-registration order with static dependency styles first. HTML documents requiring these links are parsed and serialized as HTML5 with an explicit doctype; fragments gain document structure. Non-HTML routes and documents with no island stylesheet dependencies are left untouched. Deduplication applies to collected dependencies, not author-supplied links, which may be conditional or disabled.
+
+For example:
 
 ```astral
 <section class="dashboard-widgets">

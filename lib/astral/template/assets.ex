@@ -44,14 +44,17 @@ defmodule Astral.Template.Assets do
     end
   end
 
-  defp template_source("---\n" <> rest) do
+  @doc false
+  def template_source("---\n" <> rest) do
     case String.split(rest, "\n---\n", parts: 2) do
       [_setup, template] -> template
       [_] -> "---\n" <> rest
     end
   end
 
-  defp template_source(source), do: source
+  def template_source(source) do
+    source
+  end
 
   defp parse(source, opts) do
     Phoenix.LiveView.TagEngine.Parser.parse(source,

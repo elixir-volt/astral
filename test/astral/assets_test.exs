@@ -7,6 +7,39 @@ defmodule Astral.AssetsTest do
     {:ok, config: Astral.Config.new(root: tmp_dir, asset_entry: "app.ts")}
   end
 
+  test "resolves Tailwind input through its configured dev URL and production identity", %{
+    config: config
+  } do
+    previous = Application.get_env(:volt, :tailwind)
+
+    on_exit(fn ->
+      if previous,
+        do: Application.put_env(:volt, :tailwind, previous),
+        else: Application.delete_env(:volt, :tailwind)
+    end)
+
+    Application.put_env(:volt, :tailwind,
+      css: Path.join(config.assets, "styles/input.css"),
+      name: "site",
+      dev_url: "/styles/live.css"
+    )
+
+    File.mkdir_p!(config.asset_outdir)
+
+    File.write!(
+      Path.join(config.asset_outdir, "manifest.json"),
+      Jason.encode!(%{"site.css" => %{file: "site-hash.css", src: "site.css"}})
+    )
+
+    assert Astral.asset_path(%Astral.Site{config: config, mode: :dev}, "styles/input.css") ==
+             "/styles/live.css"
+
+    assert Astral.asset_path(config, "styles/input.css") == "/assets/site-hash.css"
+
+    assert Astral.asset_path(%Astral.Site{config: config, mode: :dev}, "plain.css") ==
+             "/assets/plain.css"
+  end
+
   test "returns stable dev-style script paths before a manifest exists", %{config: config} do
     assert Astral.asset_path(config, "app.ts") == "/assets/app.js"
   end

@@ -10,18 +10,38 @@ defmodule Astral.Dev do
     config = dev_config.site
     File.mkdir_p!(config.assets)
 
+    session = {:astral, make_ref()}
+    session_name = {:via, Registry, {Volt.Dev.WatcherRegistry, session}}
+    dev_config = %{dev_config | volt_session: session_name}
+    tailwind = Volt.Config.tailwind()
+    tailwind_root = Volt.Config.Tailwind.new(tailwind)
+
+    watcher_opts = [
+      session: session,
+      root: config.assets,
+      name: Keyword.get(opts, :watcher_name, Astral.Dev.Watcher),
+      tailwind: Volt.Config.Tailwind.enabled?(tailwind),
+      tailwind_css: tailwind_root.css,
+      tailwind_name: tailwind_root.name,
+      tailwind_url: tailwind_root.dev_url,
+      tailwind_sources: Astral.Assets.Sources.tailwind(config, tailwind_root.sources),
+      plugins: [
+        Astral.Template.AssetPlugin,
+        {Astral.Islands.RuntimePlugin, assets: config.assets},
+        Astral.Islands.SolidPlugin
+      ],
+      watch_ignored: [Path.join(config.assets, ".astral/**")],
+      reload_dirs:
+        existing_dirs([
+          config.pages,
+          config.layouts,
+          config.components,
+          config.public | collection_dirs(config)
+        ])
+    ]
+
     children = [
-      {Volt.Watcher,
-       root: config.assets,
-       watch_ignored: [Path.join(config.assets, ".astral/**")],
-       reload_dirs:
-         existing_dirs([
-           config.pages,
-           config.layouts,
-           config.components,
-           config.public | collection_dirs(config)
-         ]),
-       name: Keyword.get(opts, :watcher_name, Astral.Dev.Watcher)},
+      {Volt.Dev.Session.Supervisor, name: session_name, identity: session, watcher: watcher_opts},
       {Bandit,
        plug: {Astral.DevServer, dev_config},
        scheme: :http,
@@ -30,7 +50,7 @@ defmodule Astral.Dev do
     ]
 
     Supervisor.start_link(children,
-      strategy: :one_for_one,
+      strategy: :rest_for_one,
       name: Keyword.get(opts, :name, Astral.Dev.Supervisor)
     )
   end

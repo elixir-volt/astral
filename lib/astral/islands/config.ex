@@ -8,10 +8,11 @@ defmodule Astral.Islands.Config do
   @type adapter :: Adapter.t()
 
   @type t :: %__MODULE__{
-          adapters: [adapter()]
+          adapters: [adapter()],
+          components: [{adapter(), String.t()}]
         }
 
-  defstruct adapters: Adapter.all()
+  defstruct adapters: Adapter.all(), components: []
 
   @doc "Build normalized islands configuration."
   @spec new(keyword()) :: t()
@@ -28,7 +29,19 @@ defmodule Astral.Islands.Config do
           |> Enum.uniq()
       end
 
-    %__MODULE__{adapters: adapters}
+    components =
+      opts
+      |> Keyword.get_values(:component)
+      |> Enum.map(fn
+        {adapter, path} when is_binary(path) ->
+          {normalize_adapter!(adapter), path}
+
+        value ->
+          raise ArgumentError, "expected island component {adapter, path}, got: #{inspect(value)}"
+      end)
+      |> Enum.uniq()
+
+    %__MODULE__{adapters: adapters, components: components}
   end
 
   @doc "Return true when an adapter is enabled."

@@ -178,7 +178,10 @@ The source root is `assets/`; the browser URL prefix is `/assets`.
 
 ## Reference assets from layouts
 
-Use `Astral.asset_path/2` with the source entry name:
+Use `Astral.asset_path/2` with the source entry name. Astral builds browser assets
+before rendering documents, so the helper returns a resolved URL. Pass that URL
+to HEEx attributes, island props, or a JSON serializer; escaping belongs to the
+serializer for that context.
 
 ```eex
 <script type="module" src="<%= Astral.asset_path(@site, "app.ts") %>"></script>

@@ -137,6 +137,8 @@ defmodule Astral.Components do
     <div
       id={@island.id}
       data-astral-island={@island.adapter}
+      data-astral-component={@island.entry_source}
+      data-astral-props={@island.props_json}
       data-astral-client={@island.client}
       data-astral-media={@island.media}
       {@rest}

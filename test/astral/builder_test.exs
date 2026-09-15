@@ -237,7 +237,8 @@ defmodule Astral.BuilderTest do
     [entry] = Path.wildcard(Path.join(tmp(), "dist/assets/astral-island-*.js"))
     code = File.read!(entry)
     assert code =~ "createApp"
-    assert code =~ "Open"
+    assert html =~ "Open"
+    refute code =~ ~s("label":"Open")
   end
 
   test "renders Vue island slot HTML through a static template" do
@@ -269,7 +270,79 @@ defmodule Astral.BuilderTest do
     [entry] = Path.wildcard(Path.join(tmp(), "dist/assets/astral-island-*.js"))
     code = File.read!(entry)
     assert code =~ "astral-slot"
-    assert code =~ "one.jpg"
+    assert html =~ "one.jpg"
+    refute code =~ "one.jpg"
+  end
+
+  test "builds configured Tailwind without a JavaScript entry" do
+    previous = Application.get_env(:volt, :tailwind)
+
+    on_exit(fn ->
+      if previous,
+        do: Application.put_env(:volt, :tailwind, previous),
+        else: Application.delete_env(:volt, :tailwind)
+    end)
+
+    write("assets/site.css", "@import 'tailwindcss' source(none);")
+    write("pages/index.html", "<main class='grid'>Static</main>")
+    Application.put_env(:volt, :tailwind, css: Path.join(tmp(), "assets/site.css"), name: "site")
+    assert {:ok, result} = Astral.build(root: tmp(), layout: false, asset_hash: false)
+    assert %Volt.Build.Result{} = result.assets
+    assert read("dist/assets/site.css") =~ ".grid"
+    assert result.assets.manifest["site.css"].file == "site.css"
+    refute File.exists?(Path.join(tmp(), "dist/assets/js"))
+  end
+
+  test "builds all configured entries" do
+    write("assets/one.ts", "console.log('one')")
+    write("assets/two.ts", "console.log('two')")
+    write("pages/index.html", "<main>Entries</main>")
+
+    assert {:ok, result} =
+             Astral.build(
+               root: tmp(),
+               layout: false,
+               asset_hash: false,
+               asset_entry: ["one.ts", "two.ts"]
+             )
+
+    assert result.assets.manifest["one.js"].file == "one.js"
+    assert result.assets.manifest["two.js"].file == "two.js"
+    assert read("dist/assets/one.js") =~ "one"
+    assert read("dist/assets/two.js") =~ "two"
+  end
+
+  test "builds a template-only Vue virtual entry alongside a script entry" do
+    write("assets/app.ts", "console.log('entry')")
+    write("assets/islands/TemplateOnly.vue", "<template><button>Widget</button></template>")
+    write("pages/index.astral", ~S(<.vue component="islands/TemplateOnly.vue" />))
+    assert {:ok, _} = Astral.build(root: tmp(), layout: false, asset_entry: "app.ts")
+  end
+
+  test "renders island pages once with built asset URLs" do
+    write("assets/app.ts", "console.log('entry')")
+
+    write(
+      "assets/islands/OnceCounter.svelte",
+      "<script>export let label = 'Widget';</script><button>{label}</button>"
+    )
+
+    write("pages/index.astral", ~S'''
+    ---
+    Process.put(:astral_render_count, Process.get(:astral_render_count, 0) + 1)
+    ---
+    <script type="module" src={Astral.asset_path(@site, "app.ts")}></script>
+    <.svelte component="islands/OnceCounter.svelte" />
+    ''')
+
+    Process.put(:astral_render_count, 0)
+    assert {:ok, _} = Astral.build(root: tmp(), layout: false, asset_entry: "app.ts")
+    assert Process.get(:astral_render_count) == 1
+    html = read("dist/index.html")
+    refute html =~ "astral-asset-"
+    assert html =~ ~r/app-[^\"]+\.js/
+    assert html =~ "astral-island-component-"
+    Process.delete(:astral_render_count)
   end
 
   test "allocates unique ids for repeated auto-id islands" do

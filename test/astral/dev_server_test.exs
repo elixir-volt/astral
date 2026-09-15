@@ -153,7 +153,8 @@ defmodule Astral.DevServerTest do
     assert entry_conn.status == 200
     assert entry_conn.resp_body =~ "mountIslandComponent"
     assert entry_conn.resp_body =~ "/@volt/virtual/astral:islands__slash__vue"
-    assert entry_conn.resp_body =~ "Open"
+    assert page_conn.resp_body =~ "Open"
+    assert entry_conn.resp_body =~ "astralProps"
   end
 
   test "renders media-gated islands" do
@@ -177,7 +178,8 @@ defmodule Astral.DevServerTest do
     entry_conn = conn(:get, entry_path) |> Astral.DevServer.call(opts)
 
     assert entry_conn.status == 200
-    assert entry_conn.resp_body =~ "(min-width: 768px)"
+    assert page_conn.resp_body =~ "(min-width: 768px)"
+    assert entry_conn.resp_body =~ "astralMedia"
   end
 
   test "renders framework-specific island components" do
@@ -208,15 +210,13 @@ defmodule Astral.DevServerTest do
   test "defers remote dev image fetches until image requests" do
     File.rm!(Path.join(tmp(), "pages/index.md"))
     port = unused_port()
-    {:ok, _agent} = Agent.start_link(fn -> 0 end, name: Astral.DevServerTest.RemoteHits)
-    {:ok, server} = Bandit.start_link(plug: RemoteImageServer, port: port)
 
-    on_exit(fn ->
-      Process.exit(server, :normal)
+    start_supervised!(%{
+      id: Astral.DevServerTest.RemoteHits,
+      start: {Agent, :start_link, [fn -> 0 end, [name: Astral.DevServerTest.RemoteHits]]}
+    })
 
-      if Process.whereis(Astral.DevServerTest.RemoteHits),
-        do: Agent.stop(Astral.DevServerTest.RemoteHits)
-    end)
+    start_supervised!({Bandit, plug: RemoteImageServer, port: port})
 
     write("pages/index.astral", ~s'''
     <.image src="http://127.0.0.1:#{port}/hero.svg" alt="Hero" width={50} height={25} />
@@ -298,7 +298,7 @@ defmodule Astral.DevServerTest do
 
   defp island_entry_path(html) do
     Regex.run(
-      Regex.compile!("src=\"(/assets/.astral/islands/astral-island-[^\"]+\\.ts)\""),
+      Regex.compile!("src=\"(/@volt/virtual/[^\"]+)\""),
       html,
       capture: :all_but_first
     )

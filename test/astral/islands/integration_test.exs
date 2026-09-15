@@ -42,7 +42,19 @@ defmodule Astral.Islands.IntegrationTest do
   end
 
   test "mounts mixed framework islands from a static build in a browser" do
+    File.write!(
+      Path.join(tmp(), "assets/islands/Gallery.vue"),
+      "\n<style scoped>button { color: rgb(12, 34, 56); }</style>",
+      [:append]
+    )
+
     assert {:ok, _result} = Astral.build(root: tmp(), layout: false, asset_hash: false)
+    html = File.read!(Path.join(tmp(), "dist/index.html")) |> Floki.parse_document!()
+    vue = html |> Floki.find("[data-astral-island=vue]")
+    assert [_, _] = vue
+    assert [_] = vue |> Floki.attribute("data-astral-component") |> Enum.uniq()
+    assert [_, _] = vue |> Floki.attribute("data-astral-props") |> Enum.uniq()
+    refute File.exists?(Path.join(tmp(), "assets/.astral/islands"))
 
     port = unused_port()
 
@@ -64,6 +76,13 @@ defmodule Astral.Islands.IntegrationTest do
 
       assert_eventually_text(frame, "#vue-result", "Vue Gallery Vue slot")
       assert_eventually_text(frame, "#vue-secondary", "Vue Second")
+
+      assert {:ok, "rgb(12, 34, 56)"} =
+               Frame.evaluate(frame.guid,
+                 expression: "getComputedStyle(document.querySelector('#vue-result')).color",
+                 timeout: 5_000
+               )
+
       assert_eventually_text(frame, "#svelte-result", "Svelte Counter Svelte slot")
       assert_eventually_text(frame, "#react-result", "React Counter React slot")
       assert_eventually_text(frame, "#react-secondary", "React Second")
@@ -117,6 +136,74 @@ defmodule Astral.Islands.IntegrationTest do
       if playwright_owner? do
         Process.exit(playwright, :normal)
       end
+    end
+  end
+
+  test "delayed nested instances reuse an entry without suppressing layout CSS or mounting twice" do
+    Astral.Islands.SiteFixtures.write_delayed_shared_island_site!(tmp())
+    assert {:ok, _} = Astral.build(root: tmp(), layout: "site.astral", asset_hash: false)
+    html = File.read!(Path.join(tmp(), "dist/index.html"))
+    assert html =~ "<!DOCTYPE html>"
+    tree = Floki.parse_document!(html)
+    assert [_] = Floki.find(tree, "head > link[rel=stylesheet]")
+    assert [] = Floki.find(tree, "template link[rel=stylesheet]")
+
+    port = unused_port()
+
+    start_supervised!(
+      {Bandit, plug: {StaticSitePlug, root: Path.join(tmp(), "dist")}, port: port}
+    )
+
+    {:ok, playwright, playwright_owner?} = start_playwright!()
+
+    try do
+      {:ok, browser} = PlaywrightEx.launch_browser(:chromium, timeout: 10_000)
+
+      {:ok, context} =
+        Browser.new_context(browser.guid, viewport: %{width: 1024, height: 768}, timeout: 10_000)
+
+      {:ok, %{main_frame: frame} = page} = BrowserContext.new_page(context.guid, timeout: 10_000)
+
+      try do
+        assert {:ok, _} =
+                 Frame.goto(frame.guid, url: url(port), wait_until: "load", timeout: 15_000)
+
+        assert_eventually_text(frame, "#outside .styled", "Outside")
+
+        assert {:ok, ["rgb(12, 34, 56)", 1, "CSS1Compat", false]} =
+                 Frame.evaluate(frame.guid,
+                   expression:
+                     "[getComputedStyle(document.querySelector('#outside .styled')).color, document.styleSheets.length, document.compatMode, !!document.querySelector('#delayed-shell')]",
+                   timeout: 5_000
+                 )
+
+        assert {:ok, _} =
+                 PlaywrightEx.Connection.send(
+                   PlaywrightEx.Supervisor.Connection,
+                   %{
+                     guid: page.guid,
+                     method: :set_viewport_size,
+                     params: %{viewport_size: %{width: 1600, height: 900}}
+                   },
+                   5_000
+                 )
+                 |> PlaywrightEx.ChannelResponse.unwrap(& &1)
+
+        assert_eventually_text(frame, "#nested-one .styled", "Nested one")
+        assert_eventually_text(frame, "#nested-two .styled", "Nested two")
+
+        assert {:ok, [3, "rgb(12, 34, 56)"]} =
+                 Frame.evaluate(frame.guid,
+                   expression:
+                     "[globalThis.astralMounts, getComputedStyle(document.querySelector('#nested-one .styled')).color]",
+                   timeout: 5_000
+                 )
+      after
+        BrowserContext.close(context.guid, timeout: 10_000)
+        Browser.close(browser.guid, timeout: 10_000)
+      end
+    after
+      if playwright_owner?, do: Process.exit(playwright, :normal)
     end
   end
 

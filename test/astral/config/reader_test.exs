@@ -22,6 +22,11 @@ defmodule Astral.Config.ReaderTest do
         entry "client.js"
         url_prefix "/ui"
       end
+
+      islands do
+        component :vue, "Gallery.vue"
+        component :react, "Viewer.jsx"
+      end
     end
     """)
 
@@ -31,8 +36,9 @@ defmodule Astral.Config.ReaderTest do
     assert config.outdir == Path.join(tmp_dir, "public_site")
     assert config.layouts == Path.join(tmp_dir, "templates")
     assert config.layout == "base.html"
-    assert config.asset_entry == Path.join(tmp_dir, "ui/client.js")
+    assert config.asset_entry == [Path.join(tmp_dir, "ui/client.js")]
     assert config.asset_url_prefix == "/ui"
+    assert config.islands.components == [vue: "Gallery.vue", react: "Viewer.jsx"]
   end
 
   test "reads top-level astral.config.exs declarations", %{tmp_dir: tmp_dir} do
@@ -84,7 +90,7 @@ defmodule Astral.Config.ReaderTest do
     assert config.outdir == Path.join(tmp_dir, "public_site")
     assert config.layouts == Path.join(tmp_dir, "layouts")
     assert config.layout == "base.html"
-    assert config.asset_entry == Path.join(tmp_dir, "assets/client.js")
+    assert config.asset_entry == [Path.join(tmp_dir, "assets/client.js")]
     assert config.asset_url_prefix == "/ui"
     assert [collection] = config.collections
     assert collection.name == :posts
@@ -97,6 +103,28 @@ defmodule Astral.Config.ReaderTest do
 
     assert feed_opts[:collection] == :posts
     assert Enum.any?(config.plugins, &match?({Astral.Plugin.GeneratedRoutes, _opts}, &1))
+  end
+
+  test "reads multiple asset entries", %{tmp_dir: tmp_dir} do
+    config_path = Path.join(tmp_dir, "astral.config.exs")
+
+    File.write!(config_path, """
+    import Astral.Config
+
+    root #{inspect(tmp_dir)}
+
+    assets do
+      entry "app.ts"
+      entry "styles.css"
+    end
+    """)
+
+    assert {:ok, config} = Astral.Config.Reader.read(config_path)
+
+    assert config.asset_entry == [
+             Path.join(tmp_dir, "assets/app.ts"),
+             Path.join(tmp_dir, "assets/styles.css")
+           ]
   end
 
   test "returns an error when the file does not return config", %{tmp_dir: tmp_dir} do

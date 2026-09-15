@@ -10,6 +10,44 @@ defmodule Astral.DevTest do
     {:ok, root: tmp_dir}
   end
 
+  test "session Tailwind scans pages and preserves configured external sources", %{root: root} do
+    previous = Application.get_env(:volt, :tailwind)
+
+    on_exit(fn ->
+      if previous,
+        do: Application.put_env(:volt, :tailwind, previous),
+        else: Application.delete_env(:volt, :tailwind)
+    end)
+
+    File.mkdir_p!(Path.join(root, "assets"))
+    File.mkdir_p!(Path.join(root, "external"))
+    File.write!(Path.join(root, "pages/index.html"), "<main class='grid'>Page</main>")
+    File.write!(Path.join(root, "external/source.html"), "<div class='flex'></div>")
+    css = Path.join(root, "assets/site.css")
+    File.write!(css, "@import 'tailwindcss' source(none);")
+
+    Application.put_env(:volt, :tailwind,
+      css: css,
+      sources: [%{base: Path.join(root, "external"), pattern: "*.html"}]
+    )
+
+    assert {:ok, supervisor} =
+             Astral.Dev.start_link(
+               root: root,
+               port: 0,
+               name: Astral.DevTest.TailwindSupervisor,
+               watcher_name: Astral.DevTest.TailwindWatcher
+             )
+
+    Process.unlink(supervisor)
+    on_exit(fn -> Supervisor.stop(supervisor) end)
+    watcher = :sys.get_state(Astral.DevTest.TailwindWatcher)
+    assert {:ok, output} = Volt.Tailwind.Worker.stylesheet(watcher.tables.stylesheet_worker)
+    assert output =~ ".grid"
+    assert output =~ ".flex"
+    assert Path.join(root, "pages") in watcher.tailwind_dirs
+  end
+
   test "generated island entries do not trigger watcher updates", %{root: root} do
     Registry.register(Volt.HMR.Registry, :clients, nil)
     File.rm!(Path.join(root, "pages/index.html"))
@@ -37,14 +75,8 @@ defmodule Astral.DevTest do
     watcher = Process.whereis(Astral.DevTest.IslandWatcher)
     assert is_pid(watcher)
 
-    entry =
-      root
-      |> Path.join("assets/.astral/islands")
-      |> Path.join("*.ts")
-      |> Path.wildcard()
-      |> List.first()
-
-    assert is_binary(entry)
+    refute File.exists?(Path.join(root, "assets/.astral/islands"))
+    entry = Path.join(root, "assets/.astral/islands/legacy.ts")
 
     send(watcher, {:file_event, self(), {entry, [:created]}})
     :sys.get_state(watcher)
