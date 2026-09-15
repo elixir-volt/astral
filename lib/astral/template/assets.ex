@@ -44,7 +44,7 @@ defmodule Astral.Template.Assets do
     end
   end
 
-  @doc false
+  @doc "Remove a complete leading Astral setup block, preserving markup and incomplete delimiters."
   def template_source("---\n" <> rest) do
     case String.split(rest, "\n---\n", parts: 2) do
       [_setup, template] -> template

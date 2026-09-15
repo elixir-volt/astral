@@ -22,10 +22,11 @@ defmodule Astral.Discovery do
 
       site = Astral.PluginRunner.site_discovered(config.plugins, site)
 
-      with :ok <- validate_unique_page_routes(site.pages) do
-        routes = Astral.PluginRunner.routes(config.plugins, site)
-
-        {:ok, %{site | routes: routes}}
+      with :ok <- validate_unique_page_routes(site.pages),
+           routes = Astral.PluginRunner.routes(config.plugins, site),
+           site = %{site | routes: routes},
+           :ok <- Astral.Output.validate(site) do
+        {:ok, site}
       end
     end
   end

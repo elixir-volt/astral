@@ -55,16 +55,16 @@ defmodule Astral.Config do
     Astral.Config.new(Scope.flush_top_level())
   end
 
-  @doc false
+  @doc "Set the site root against which relative configuration paths are resolved."
   defdirective(root(path), do: Scope.put_top_level(root: path))
 
-  @doc false
+  @doc "Set the directory containing file-based pages."
   defdirective(pages(path), do: Scope.put_top_level(pages: path))
 
-  @doc false
+  @doc "Set the directory of public files copied into static output."
   defdirective(public(path), do: Scope.put_top_level(public: path))
 
-  @doc false
+  @doc "Set the site output directory, or the browser output directory inside an assets block."
   defdirective outdir(path) do
     if Scope.assets_active?() do
       Scope.put_top_level(asset_outdir: path)
@@ -73,7 +73,7 @@ defmodule Astral.Config do
     end
   end
 
-  @doc false
+  @doc "Set the default layout for the current collection or, outside a collection, the site."
   defdirective layout(path) do
     if Scope.collection_active?() do
       Scope.put_collection(layout: path)
@@ -82,72 +82,72 @@ defmodule Astral.Config do
     end
   end
 
-  @doc false
+  @doc "Set the directory containing local `.astral` components."
   defdirective(components(path), do: Scope.put_top_level(components: path))
 
-  @doc false
+  @doc "Append a site plugin without options."
   defdirective(plugin(module), do: Scope.put_top_level(plugins: [module]))
 
-  @doc false
+  @doc "Append a site plugin with keyword options."
   defdirective(plugin(module, opts), do: Scope.put_top_level(plugins: [{module, opts}]))
 
-  @doc false
+  @doc "Append middleware for config-generated routes without options."
   defdirective(plug(module), do: Scope.put_top_level(plugs: [{module, []}]))
 
-  @doc false
+  @doc "Append middleware for config-generated routes with options."
   defdirective(plug(module, opts), do: Scope.put_top_level(plugs: [{module, opts}]))
 
-  @doc false
+  @doc "Declare a generated route whose block renders with site, route, config and assigns bindings."
   defdirective get(path, opts \\ []), quoted: [:block] do
     Scope.put_top_level(generated_routes: [Astral.Config.generated_route(path, opts, block)])
   end
 
-  @doc false
+  @doc "Append a browser entry path, resolved relative to the assets directory."
   defdirective(asset_entry(path), do: Scope.put_top_level(asset_entry: [path]))
 
-  @doc false
+  @doc "Set the browser output directory, relative to the site output directory."
   defdirective(asset_outdir(path), do: Scope.put_top_level(asset_outdir: path))
 
-  @doc false
+  @doc "Set the public URL prefix used for browser assets."
   defdirective(asset_url_prefix(prefix), do: Scope.put_top_level(asset_url_prefix: prefix))
 
-  @doc false
+  @doc "Collect image settings in a scoped configuration block."
   defblock image() do
     start(Scope.reset_image())
     finish(Scope.put_top_level(image: Scope.flush_image()))
   end
 
-  @doc false
+  @doc "Set image processing options directly as a keyword list."
   defdirective(image(opts), do: Scope.put_top_level(image: opts))
 
-  @doc false
+  @doc "Collect enabled island adapters and explicitly declared browser components."
   defblock islands() do
     start(Scope.reset_islands())
     finish(Scope.put_top_level(islands: Scope.flush_islands()))
   end
 
-  @doc false
+  @doc "Use the default layouts directory."
   defdirective(layouts(), do: Scope.put_top_level(layouts: "layouts"))
 
-  @doc false
+  @doc "Use the default layouts directory and evaluate nested layout directives."
   defblock layouts() do
     start(Scope.put_top_level(layouts: "layouts"))
     finish(:ok)
   end
 
-  @doc false
+  @doc "Set the directory containing layouts."
   defdirective(layouts(path), do: Scope.put_top_level(layouts: path))
 
-  @doc false
+  @doc "Set the layouts directory and evaluate nested layout directives."
   defblock layouts(path) do
     start(Scope.put_top_level(layouts: path))
     finish(:ok)
   end
 
-  @doc false
+  @doc "Use the default assets directory."
   defdirective(assets(), do: Scope.put_top_level(assets: "assets"))
 
-  @doc false
+  @doc "Collect browser build settings for the default assets directory."
   defblock assets() do
     start do
       Scope.start_assets()
@@ -157,10 +157,10 @@ defmodule Astral.Config do
     finish(Scope.finish_assets())
   end
 
-  @doc false
+  @doc "Set the directory containing browser assets."
   defdirective(assets(path), do: Scope.put_top_level(assets: path))
 
-  @doc false
+  @doc "Collect browser build settings for the specified assets directory."
   defblock assets(path) do
     start do
       Scope.start_assets()
@@ -170,12 +170,12 @@ defmodule Astral.Config do
     finish(Scope.finish_assets())
   end
 
-  @doc false
+  @doc "Append a named content collection using its default settings."
   defdirective collection(name, dir) do
     Scope.put_top_level(collections: [[name: name, dir: dir]])
   end
 
-  @doc false
+  @doc "Configure a named collection's directory, schema, layout and route settings."
   defblock collection(name, dir) do
     start do
       Scope.start_collection()
@@ -185,54 +185,54 @@ defmodule Astral.Config do
     finish(Scope.put_top_level(collections: [Scope.flush_collection()]))
   end
 
-  @doc false
+  @doc "Reset all process-local configuration scopes before evaluating a site declaration."
   def __reset_top_level__, do: Scope.reset_all()
 
-  @doc false
+  @doc "Accumulate keyword options in the current process's top-level configuration scope."
   def __put_top_level__(opts), do: Scope.put_top_level(opts)
 
-  @doc false
+  @doc "Return and clear accumulated top-level configuration options."
   def __flush_top_level__, do: Scope.flush_top_level()
 
-  @doc false
+  @doc "Set the site's default layout from a layouts block."
   defdirective(default(path), do: Scope.put_top_level(layout: path))
 
-  @doc false
+  @doc "Append a browser entry in an assets block."
   defdirective(entry(path), do: Scope.put_top_level(asset_entry: [path]))
 
-  @doc false
+  @doc "Set the browser asset URL prefix in an assets block."
   defdirective(url_prefix(prefix), do: Scope.put_top_level(asset_url_prefix: prefix))
 
-  @doc false
+  @doc "Enable or disable content hashes in generated browser asset filenames."
   defdirective(hash(enabled), do: Scope.put_top_level(asset_hash: enabled))
 
-  @doc false
+  @doc "Append an allowed remote image URL pattern to the image configuration."
   defdirective(allow_remote(pattern), do: Scope.put_image(allow_remote: [pattern]))
 
-  @doc false
+  @doc "Enable an island framework adapter in the islands block."
   defdirective(adapter(adapter), do: Scope.put_islands(adapter: adapter))
 
-  @doc false
+  @doc "Declare a runtime-selected island component path and its framework adapter."
   defdirective(component(adapter, path), do: Scope.put_islands(component: {adapter, path}))
 
-  @doc false
+  @doc "Set the current collection's route pattern."
   defdirective(permalink(permalink), do: Scope.put_collection(permalink: permalink))
 
-  @doc false
+  @doc "Choose whether the current collection includes draft entries."
   defdirective(drafts(enabled), do: Scope.put_collection(drafts: enabled))
 
-  @doc false
+  @doc "Build the current collection's schema from nested field declarations."
   defblock schema() do
     start(Scope.reset_schema())
     finish(Scope.put_collection(schema: %Astral.Schema.Fields{fields: Scope.flush_schema()}))
   end
 
-  @doc false
+  @doc "Set a collection schema, converting literal map syntax through JSONSpec."
   defdirective schema(schema), quoted: [:schema] do
     Scope.put_collection(schema: schema_value(schema))
   end
 
-  @doc false
+  @doc "Append a schema field with its type, optional default and required flag."
   defdirective field(name, type \\ :string, opts \\ []) do
     Scope.put_schema_field(%Astral.Schema.Field{
       name: name,
@@ -242,7 +242,7 @@ defmodule Astral.Config do
     })
   end
 
-  @doc false
+  @doc "Build a generated route whose renderer evaluates quoted code with route and site bindings."
   def generated_route(path, opts, block) do
     content_type = Keyword.get(opts, :content_type)
 
@@ -333,7 +333,7 @@ defmodule Astral.Config do
     |> Astral.Image.Config.new(config)
   end
 
-  @doc false
+  @doc "Convert quoted map schemas through JSONSpec; preserve other schema representations."
   def schema_value({:%{}, _meta, _pairs} = schema), do: JSONSpec.convert(schema)
   def schema_value(schema), do: schema
 

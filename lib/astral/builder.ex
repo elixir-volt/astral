@@ -2,8 +2,8 @@ defmodule Astral.Builder do
   @moduledoc """
   Builds static Astral sites.
 
-  The first milestone supports plain HTML pages, an optional single layout, a
-  public directory copied as-is, and an optional Volt asset entry.
+  Coordinates discovery, browser assets, rendering and image transforms.
+  Validates the shared destination namespace before preparing and writing static output.
   """
 
   @doc "Build a static site from keyword options."
@@ -24,12 +24,12 @@ defmodule Astral.Builder do
     with :ok <- Astral.Iconify.prepare(config),
          :ok <- Astral.PluginRunner.build_start(config.plugins, config),
          {:ok, site} <- Astral.Discovery.discover(config),
-         :ok <- prepare_outdir(config),
+         :ok <- Astral.Output.prepare(site),
          :ok <- copy_public(config),
          {:ok, assets} <- build_assets(config, Astral.Islands.Discovery.entries(config)),
          site = %{site | asset_manifest: if(assets, do: assets.manifest, else: %{})},
          {:ok, documents} <- render_site(site),
-         :ok <- write_documents(documents) do
+         :ok <- Astral.Output.write(documents, config) do
       result = %Astral.BuildResult{site: site, assets: assets}
 
       with :ok <- Astral.PluginRunner.build_done(config.plugins, result) do
@@ -42,15 +42,6 @@ defmodule Astral.Builder do
     case Keyword.fetch(opts, :config) do
       {:ok, path} -> Astral.Config.Reader.read!(path)
       :error -> Astral.Config.new(opts)
-    end
-  end
-
-  defp prepare_outdir(config) do
-    if Volt.Path.inside?(config.root, config.outdir) do
-      {:error, {:unsafe_outdir, config.outdir}}
-    else
-      File.rm_rf!(config.outdir)
-      File.mkdir_p(config.outdir)
     end
   end
 
@@ -116,17 +107,6 @@ defmodule Astral.Builder do
     |> Enum.any?()
   end
 
-  defp write_documents(documents) do
-    Enum.reduce_while(documents, :ok, fn {path, body, _content_type}, :ok ->
-      with :ok <- File.mkdir_p(Path.dirname(path)),
-           :ok <- File.write(path, body) do
-        {:cont, :ok}
-      else
-        {:error, _} = error -> {:halt, error}
-      end
-    end)
-  end
-
   defp render_site(site) do
     Astral.Image.Registry.start(site)
     Astral.Islands.Registry.start(site)
@@ -156,13 +136,16 @@ defmodule Astral.Builder do
   defp render_page(page, site) do
     Astral.Islands.Registry.start_document()
 
-    with :ok <- validate_output_path(page.output_path, site.config),
-         {:ok, html} <- Astral.Renderer.render_page(site, page) do
-      html = Astral.Assets.Stylesheets.finalize(html, Astral.Islands.Registry.stylesheets())
-      {:ok, {page.output_path, html, "text/html"}}
-    else
-      {:error, {:missing_layout, _path, _layout} = reason} -> {:error, reason}
-      {:error, reason} -> {:error, {:render_failed, page.source_path, reason}}
+    case Astral.Renderer.render_page(site, page) do
+      {:ok, html} ->
+        html = Astral.Assets.Stylesheets.finalize(html, Astral.Islands.Registry.stylesheets())
+        {:ok, {page.output_path, html, "text/html"}}
+
+      {:error, {:missing_layout, _path, _layout} = reason} ->
+        {:error, reason}
+
+      {:error, reason} ->
+        {:error, {:render_failed, page.source_path, reason}}
     end
   end
 
@@ -179,34 +162,27 @@ defmodule Astral.Builder do
   defp render_route(route, site) do
     Astral.Islands.Registry.start_document()
 
-    with :ok <- validate_output_path(route.output_path, site.config),
-         {:ok, body, content_type} <- render_route_body(site.config.plugins, route, site) do
-      body =
-        Astral.Assets.Stylesheets.finalize(
-          IO.iodata_to_binary(body),
-          Astral.Islands.Registry.stylesheets(),
-          content_type
-        )
+    case render_route_body(site.config.plugins, route, site) do
+      {:ok, body, content_type} ->
+        body =
+          Astral.Assets.Stylesheets.finalize(
+            IO.iodata_to_binary(body),
+            Astral.Islands.Registry.stylesheets(),
+            content_type
+          )
 
-      {:ok, {route.output_path, body, content_type}}
-    else
-      nil -> {:error, {:missing_route_renderer, route.path}}
-      {:error, reason} -> {:error, {:route_render_failed, route.path, reason}}
+        {:ok, {route.output_path, body, content_type}}
+
+      nil ->
+        {:error, {:missing_route_renderer, route.path}}
+
+      {:error, reason} ->
+        {:error, {:route_render_failed, route.path, reason}}
     end
   end
 
   defp reverse_documents({:ok, documents}), do: {:ok, Enum.reverse(documents)}
   defp reverse_documents(error), do: error
-
-  defp validate_output_path(path, config) when is_binary(path) do
-    if Volt.Path.inside?(path, config.outdir) do
-      :ok
-    else
-      {:error, {:unsafe_output_path, path}}
-    end
-  end
-
-  defp validate_output_path(path, _config), do: {:error, {:unsafe_output_path, path}}
 
   defp render_route_body(plugins, route, site) do
     case Astral.PluginRunner.render_route(plugins, route, site) do

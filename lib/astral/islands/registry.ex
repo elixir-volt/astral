@@ -2,8 +2,9 @@ defmodule Astral.Islands.Registry do
   @moduledoc """
   Per-render-process registry of client-side islands.
 
-  Astral renders islands while pages are rendered, then feeds generated island
-  entry modules back into Volt so framework compilation stays in Volt.
+  Volt builds discovered island entries before page rendering. This registry
+  assigns document-local identities and collects stylesheet dependencies for
+  those prebuilt entries.
   """
 
   alias Astral.Islands.Island
@@ -61,7 +62,7 @@ defmodule Astral.Islands.Registry do
   @spec site() :: Astral.Site.t()
   def site, do: state!().site
 
-  @doc "Return every registered island."
+  @doc "Return the islands registered for the current document."
   @spec islands() :: [Island.t()]
   def islands do
     state!().islands |> Map.values() |> Enum.sort_by(& &1.id)

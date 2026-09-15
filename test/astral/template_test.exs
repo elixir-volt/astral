@@ -8,6 +8,59 @@ defmodule Astral.TemplateTest do
     :ok
   end
 
+  test "concurrent first renders of a template all succeed" do
+    config = Astral.Config.new(root: tmp())
+    source = %Astral.Template.Source{path: path("parallel.astral"), source: "<div>{@text}</div>"}
+    parent = self()
+
+    tasks =
+      for _ <- 1..12 do
+        Task.async(fn ->
+          send(parent, {:ready, self()})
+
+          receive do
+            :go -> Astral.Template.render(source, %{text: "ok"}, config)
+          end
+        end)
+      end
+
+    for task <- tasks do
+      pid = task.pid
+      assert_receive {:ready, ^pid}
+    end
+
+    Enum.each(tasks, &send(&1.pid, :go))
+    assert Enum.all?(Task.await_many(tasks, 15_000), &match?({:ok, "<div>ok</div>"}, &1))
+    assert {:ok, "<div>cached</div>"} = Astral.Template.render(source, %{text: "cached"}, config)
+  end
+
+  test "relative SVGs retain component and caller-slot source scopes" do
+    write(
+      "pages/index.astral",
+      "<.badge><.svg src=\"./icon.svg\" /></.badge><.svg src=\"./icon.svg\" />"
+    )
+
+    write(
+      "components/badge.astral",
+      "<section><.svg src=\"./icon.svg\" />{render_slot(@inner_block)}</section>"
+    )
+
+    write("pages/icon.svg", "<svg xmlns=\"http://www.w3.org/2000/svg\"><text>PAGE</text></svg>")
+
+    write(
+      "components/icon.svg",
+      "<svg xmlns=\"http://www.w3.org/2000/svg\"><text>COMPONENT</text></svg>"
+    )
+
+    assert {:ok, _} = Astral.Builder.build(Astral.Config.new(root: tmp(), layout: nil))
+    html = File.read!(path("dist/index.html"))
+
+    assert html ==
+             "<section><svg><text>COMPONENT</text></svg><svg><text>PAGE</text></svg></section><svg><text>PAGE</text></svg>"
+
+    assert Astral.Template.current_source() == nil
+  end
+
   test "renders HEEx expressions and attributes" do
     write("page.astral", """
     <time datetime={Date.to_iso8601(@date)}>

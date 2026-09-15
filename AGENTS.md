@@ -13,6 +13,7 @@ mix ci
 - For Phoenix/web apps, keep Phoenix's generated guidance, but treat this VibeKit section as the final quality gate.
 - For non-web Elixir projects, VibeKit is the default project baseline.
 - Keep changes small, tested, and formatted.
+- Document modules and public functions/macros, including internal APIs. Do not use `@doc false` or `@moduledoc false` to control publication; configure ExDoc exclusions in `mix.exs` instead.
 - Match primary Elixir module namespaces to source paths, allowing deliberate nested data modules, protocol implementations, conditional definitions, and acronym spellings.
 - Mirror source paths and namespaces in unit tests; keep cross-module and browser scenarios under their owning subsystem. Mix tasks remain `.ex`, ExUnit tests `_test.exs`, and shared support `.ex` under test-only `test/support/`.
 

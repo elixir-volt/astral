@@ -140,6 +140,15 @@ defmodule Astral.MixProject do
   defp docs do
     [
       main: "readme",
+      filter_modules: fn module, _metadata ->
+        module not in [
+          Astral.MixTask,
+          Astral.Output,
+          Astral.Islands.SolidPlugin,
+          Astral.Template.Compiler,
+          Astral.Template.Context
+        ]
+      end,
       source_ref: "v#{@version}",
       source_url: @source_url,
       extras: [

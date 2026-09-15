@@ -1,7 +1,7 @@
 defmodule Astral.MixTask do
-  @moduledoc false
+  @moduledoc "Shared command-line option validation for Astral Mix tasks."
 
-  @doc false
+  @doc "Accept an empty invalid-option list or raise a Mix error naming the rejected flags."
   @spec reject_invalid_options!([term()]) :: :ok | no_return()
   def reject_invalid_options!([]), do: :ok
 
