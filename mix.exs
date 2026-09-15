@@ -1,7 +1,7 @@
 defmodule Astral.MixProject do
   use Mix.Project
 
-  @version "0.2.6"
+  @version "0.3.0"
   @source_url "https://github.com/elixir-volt/astral"
 
   def project do
@@ -40,7 +40,7 @@ defmodule Astral.MixProject do
 
   defp deps do
     [
-      {:volt, github: "elixir-volt/volt", ref: "5cf6fd26827dbeb013bd77ffb0cf9e1f495a8dfd"},
+      {:volt, "~> 0.18.0"},
       {:mdex, "~> 0.13"},
       {:yaml_elixir, "~> 2.12"},
       {:json_spec, "~> 1.1"},

@@ -25,7 +25,7 @@ Or add Astral and Igniter manually:
 ```elixir
 def deps do
   [
-    {:astral, "~> 0.2"},
+    {:astral, "~> 0.3"},
     {:igniter, "~> 0.8", only: [:dev, :test]}
   ]
 end

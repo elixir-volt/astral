@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.3.0 - 2026-09-15
+
 ### Breaking changes
 
 - Require explicit `islands do component :vue, "path.vue" end` declarations for runtime-selected components that cannot be discovered from literal template references.
@@ -23,6 +25,10 @@
 
 - Require Bandit 1.12.5 or later to address HTTP/2 header validation and connection-window starvation (CVE-2026-75484, CVE-2026-74836).
 - Require Igniter 0.8.4 or later to prevent terminal escape injection through package metadata in installer confirmation prompts (CVE-2026-82584).
+
+### Compatibility
+
+- Require Volt 0.18 for the shared build and supervised development-session APIs.
 
 ## 0.2.6 - 2026-09-04
 
