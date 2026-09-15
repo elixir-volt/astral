@@ -10,6 +10,7 @@ plugin Astral.Plugin.Feed,
   collection: :posts
 
 plugin Astral.Plugin.Sitemap, site_url: "https://example.com"
+plugin Astral.Plugin.LLMs, site_url: "https://example.com", title: "Astral Basic"
 
 get "/posts.txt", content_type: "text/plain" do
   site.entries.posts

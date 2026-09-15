@@ -1,0 +1,17 @@
+# <%= @project_name %>
+
+Static site built with [Astral](https://hexdocs.pm/astral/) and
+[Volt](https://hexdocs.pm/volt/).
+
+## Development
+
+```sh
+mix deps.get
+mix astral.dev
+```
+
+Build the deployable site in `dist/` with:
+
+```sh
+mix astral.build
+```

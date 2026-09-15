@@ -1,0 +1,15 @@
+import Astral.Config
+
+root "."
+outdir "dist"
+
+plugin Astral.Plugin.LLMs, title: <%= inspect(@project_name) %>
+
+layouts do
+  default "default.html"
+end
+
+assets do
+  entry "app.ts"
+  url_prefix "/assets"
+end
