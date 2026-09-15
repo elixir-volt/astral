@@ -184,7 +184,9 @@ public files < pages < generated routes
 
 If a generated route writes the same output path as a page or public file, the generated route wins. Prefer unique output paths unless the override is intentional.
 
-Astral reports duplicate page routes. Broader output-conflict diagnostics for public files and generated routes are planned.
+Within each layer, document destinations must be unique. Astral rejects page aliases such as `/same` and `/same/` that would write the same file, duplicate generated-route destinations, and file-versus-directory conflicts during discovery, before clearing the previous build.
+
+Generated documents and image transforms cannot write through symlinked output paths, including symlinks copied from `public/`. These checks prevent accidental writes outside the output tree; builds are not whole-directory transactions and do not protect against concurrent filesystem replacement by another process.
 
 ## Redirects, rewrites, i18n, and middleware scope
 

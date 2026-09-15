@@ -58,21 +58,17 @@ defmodule Astral.Template do
 
   @doc "Return the template source currently being rendered in this process."
   @spec current_source() :: String.t() | nil
-  def current_source do
-    Process.get({__MODULE__, :current_source})
-  end
+  defdelegate current_source(), to: Astral.Template.Context
 
   defp render_source(%Source{} = source, function, assigns, config) do
     components = component_sources(config.components)
     module = module_name(config, function, components, source)
 
     with {:ok, quoted} <- module_ast(module, components, {function, source}),
-         {:ok, _module} <- compile_module(module, quoted, source.path) do
+         {:ok, _module} <- Astral.Template.Compiler.compile(module, quoted, source.path) do
       html =
-        with_current_source(source.path, fn ->
-          module
-          |> apply(function, [assigns_map(assigns)])
-          |> rendered_to_html()
+        Astral.Template.Context.with_source(source.path, fn ->
+          rendered_to_html(apply(module, function, [assigns_map(assigns)]))
         end)
 
       {:ok, html}
@@ -106,12 +102,16 @@ defmodule Astral.Template do
 
     quote line: line do
       def unquote(function)(var!(assigns)) do
-        var!(assigns) = Map.new(var!(assigns))
-        var!(assigns) = Map.put_new(var!(assigns), :__changed__, nil)
-        _ = var!(assigns)
-        unquote(setup_ast)
-        _ = binding()
-        Astral.Template.HEEx.compile(unquote(template), unquote(source.path), unquote(line))
+        var!(assigns) = Astral.Template.Context.scope_slots(var!(assigns))
+
+        Astral.Template.Context.render(unquote(source.path), fn ->
+          var!(assigns) = Map.new(var!(assigns))
+          var!(assigns) = Map.put_new(var!(assigns), :__changed__, nil)
+          _ = var!(assigns)
+          unquote(setup_ast)
+          _ = binding()
+          Astral.Template.HEEx.compile(unquote(template), unquote(source.path), unquote(line))
+        end)
       end
     end
   end
@@ -149,14 +149,14 @@ defmodule Astral.Template do
 
     with {:ok, setup_ast} <- quoted_setup(setup, source.path),
          {:ok, _module} <-
-           compile_module(
+           Astral.Template.Compiler.compile(
              module,
              setup_module_ast(module, setup_function_ast(setup_ast)),
              source.path
            ) do
       try do
         binding =
-          with_current_source(source.path, fn ->
+          Astral.Template.Context.with_source(source.path, fn ->
             module.__astral_setup__(assigns_map(assigns))
           end)
 
@@ -197,23 +197,6 @@ defmodule Astral.Template do
       node ->
         node
     end)
-  end
-
-  defp compile_module(module, quoted, path) do
-    if Code.ensure_loaded?(module) do
-      {:ok, module}
-    else
-      Code.compile_quoted(quoted, path)
-      {:ok, module}
-    end
-  rescue
-    error in [
-      CompileError,
-      EEx.SyntaxError,
-      Phoenix.LiveView.TagEngine.Tokenizer.ParseError,
-      SyntaxError
-    ] ->
-      {:error, {:template_compile_failed, path, error}}
   end
 
   defp component_sources(dir) do
@@ -261,21 +244,6 @@ defmodule Astral.Template do
     rendered
     |> Phoenix.HTML.Safe.to_iodata()
     |> IO.iodata_to_binary()
-  end
-
-  defp with_current_source(path, fun) do
-    previous_source = current_source()
-    Process.put({__MODULE__, :current_source}, path)
-
-    try do
-      fun.()
-    after
-      if previous_source do
-        Process.put({__MODULE__, :current_source}, previous_source)
-      else
-        Process.delete({__MODULE__, :current_source})
-      end
-    end
   end
 
   defp module_name(config, function, components, %Source{} = source) do

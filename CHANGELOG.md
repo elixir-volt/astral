@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Fixed
+
+- Reject colliding destinations within pages or generated routes instead of silently overwriting documents, while preserving generated-route precedence over pages.
+- Coordinate concurrent first renders of a template so requests do not fail while its module is being compiled.
+- Resolve component-relative SVG references from the component file while preserving the caller's source context in slots.
+
+### Security
+
+- Reject symlinked document and image destinations, including copied public links, to prevent generated output from writing outside the output directory.
+- Reject symlinked output-directory parents within the project before clearing the previous build.
+
 ## 0.3.0 - 2026-09-15
 
 ### Breaking changes

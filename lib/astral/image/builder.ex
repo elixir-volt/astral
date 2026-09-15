@@ -8,8 +8,16 @@ defmodule Astral.Image.Builder do
 
   @doc "Generate every image transform registered while rendering the site."
   @spec build(Astral.Site.t()) :: :ok | {:error, term()}
-  def build(%Astral.Site{config: %{image: image_config}}) do
+  def build(%Astral.Site{config: config}) do
     transforms = Registry.transforms()
+    paths = Enum.map(transforms, & &1.output_path)
+
+    with :ok <- Astral.Output.validate_destinations(paths, config.outdir) do
+      build_transforms(transforms, config.image)
+    end
+  end
+
+  defp build_transforms(transforms, image_config) do
     File.mkdir_p!(image_config.cache_dir)
 
     transforms
