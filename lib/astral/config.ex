@@ -19,6 +19,7 @@ defmodule Astral.Config do
           asset_url_prefix: String.t(),
           asset_hash: boolean(),
           layout: String.t(),
+          markdown: keyword(),
           image: Astral.Image.Config.t() | nil,
           islands: Astral.Islands.Config.t(),
           collections: [Astral.Collection.t()],
@@ -37,6 +38,7 @@ defmodule Astral.Config do
             asset_url_prefix: "/assets",
             asset_hash: true,
             layout: nil,
+            markdown: [],
             image: nil,
             islands: %Astral.Islands.Config{},
             collections: [],
@@ -84,6 +86,9 @@ defmodule Astral.Config do
 
   @doc "Set the directory containing local `.astral` components."
   defdirective(components(path), do: Scope.put_top_level(components: path))
+
+  @doc "Set MDEx Markdown options for pages, collections and rendered content."
+  defdirective(markdown(opts), do: Scope.put_top_level(markdown: opts))
 
   @doc "Append a site plugin without options."
   defdirective(plugin(module), do: Scope.put_top_level(plugins: [module]))
@@ -282,6 +287,7 @@ defmodule Astral.Config do
       asset_url_prefix: Keyword.get(opts, :asset_url_prefix, "/assets"),
       asset_hash: Keyword.get(opts, :asset_hash, true),
       layout: Keyword.get(opts, :layout, "default.html"),
+      markdown: Keyword.get(opts, :markdown, []),
       image: nil,
       islands: islands_config(opts),
       collections: collections(opts, root),

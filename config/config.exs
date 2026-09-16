@@ -1,5 +1,9 @@
 import Config
 
+if config_env() == :test do
+  config :mdex_native, syntax_highlighter: :lumis
+end
+
 config :volt,
   root: ".",
   sources: ["priv/**/*.{js,ts,jsx,tsx}"],

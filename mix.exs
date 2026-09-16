@@ -42,6 +42,7 @@ defmodule Astral.MixProject do
     [
       {:volt, "~> 0.18.0"},
       {:mdex, "~> 0.13"},
+      {:lumis, "~> 0.8", only: :test},
       {:yaml_elixir, "~> 2.12"},
       {:json_spec, "~> 1.1"},
       {:jsv, "~> 0.8"},

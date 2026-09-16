@@ -8,10 +8,10 @@ defmodule Astral.Markdown do
 
   @mdex_options [extension: [front_matter_delimiter: "---", header_id_prefix: ""]]
 
-  @doc "Render Markdown source to HTML and page metadata."
-  @spec render(String.t()) :: {:ok, Astral.Content.t()} | {:error, term()}
-  def render(source) do
-    with {:ok, document} <- parse_document(source),
+  @doc "Render Markdown source to HTML and page metadata using optional MDEx options."
+  @spec render(String.t(), keyword()) :: {:ok, Astral.Content.t()} | {:error, term()}
+  def render(source, opts \\ []) do
+    with {:ok, document} <- parse_document(source, markdown_options(opts)),
          {:ok, metadata} <- metadata(document),
          headings = headings(document),
          {:ok, html} <- to_html(document) do
@@ -27,7 +27,7 @@ defmodule Astral.Markdown do
     end
   end
 
-  defp parse_document(source, options \\ @mdex_options) do
+  defp parse_document(source, options) do
     {:ok, MDEx.parse_document!(source, options)}
   rescue
     error in [MDEx.InvalidInputError] -> {:error, error}
@@ -93,10 +93,19 @@ defmodule Astral.Markdown do
   defp heading_text(%{nodes: nodes}) when is_list(nodes), do: heading_text(nodes)
   defp heading_text(_node), do: ""
 
-  @doc "Convert Markdown source to HEEx-compatible HTML while preserving component tags."
+  @doc """
+  Convert Markdown source to HEEx-compatible HTML while preserving component tags.
+
+  Accepts MDEx options under `:markdown` and image/source context under `:file`.
+  Astral retains frontmatter and heading conventions and enables HEEx parsing.
+  """
   @spec to_heex_html(String.t(), keyword()) :: {:ok, String.t()} | {:error, term()}
   def to_heex_html(source, opts \\ []) do
-    options = Keyword.update!(@mdex_options, :extension, &Keyword.put(&1, :phoenix_heex, true))
+    options =
+      opts
+      |> Keyword.get(:markdown, [])
+      |> markdown_options()
+      |> Keyword.update!(:extension, &Keyword.put(&1, :phoenix_heex, true))
 
     with {:ok, document} <- parse_document(source, options) do
       document = Astral.Markdown.Images.rewrite(document, opts)
@@ -104,6 +113,12 @@ defmodule Astral.Markdown do
     end
   rescue
     error in [MDEx.DecodeError] -> {:error, error}
+  end
+
+  defp markdown_options(opts) do
+    Keyword.update(opts, :extension, @mdex_options[:extension], fn extensions ->
+      Keyword.merge(extensions, @mdex_options[:extension])
+    end)
   end
 
   defp to_html(document) do

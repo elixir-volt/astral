@@ -10,6 +10,7 @@ defmodule Astral.ConfigTest do
         outdir("_site")
         pages("src/pages")
         public("static")
+        markdown(extension: [strikethrough: true])
         plugin(String)
         plugin(List, opt: true)
 
@@ -38,6 +39,7 @@ defmodule Astral.ConfigTest do
     assert config.public == "/tmp/astral/static"
     assert config.layouts == "/tmp/astral/src/layouts"
     assert config.layout == "page.html"
+    assert config.markdown == [extension: [strikethrough: true]]
     assert config.assets == "/tmp/astral/frontend"
     assert config.asset_entry == ["/tmp/astral/frontend/main.ts"]
     assert config.asset_outdir == "/tmp/astral/_site/static/assets"
