@@ -96,13 +96,15 @@ defmodule Mix.Tasks.Astral.InstallTest do
     end)
   end
 
-  test "configures Volt formatter and linting" do
+  test "configures Astral and Volt formatters and linting" do
     igniter =
       test_project()
       |> Mix.Tasks.Astral.Install.igniter()
 
     assert_file(igniter, ".formatter.exs", fn content ->
       assert content =~ "Volt.Formatter"
+      assert content =~ "Astral.Formatter"
+      assert content =~ "{pages,layouts,components}/**/*.astral"
       assert content =~ "assets/**/*.{js,ts,jsx,tsx}"
       assert content =~ ~s(excludes: ["assets/.astral/**/*"])
     end)

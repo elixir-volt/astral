@@ -209,6 +209,7 @@ if Code.ensure_loaded?(Igniter) do
     defp configure_formatter(igniter) do
       igniter
       |> ProjectFormatter.add_formatter_plugin(Volt.Formatter)
+      |> ProjectFormatter.add_formatter_plugin(Astral.Formatter)
       |> Igniter.create_or_update_file(".formatter.exs", formatter(), fn source ->
         Source.update(source, :content, &merge_formatter/1)
       end)
@@ -220,6 +221,7 @@ if Code.ensure_loaded?(Igniter) do
           ast
           |> ensure_formatter_plugin()
           |> ensure_formatter_input("assets/**/*.{js,ts,jsx,tsx}")
+          |> ensure_formatter_input("{pages,layouts,components}/**/*.astral")
           |> ensure_formatter_exclude("assets/.astral/**/*")
           |> Macro.to_string()
           |> Kernel.<>("\n")
@@ -230,8 +232,10 @@ if Code.ensure_loaded?(Igniter) do
     end
 
     defp ensure_formatter_plugin(ast) do
-      Keyword.update(ast, :plugins, [volt_formatter_ast()], fn plugins ->
-        prepend_unique_ast(List.wrap(plugins), volt_formatter_ast())
+      formatters = [quote(do: Astral.Formatter), volt_formatter_ast()]
+
+      Keyword.update(ast, :plugins, formatters, fn plugins ->
+        Enum.reduce(formatters, List.wrap(plugins), &prepend_unique_ast(&2, &1))
       end)
     end
 

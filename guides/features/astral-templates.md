@@ -1,5 +1,35 @@
 # `.astral` Templates
 
+## Formatting
+
+Astral integrates with the normal Elixir formatting pipeline. The installer adds
+`Astral.Formatter` and template inputs to `.formatter.exs`; existing projects can
+add them explicitly:
+
+```elixir
+[
+  plugins: [Astral.Formatter, Volt.Formatter],
+  inputs: [
+    "{mix,.formatter}.exs",
+    "{config,lib,test}/**/*.{ex,exs}",
+    "{pages,layouts,components}/**/*.astral",
+    "assets/**/*.{js,ts,jsx,tsx}"
+  ],
+  excludes: ["assets/.astral/**/*"]
+]
+```
+
+Run `mix format` to apply formatting or `mix format --check-formatted` in CI.
+The formatter uses the same setup-block boundary as Astral's renderer. It formats
+setup code with Elixir, the template body with Phoenix's HEEx formatter, and
+inline JavaScript/TypeScript scripts through Volt. HEEx options such as
+`:heex_line_length`, `:attribute_formatters` and `:tag_formatters` pass through;
+an explicit script tag formatter overrides Volt's default adapter.
+
+CSS styles, external scripts and non-JavaScript data scripts are preserved rather
+than sent to a JavaScript formatter. Markdown is not claimed by this plugin.
+
+
 `.astral` files are HEEx-first static templates. They can be used as pages, layouts, and local components.
 
 ## Components
