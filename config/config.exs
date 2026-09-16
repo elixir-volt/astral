@@ -1,9 +1,5 @@
 import Config
 
-if config_env() == :test do
-  config :mdex_native, syntax_highlighter: :lumis
-end
-
 config :volt,
   root: ".",
   sources: ["priv/**/*.{js,ts,jsx,tsx}"],
@@ -25,3 +21,7 @@ config :volt, :lint,
     "typescript/no-floating-promises" => :deny
   },
   tsgolint: "node_modules/.bin/tsgolint"
+
+if config_env() == :test do
+  import_config "test.exs"
+end
