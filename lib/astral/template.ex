@@ -37,7 +37,8 @@ defmodule Astral.Template do
           {:ok, String.t()} | {:error, term()}
   def render_markdown_file(path, assigns, %Astral.Config{} = config) do
     with {:ok, markdown} <- File.read(path),
-         {:ok, source} <- Astral.Markdown.to_heex_html(markdown, file: path) do
+         {:ok, source} <-
+           Astral.Markdown.to_heex_html(markdown, file: path, markdown: config.markdown) do
       render_source(
         %Source{path: path, source: source},
         :__astral_markdown_page__,
@@ -96,7 +97,7 @@ defmodule Astral.Template do
   end
 
   defp function_ast({function, %Source{} = source}) do
-    {setup, template, line} = split_source(source.source)
+    {setup, template, line} = Source.split(source.source)
     template = clean_template!(template, source.path, line)
     setup_ast = setup_ast(setup, source.path)
 
@@ -144,7 +145,7 @@ defmodule Astral.Template do
   end
 
   defp setup_binding(%Source{} = source, assigns, config) do
-    {setup, _template, _line} = split_source(source.source)
+    {setup, _template, _line} = Source.split(source.source)
     module = module_name(config, :__astral_setup__, [], source)
 
     with {:ok, setup_ast} <- quoted_setup(setup, source.path),
@@ -225,17 +226,6 @@ defmodule Astral.Template do
     |> Enum.map_join("_", &Macro.underscore/1)
     |> then(&:"#{&1}")
   end
-
-  defp split_source("---\n" <> rest) do
-    case String.split(rest, "\n---\n", parts: 2) do
-      [setup, template] -> {setup, template, line_offset(setup) + 3}
-      [_] -> {"", "---\n" <> rest, 1}
-    end
-  end
-
-  defp split_source(source), do: {"", source, 1}
-
-  defp line_offset(source), do: source |> String.split("\n") |> length()
 
   defp assigns_map(assigns) when is_map(assigns), do: assigns
   defp assigns_map(assigns) when is_list(assigns), do: Map.new(assigns)

@@ -1,9 +1,10 @@
 [
-  plugins: [Volt.Formatter],
+  plugins: [Astral.Formatter, Volt.Formatter],
   inputs: [
     "{mix,.formatter}.exs",
     "{config,lib,test}/**/*.{ex,exs}",
-    "assets/**/*.{js,ts,jsx,tsx}"
+    "assets/**/*.{js,ts,jsx,tsx}",
+    "{pages,layouts,components}/**/*.astral"
   ],
   excludes: ["assets/.astral/**/*"]
 ]

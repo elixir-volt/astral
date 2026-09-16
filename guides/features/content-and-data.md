@@ -26,6 +26,51 @@ permalink: /about-us/
 
 Astral uses MDEx for Markdown and `YamlElixir` for frontmatter. TOML frontmatter is not supported today.
 
+## Markdown options and syntax highlighting
+
+Pass [MDEx options](https://hexdocs.pm/mdex/MDEx.html) through the site configuration:
+
+```elixir
+site do
+  markdown extension: [strikethrough: true, table: true]
+end
+```
+
+The same options apply during discovery and final rendering of Markdown pages and
+collection entries, including content used by feeds. Astral retains its YAML
+frontmatter delimiter and heading ID convention, and enables HEEx in the final
+page rendering pass. Existing sites keep their current defaults.
+
+For server-rendered syntax highlighting, add `{:lumis, "~> 0.8"}` to your site's
+Mix dependencies and select the native highlighter in `config/config.exs`:
+
+```elixir
+config :mdex_native, syntax_highlighter: :lumis
+```
+
+Then configure Lumis through MDEx in `astral.config.exs`:
+
+```elixir
+markdown syntax_highlight: [
+  engine: :lumis,
+  opts: [
+    formatter: {:html_multi_themes,
+      themes: [light: "github_light", dark: "github_dark"],
+      default_theme: "light-dark()"}
+  ]
+]
+```
+
+Use language-tagged code fences such as `elixir` or `sql`. The generated HTML
+needs no browser highlighter. The dual-theme formatter follows CSS `color-scheme`;
+set it to `light dark` for the system preference or explicitly to `light`/`dark`
+for a site toggle. Lumis loads language parsers on demand; see its
+[deployment guide](https://hexdocs.pm/lumis/deployment.html) for offline builds.
+
+If MDEx Native was already compiled with another highlighter, run
+`mix deps.clean mdex_native --build` before rebuilding (also in `MIX_ENV=test`
+when running tests).
+
 ## Components in Markdown
 
 Markdown pages and collection entries can use local `.astral` components through HEEx syntax:

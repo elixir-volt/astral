@@ -108,7 +108,9 @@ A future font helper should be Elixir-native and privacy/performance-oriented ra
 
 Astral Markdown is backed by MDEx. Code fences render as Markdown HTML, and you can style `pre` and `code` elements with CSS.
 
-Astral does not yet expose a Shiki/Prism configuration surface or built-in `<.code>` / `<.prism>` components. For now, use CSS-only styling or a site/plugin-owned highlighter if your docs site needs richer code blocks.
+The `markdown` site directive accepts MDEx options, including server-rendered Lumis highlighting with light/dark themes. Lumis is optional: applications enabling it must declare the dependency and configure MDEx Native's highlighter. See [Markdown options and syntax highlighting](content-and-data.md#markdown-options-and-syntax-highlighting).
+
+Astral does not expose a Shiki/Prism configuration surface or built-in `<.code>` / `<.prism>` components.
 
 Syntax highlighting defaults remain a starter-template/product-polish item on the roadmap.
 

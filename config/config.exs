@@ -21,3 +21,7 @@ config :volt, :lint,
     "typescript/no-floating-promises" => :deny
   },
   tsgolint: "node_modules/.bin/tsgolint"
+
+if config_env() == :test do
+  import_config "test.exs"
+end

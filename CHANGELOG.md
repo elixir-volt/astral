@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+## 0.3.2 - 2026-09-16
+
+### Added
+
+- Add site-scoped `markdown` options for MDEx rendering across pages, collections, and feeds, including optional Lumis syntax highlighting with light/dark themes.
+- Add `Astral.Formatter` for `mix format`: format Elixir setup blocks, HEEx templates, and embedded JavaScript/TypeScript through Volt. The installer configures the plugin and `.astral` inputs for new and existing projects.
+
+### Fixed
+
+- Preserve whitespace between highlighted code tokens and inline elements when injecting the development HMR client.
+
 ## 0.3.1 - 2026-09-15
 
 ### Added

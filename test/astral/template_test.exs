@@ -61,6 +61,41 @@ defmodule Astral.TemplateTest do
     assert Astral.Template.current_source() == nil
   end
 
+  test "Markdown options apply to pages, collections and final HEEx rendering" do
+    source =
+      "---\ntitle: Highlighted\n---\n# Example\n\n~~old~~\n\n```elixir\n{:ok, \"<script>\"}\n```"
+
+    write("pages/index.md", source)
+    write("posts/example.md", source)
+
+    config =
+      Astral.Config.new(
+        root: tmp(),
+        layout: nil,
+        collections: [[name: :posts, dir: "posts", permalink: "/posts/:slug/"]],
+        markdown: [
+          extension: [strikethrough: true],
+          syntax_highlight: [
+            engine: :lumis,
+            opts: [formatter: {:html_inline, theme: "github_light"}]
+          ]
+        ]
+      )
+
+    assert {:ok, site} = Astral.Discovery.discover(config)
+    assert hd(site.entries.posts).content.html =~ ~s(class="lumis)
+    assert {:ok, _} = Astral.Builder.build(config)
+
+    for file <- ["dist/index.html", "dist/posts/example/index.html"] do
+      html = File.read!(path(file))
+      assert html =~ "<del>old</del>"
+      assert html =~ ~s(class="lumis)
+      assert html =~ "&lt;script&gt;"
+      refute html =~ "<script>"
+      assert Floki.text(Floki.find(Floki.parse_document!(html), "pre code")) =~ "{:ok,"
+    end
+  end
+
   test "renders HEEx expressions and attributes" do
     write("page.astral", """
     <time datetime={Date.to_iso8601(@date)}>
