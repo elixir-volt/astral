@@ -8,17 +8,9 @@ defmodule Astral.HMRClient do
   @doc "Inject the Volt HMR client into HTML."
   @spec inject(String.t()) :: String.t()
   def inject(html) do
-    case Floki.parse_document(html) do
-      {:ok, document} -> inject_document(document, html)
-      {:error, _reason} -> append_script(html)
-    end
-  end
-
-  defp inject_document(document, original) do
-    case inject_nodes(document) do
-      {document, true} -> Floki.raw_html(document)
-      {_document, false} -> append_script(original)
-    end
+    document = html |> LazyHTML.from_document() |> LazyHTML.to_tree()
+    {document, _injected?} = inject_nodes(document)
+    "<!DOCTYPE html>" <> LazyHTML.Tree.to_html(document)
   end
 
   defp inject_nodes(nodes) when is_list(nodes) do
@@ -38,8 +30,4 @@ defmodule Astral.HMRClient do
   end
 
   defp inject_node(node), do: {node, false}
-
-  defp append_script(html) do
-    html <> Floki.raw_html([@script])
-  end
 end
