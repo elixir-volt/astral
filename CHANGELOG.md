@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Fixed
+
+- Render development error pages for exceptions raised while rendering `.astral` pages, layouts, and components instead of crashing the request with an empty 500. Error pages show the failing source file and line with an excerpt and include the Volt HMR client, so they reload once the file is fixed.
+- Report the component's own `.astral` file in stacktraces instead of the page or layout that rendered it.
+
 ## 0.3.2 - 2026-09-16
 
 ### Added

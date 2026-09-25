@@ -273,6 +273,37 @@ defmodule Astral.DevServerTest do
     assert get_resp_header(conn, "content-type") |> hd() =~ "text/html"
   end
 
+  test "renders component exceptions with source location and HMR client" do
+    write("components/meta.astral", """
+    ---
+    assigns = assign(assigns, :sources, assigns.entry.sources)
+    ---
+    <p>{@sources}</p>
+    """)
+
+    write("pages/broken.astral", """
+    <.meta entry={%{}} />
+    """)
+
+    conn = call_dev_server("/broken/")
+
+    assert conn.status == 500
+    assert conn.resp_body =~ "KeyError"
+    assert conn.resp_body =~ "key :sources not found"
+    assert conn.resp_body =~ "components/meta.astral:2"
+    assert conn.resp_body =~ "<mark>"
+    assert conn.resp_body =~ "/@volt/client.js"
+
+    write("pages/broken.astral", """
+    <.meta entry={%{sources: "fixed"}} />
+    """)
+
+    conn = call_dev_server("/broken/")
+
+    assert conn.status == 200
+    assert conn.resp_body =~ "fixed"
+  end
+
   test "serves custom 404 pages with 404 status" do
     write("pages/404.md", "# Not Found")
     write("layouts/default.html", "<main><%= @content %></main>")

@@ -102,6 +102,7 @@ defmodule Astral.Template do
     setup_ast = setup_ast(setup, source.path)
 
     quote line: line do
+      @file unquote(source.path)
       def unquote(function)(var!(assigns)) do
         var!(assigns) = Astral.Template.Context.scope_slots(var!(assigns))
 
