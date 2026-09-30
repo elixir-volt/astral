@@ -1,10 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.4.0 - 2026-09-30
 
-### Changed
+### Breaking changes
 
-- Require Volt 0.19, MDEx 0.14.1, and Lumis 0.10 for syntax highlighting. Lumis 0.10 installs each language's parser as its own `lumis_wasm_*` package; add one for every language your code fences use.
+- Require Volt 0.19. Lint `:plugins`, `:env`, and `:globals` in `config :volt, :lint` take string names, such as `plugins: ["typescript", "jsx-a11y"]`; see Volt's changelog.
+- Require MDEx 0.14.1 and Lumis 0.10 for syntax highlighting. Lumis 0.10 installs each language's parser as its own `lumis_wasm_*` package; add one for every language your code fences use.
 
 ### Fixed
 
