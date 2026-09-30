@@ -17,7 +17,13 @@ defmodule Astral.ErrorPage do
   def diagnostic(reason, opts \\ []) do
     root = Path.expand(Keyword.get(opts, :root, File.cwd!()))
     {message, stacktrace} = message(reason)
-    {file, line} = location(stacktrace, root)
+
+    # A syntax or compile error's stack is the loader's, not the site's.
+    {{file, line}, stacktrace} =
+      case exception_location(reason, root) do
+        nil -> {location(stacktrace, root), stacktrace}
+        location -> {location, []}
+      end
 
     %{
       severity: :error,
@@ -81,6 +87,13 @@ defmodule Astral.ErrorPage do
     do: {"Invalid frontmatter: expected YAML to decode to a map, got: #{inspect(value)}", []}
 
   defp message(reason), do: {"Astral failed to render this route: #{inspect(reason)}", []}
+
+  # Syntax and compile errors carry their location rather than a stack frame.
+  defp exception_location({:exception, %{file: file, line: line}, _stacktrace}, root)
+       when is_binary(file) and is_integer(line) and line > 0,
+       do: source_location([file: file, line: line], root)
+
+  defp exception_location(_reason, _root), do: nil
 
   # The first stack frame in a site source file, outside dependencies.
   defp location(stacktrace, root) do
