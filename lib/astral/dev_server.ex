@@ -193,7 +193,12 @@ defmodule Astral.DevServer do
 
   defp server_error(conn, reason, config) do
     diagnostic = Astral.ErrorPage.diagnostic(reason, root: config.root)
-    Volt.HMR.error(@error_key, diagnostic, session: conn.private.astral_volt_session)
+
+    Volt.HMR.error(@error_key, diagnostic,
+      session: conn.private.astral_volt_session,
+      title: "Render error"
+    )
+
     html = diagnostic |> Astral.ErrorPage.render() |> Astral.HMRClient.inject()
 
     conn

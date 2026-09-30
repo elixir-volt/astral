@@ -294,6 +294,8 @@ defmodule Astral.DevServerTest do
     assert [%{message: "** (KeyError) key :sources not found" <> _, line: 2, file: file} = error] =
              Volt.HMR.Errors.list(:default)
 
+    assert error.title == "Render error"
+
     assert String.ends_with?(file, "components/meta.astral")
     assert error.frame =~ "> 2 | assigns = assign(assigns, :sources, assigns.entry.sources)"
     assert error.stack =~ "components/meta.astral:2"
