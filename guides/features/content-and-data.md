@@ -41,8 +41,16 @@ collection entries, including content used by feeds. Astral retains its YAML
 frontmatter delimiter and heading ID convention, and enables HEEx in the final
 page rendering pass. Existing sites keep their current defaults.
 
-For server-rendered syntax highlighting, add `{:lumis, "~> 0.8"}` to your site's
-Mix dependencies and select the native highlighter in `config/config.exs`:
+For server-rendered syntax highlighting, add Lumis and a parser package for each
+language your code fences use to your site's Mix dependencies:
+
+```elixir
+{:lumis, "~> 0.10"},
+{:lumis_wasm_elixir, "~> 0.26"},
+{:lumis_wasm_bundle_web, "~> 0.1"}
+```
+
+Then select the native highlighter in `config/config.exs`:
 
 ```elixir
 config :mdex_native, syntax_highlighter: :lumis
@@ -64,8 +72,9 @@ markdown syntax_highlight: [
 Use language-tagged code fences such as `elixir` or `sql`. The generated HTML
 needs no browser highlighter. The dual-theme formatter follows CSS `color-scheme`;
 set it to `light dark` for the system preference or explicitly to `light`/`dark`
-for a site toggle. Lumis loads language parsers on demand; see its
-[deployment guide](https://hexdocs.pm/lumis/deployment.html) for offline builds.
+for a site toggle. A fence in a language without an installed parser renders as
+plain text; the [language catalog](https://docs.lumis.sh/reference/languages) lists
+every package, and bundles such as `lumis_wasm_bundle_web` install a set at once.
 
 If MDEx Native was already compiled with another highlighter, run
 `mix deps.clean mdex_native --build` before rebuilding (also in `MIX_ENV=test`

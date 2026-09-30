@@ -193,7 +193,7 @@ if Code.ensure_loaded?(Igniter) do
         {:code,
          Sourceror.parse_string!("""
          [
-           plugins: [:typescript],
+           plugins: ["typescript"],
            tsgolint: System.find_executable("tsgolint"),
            rules: %{
              "correctness" => :deny,

@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Changed
+
+- Require Volt 0.19, MDEx 0.14.1, and Lumis 0.10 for syntax highlighting. Lumis 0.10 installs each language's parser as its own `lumis_wasm_*` package; add one for every language your code fences use.
+
+### Fixed
+
+- Show development render errors in Volt's error overlay instead of crashing the request with an empty 500. Exceptions raised while rendering `.astral` pages, layouts, and components are reported with `Volt.HMR.error/3` with their source file, line, frame, and stacktrace, and the overlay clears once the page renders again. The error page keeps the error as plain text for clients without JavaScript.
+- Report the component's own `.astral` file in stacktraces instead of the page or layout that rendered it.
+
 ## 0.3.2 - 2026-09-16
 
 ### Added

@@ -96,7 +96,7 @@ Configure linting in `config/config.exs`:
 
 ```elixir
 config :volt, :lint,
-  plugins: [:typescript, :react],
+  plugins: ["typescript", "react"],
   tsgolint: "node_modules/.bin/tsgolint",
   rules: %{
     "correctness" => :deny,

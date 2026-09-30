@@ -15,7 +15,7 @@ config :volt, :format,
   arrow_parens: :always
 
 config :volt, :lint,
-  plugins: [:typescript, :react, :jsx_a11y],
+  plugins: ["typescript", "react", "jsx-a11y"],
   rules: %{
     "no-unused-expressions" => :allow,
     "typescript/no-floating-promises" => :deny

@@ -273,6 +273,44 @@ defmodule Astral.DevServerTest do
     assert get_resp_header(conn, "content-type") |> hd() =~ "text/html"
   end
 
+  test "renders component exceptions with source location and HMR client" do
+    write("components/meta.astral", """
+    ---
+    assigns = assign(assigns, :sources, assigns.entry.sources)
+    ---
+    <p>{@sources}</p>
+    """)
+
+    write("pages/broken.astral", """
+    <.meta entry={%{}} />
+    """)
+
+    conn = call_dev_server("/broken/")
+
+    assert conn.status == 500
+    assert conn.resp_body =~ "components/meta.astral:2\n** (KeyError) key :sources not found"
+    assert conn.resp_body =~ "/@volt/client.js"
+
+    assert [%{message: "** (KeyError) key :sources not found" <> _, line: 2, file: file} = error] =
+             Volt.HMR.Errors.list(:default)
+
+    assert error.title == "Render error"
+
+    assert String.ends_with?(file, "components/meta.astral")
+    assert error.frame =~ "> 2 | assigns = assign(assigns, :sources, assigns.entry.sources)"
+    assert error.stack =~ "components/meta.astral:2"
+
+    write("pages/broken.astral", """
+    <.meta entry={%{sources: "fixed"}} />
+    """)
+
+    conn = call_dev_server("/broken/")
+
+    assert conn.status == 200
+    assert conn.resp_body =~ "fixed"
+    assert Volt.HMR.Errors.list(:default) == []
+  end
+
   test "serves custom 404 pages with 404 status" do
     write("pages/404.md", "# Not Found")
     write("layouts/default.html", "<main><%= @content %></main>")

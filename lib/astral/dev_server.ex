@@ -37,9 +37,14 @@ defmodule Astral.DevServer do
     }
   end
 
+  # Render errors are reported to Volt under one key per site, so the latest render
+  # decides what the overlay shows.
+  @error_key "astral"
+
   @impl true
   def call(conn, state) do
     conn
+    |> put_private(:astral_volt_session, state.volt.session)
     |> Volt.DevServer.call(state.volt)
     |> maybe_serve_astral(state.config)
   end
@@ -56,6 +61,10 @@ defmodule Astral.DevServer do
        when method in ["GET", "HEAD"] do
     serve_image(conn, config) || serve_public(conn, config) || serve_page(conn, config) ||
       serve_route(conn, config) || not_found(conn)
+  rescue
+    # The dev server is the error boundary: any render failure becomes an error page.
+    # reach:disable-next-line bare_rescue
+    exception -> server_error(conn, {:exception, exception, __STACKTRACE__}, config)
   end
 
   defp maybe_serve_astral(conn, _config) do
@@ -98,6 +107,7 @@ defmodule Astral.DevServer do
       try do
         case Astral.Renderer.render_page(site, page) do
           {:ok, html} ->
+            Volt.HMR.clear_error(@error_key, session: conn.private.astral_volt_session)
             html = Astral.HMRClient.inject(html)
 
             conn
@@ -107,7 +117,7 @@ defmodule Astral.DevServer do
             |> halt()
 
           {:error, reason} ->
-            server_error(conn, reason)
+            server_error(conn, reason, config)
         end
       after
         Astral.Image.Registry.stop()
@@ -115,7 +125,7 @@ defmodule Astral.DevServer do
       end
     else
       nil -> nil
-      {:error, reason} -> server_error(conn, reason)
+      {:error, reason} -> server_error(conn, reason, config)
     end
   end
 
@@ -158,7 +168,7 @@ defmodule Astral.DevServer do
             |> halt()
 
           {:error, reason} ->
-            server_error(conn, reason)
+            server_error(conn, reason, config)
 
           nil ->
             nil
@@ -169,7 +179,7 @@ defmodule Astral.DevServer do
       end
     else
       nil -> nil
-      {:error, reason} -> server_error(conn, reason)
+      {:error, reason} -> server_error(conn, reason, config)
     end
   end
 
@@ -181,10 +191,20 @@ defmodule Astral.DevServer do
     Enum.reduce(headers, conn, fn {key, value}, conn -> put_resp_header(conn, key, value) end)
   end
 
-  defp server_error(conn, reason) do
+  defp server_error(conn, reason, config) do
+    diagnostic = Astral.ErrorPage.diagnostic(reason, root: config.root)
+
+    Volt.HMR.error(@error_key, diagnostic,
+      session: conn.private.astral_volt_session,
+      title: "Render error"
+    )
+
+    html = diagnostic |> Astral.ErrorPage.render() |> Astral.HMRClient.inject()
+
     conn
     |> put_resp_content_type("text/html")
-    |> send_resp(500, Astral.ErrorPage.render(reason))
+    |> put_resp_header("cache-control", "no-cache, no-store, must-revalidate")
+    |> send_resp(500, html)
     |> halt()
   end
 
