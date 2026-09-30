@@ -113,7 +113,7 @@ defmodule Mix.Tasks.Astral.InstallTest do
       assert content =~ "config :volt"
       assert content =~ "format: ["
       assert content =~ "lint: ["
-      assert content =~ "plugins: [:typescript]"
+      assert content =~ ~s(plugins: ["typescript"])
     end)
   end
 

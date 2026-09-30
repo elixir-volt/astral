@@ -37,9 +37,14 @@ defmodule Astral.DevServer do
     }
   end
 
+  # Render errors are reported to Volt under one key per site, so the latest render
+  # decides what the overlay shows.
+  @error_key "astral"
+
   @impl true
   def call(conn, state) do
     conn
+    |> put_private(:astral_volt_session, state.volt.session)
     |> Volt.DevServer.call(state.volt)
     |> maybe_serve_astral(state.config)
   end
@@ -102,6 +107,7 @@ defmodule Astral.DevServer do
       try do
         case Astral.Renderer.render_page(site, page) do
           {:ok, html} ->
+            Volt.HMR.clear_error(@error_key, session: conn.private.astral_volt_session)
             html = Astral.HMRClient.inject(html)
 
             conn
@@ -186,10 +192,9 @@ defmodule Astral.DevServer do
   end
 
   defp server_error(conn, reason, config) do
-    html =
-      reason
-      |> Astral.ErrorPage.render(root: config.root)
-      |> Astral.HMRClient.inject()
+    diagnostic = Astral.ErrorPage.diagnostic(reason, root: config.root)
+    Volt.HMR.error(@error_key, diagnostic, session: conn.private.astral_volt_session)
+    html = diagnostic |> Astral.ErrorPage.render() |> Astral.HMRClient.inject()
 
     conn
     |> put_resp_content_type("text/html")

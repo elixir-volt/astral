@@ -288,11 +288,15 @@ defmodule Astral.DevServerTest do
     conn = call_dev_server("/broken/")
 
     assert conn.status == 500
-    assert conn.resp_body =~ "KeyError"
-    assert conn.resp_body =~ "key :sources not found"
-    assert conn.resp_body =~ "components/meta.astral:2"
-    assert conn.resp_body =~ "<mark>"
+    assert conn.resp_body =~ "components/meta.astral:2\n** (KeyError) key :sources not found"
     assert conn.resp_body =~ "/@volt/client.js"
+
+    assert [%{message: "** (KeyError) key :sources not found" <> _, line: 2, file: file} = error] =
+             Volt.HMR.Errors.list(:default)
+
+    assert String.ends_with?(file, "components/meta.astral")
+    assert error.frame =~ "> 2 | assigns = assign(assigns, :sources, assigns.entry.sources)"
+    assert error.stack =~ "components/meta.astral:2"
 
     write("pages/broken.astral", """
     <.meta entry={%{sources: "fixed"}} />
@@ -302,6 +306,7 @@ defmodule Astral.DevServerTest do
 
     assert conn.status == 200
     assert conn.resp_body =~ "fixed"
+    assert Volt.HMR.Errors.list(:default) == []
   end
 
   test "serves custom 404 pages with 404 status" do

@@ -40,9 +40,9 @@ defmodule Astral.MixProject do
 
   defp deps do
     [
-      {:volt, "~> 0.18.0"},
-      {:mdex, "~> 0.13"},
-      {:lumis, "~> 0.8", optional: true},
+      {:volt, "~> 0.19.0"},
+      {:mdex, "~> 0.14.1"},
+      {:lumis, "~> 0.10", optional: true},
       {:yaml_elixir, "~> 2.12"},
       {:json_spec, "~> 1.1"},
       {:jsv, "~> 0.8"},
