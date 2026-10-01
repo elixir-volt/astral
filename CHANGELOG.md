@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.5.1 - 2026-10-01
+
+### Fixed
+
+- An image source rewritten in place while `mix astral.dev` runs now produces variants of its new pixels. libvips cached the decoded file by name, so the variant got a new name from the new content hash but kept the old pixels, and a later build copied that stale variant from the image cache. Sources are now decoded from the bytes that were hashed.
 
 ### Documentation
 

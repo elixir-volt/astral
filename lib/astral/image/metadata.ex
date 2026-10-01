@@ -16,9 +16,9 @@ defmodule Astral.Image.Metadata do
   @doc "Read image dimensions, format, and content hash from a source file."
   @spec read(String.t()) :: {:ok, t()} | {:error, term()}
   def read(path) do
-    with {:ok, image} <- Image.open(path),
-         {width, height, _bands} <- Image.shape(image),
-         {:ok, binary} <- File.read(path) do
+    with {:ok, binary} <- File.read(path),
+         {:ok, image} <- Image.from_binary(binary),
+         {width, height, _bands} <- Image.shape(image) do
       {:ok,
        %__MODULE__{
          path: path,

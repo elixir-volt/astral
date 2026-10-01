@@ -1,0 +1,568 @@
+{
+  "lockfileVersion": 1,
+  "packages": {
+    "@babel/helper-string-parser": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-Pb5ijPrZ89GDH8223L4UP8i6QApWxs04RbPQJTeWDV0/keR2E36MeKnyr6LYmUUvqRRI+Iv87SuF1W6ErINzYw==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@babel/helper-string-parser/-/helper-string-parser-7.29.7.tgz",
+      "version": "7.29.7"
+    },
+    "@babel/helper-validator-identifier": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-7.29.7.tgz",
+      "version": "7.29.7"
+    },
+    "@babel/parser": {
+      "dependencies": {
+        "@babel/types": "^7.29.8"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-CjXrNHTnvqBVqHgdBysY3vk2T8tpJHb5/RMeHJBTyVa9xgugCB0CJTx/3oO8RV2QRQP391RWpB7D6hLjm8V9uA==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@babel/parser/-/parser-7.29.9.tgz",
+      "version": "7.29.9"
+    },
+    "@babel/types": {
+      "dependencies": {
+        "@babel/helper-string-parser": "^7.29.7",
+        "@babel/helper-validator-identifier": "^7.29.7"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-Vj1jF3cPfxg7OAfoI7QnVKLoILlm2JF9pnVHrX8qx7AHMiYWT+NDAA7jChlNgRS4WTLc/fD1lXLmPixluj+3Gg==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@babel/types/-/types-7.29.8.tgz",
+      "version": "7.29.8"
+    },
+    "@jridgewell/gen-mapping": {
+      "dependencies": {
+        "@jridgewell/sourcemap-codec": "^1.5.0",
+        "@jridgewell/trace-mapping": "^0.3.24"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@jridgewell/gen-mapping/-/gen-mapping-0.3.13.tgz",
+      "version": "0.3.13"
+    },
+    "@jridgewell/remapping": {
+      "dependencies": {
+        "@jridgewell/gen-mapping": "^0.3.5",
+        "@jridgewell/trace-mapping": "^0.3.24"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-LI9u/+laYG4Ds1TDKSJW2YPrIlcVYOwi2fUC6xB43lueCjgxV4lffOCZCtYFiH6TNOX+tQKXx97T4IKHbhyHEQ==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@jridgewell/remapping/-/remapping-2.3.5.tgz",
+      "version": "2.3.5"
+    },
+    "@jridgewell/resolve-uri": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@jridgewell/resolve-uri/-/resolve-uri-3.1.2.tgz",
+      "version": "3.1.2"
+    },
+    "@jridgewell/sourcemap-codec": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.6.0.tgz",
+      "version": "1.6.0"
+    },
+    "@jridgewell/trace-mapping": {
+      "dependencies": {
+        "@jridgewell/resolve-uri": "^3.1.0",
+        "@jridgewell/sourcemap-codec": "^1.4.14"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@jridgewell/trace-mapping/-/trace-mapping-0.3.31.tgz",
+      "version": "0.3.31"
+    },
+    "@oxlint-tsgolint/darwin-arm64": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-4150Lpgc1YM09GcjA6GSrra1JoPjC7aOpfywLjWEY4vW0Sd1qKzqHF1WRaiw0/qUZ40OATYdv3aRd7ipPkWQbw==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@oxlint-tsgolint/darwin-arm64/-/darwin-arm64-0.22.1.tgz",
+      "version": "0.22.1"
+    },
+    "@oxlint-tsgolint/darwin-x64": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-vFWcPWYOgZs4HWcgS1EjUZg33NLcNfEYU49KGImmCfZWkflENrmBYV4HN/C0YeAPum6ZZ/goPSvQrB/cOD+NfA==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@oxlint-tsgolint/darwin-x64/-/darwin-x64-0.22.1.tgz",
+      "version": "0.22.1"
+    },
+    "@oxlint-tsgolint/linux-arm64": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-6LiUpP0Zir3+29FvBm7Y28q/dBjSHqTZ5MhG1Ckw4fGhI4cAvbcwXaKvbjx1TP7rRmBNOoq/M5xdpHjTb+GAew==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@oxlint-tsgolint/linux-arm64/-/linux-arm64-0.22.1.tgz",
+      "version": "0.22.1"
+    },
+    "@oxlint-tsgolint/linux-x64": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-fuX1hEQfpHauUbXADsfqVhRzrUrGabzGXbj5wsp2vKhV5uk/Rze8Mba9GdjFGECzvXudMGqHqxB4r6jGRdhxVA==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@oxlint-tsgolint/linux-x64/-/linux-x64-0.22.1.tgz",
+      "version": "0.22.1"
+    },
+    "@oxlint-tsgolint/win32-arm64": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-8SZidAj+jrbZf9ZjBEYW0tiNZ+KasqB2zgW26qdiPpQSF/DzURnPmXz651IeA9YsmbVdHGIooEHUmev6QJdquA==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@oxlint-tsgolint/win32-arm64/-/win32-arm64-0.22.1.tgz",
+      "version": "0.22.1"
+    },
+    "@oxlint-tsgolint/win32-x64": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-QweSk9H5lFh5Y+WUf2Kq/OAN88V6+62ZwGhP38gqdRotI90luXSMkruFTj7Q2rYrzH4ZVNaSqx7NY8JpSfIzqg==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@oxlint-tsgolint/win32-x64/-/win32-x64-0.22.1.tgz",
+      "version": "0.22.1"
+    },
+    "@sveltejs/acorn-typescript": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-wgKggnhZVL9Bfx1OaKKTrYY9BFRk6C8UAkQNUcIv1+llzYrIqy+RZm5HPKzn0NpEBvTVhTqB4kQyllZywsRBRQ==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@sveltejs/acorn-typescript/-/acorn-typescript-1.0.13.tgz",
+      "version": "1.0.13"
+    },
+    "@types/estree": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@types/estree/-/estree-1.0.9.tgz",
+      "version": "1.0.9"
+    },
+    "@types/react": {
+      "dependencies": {
+        "csstype": "^3.2.2"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-N0rFCuH9YoxG9/m61l9MfpJKfmLOVU0em7ipIz6TRgSSkvReLB9vL85GB+yr8Bs5leqpvg96JSwF4ZS1s4viQg==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@types/react/-/react-19.3.0.tgz",
+      "version": "19.3.0"
+    },
+    "@types/react-dom": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-ZI7bU42mZXXKHn/qNLEw2IrbiINU7X5+vfgdixBHkCNpYWXjKgfQ/P+uyGb5CjOLB9UcnTeg3rylQtV2hym44Q==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@types/react-dom/-/react-dom-19.3.0.tgz",
+      "version": "19.3.0"
+    },
+    "@vue/compiler-core": {
+      "dependencies": {
+        "@babel/parser": "^7.29.8",
+        "@vue/shared": "3.5.43",
+        "entities": "^7.0.1",
+        "estree-walker": "^2.0.2",
+        "source-map-js": "^1.2.1"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-zdiLhnbe1QQqgDT8xZMpNmyqZ3qlI+/Q/FHQco57Kwl/b05HhCzN6eVGN9QU9rbga4CrS0H5SYY8VGHZCt/1Hg==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@vue/compiler-core/-/compiler-core-3.5.43.tgz",
+      "version": "3.5.43"
+    },
+    "@vue/compiler-dom": {
+      "dependencies": {
+        "@vue/compiler-core": "3.5.43",
+        "@vue/shared": "3.5.43"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-PEZoAk3NQmsn/ejMzSOCyTYqwGqczrWm70PuhBKjjv1+TCoQAaO/zOqNwjV+honlNstT5ILxtc+8r8UUfj+iEQ==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@vue/compiler-dom/-/compiler-dom-3.5.43.tgz",
+      "version": "3.5.43"
+    },
+    "@vue/compiler-sfc": {
+      "dependencies": {
+        "@babel/parser": "^7.29.8",
+        "@vue/compiler-core": "3.5.43",
+        "@vue/compiler-dom": "3.5.43",
+        "@vue/compiler-ssr": "3.5.43",
+        "@vue/shared": "3.5.43",
+        "estree-walker": "^2.0.2",
+        "magic-string": "^0.30.21",
+        "postcss": "^8.5.28",
+        "source-map-js": "^1.2.1"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-FCbrG3XNCRl+js3huuKx4IVHBLTvMkJhVepjbxSPu1gn4yWLaYtGNQdjJGZaMytXB6qb76qQDDmDSLy/vkmleQ==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@vue/compiler-sfc/-/compiler-sfc-3.5.43.tgz",
+      "version": "3.5.43"
+    },
+    "@vue/compiler-ssr": {
+      "dependencies": {
+        "@vue/compiler-dom": "3.5.43",
+        "@vue/shared": "3.5.43"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-GF62orf7KiJX9RqrHNGrYBudsQGD0OhJ5nDs90O8UiDuS40+YMYomiXu6w6EuvtXuRDc3MSNis3EaaSKAVSWpg==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@vue/compiler-ssr/-/compiler-ssr-3.5.43.tgz",
+      "version": "3.5.43"
+    },
+    "@vue/reactivity": {
+      "dependencies": {
+        "@vue/shared": "3.5.43"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-G/c9GyOZNI2jVaaS6OX1EF1SSFSv7H0ERqNTl4+DTFMlZmB5eVAB53aLQNam/7NL2NPtaDD7RdVrzf8uJzMuOA==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@vue/reactivity/-/reactivity-3.5.43.tgz",
+      "version": "3.5.43"
+    },
+    "@vue/runtime-core": {
+      "dependencies": {
+        "@vue/reactivity": "3.5.43",
+        "@vue/shared": "3.5.43"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-hU6U6VnVhBGQDpvlnnDlIB8ZGJBiOcgk2lh/0InltHiz3D8oSkluvuvY+do1G2H3+udeKFsmaBlgVYP7gXQzEw==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@vue/runtime-core/-/runtime-core-3.5.43.tgz",
+      "version": "3.5.43"
+    },
+    "@vue/runtime-dom": {
+      "dependencies": {
+        "@vue/reactivity": "3.5.43",
+        "@vue/runtime-core": "3.5.43",
+        "@vue/shared": "3.5.43",
+        "csstype": "^3.2.3"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-Bb2Jc0YjjJdMt1SJmb9b2L/IWd3I8lIT9x9eS/xvvP9CiVgna0ffua74xKRmt4/uSJ+0r4iN8ex1jrqkhQGWQw==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@vue/runtime-dom/-/runtime-dom-3.5.43.tgz",
+      "version": "3.5.43"
+    },
+    "@vue/server-renderer": {
+      "dependencies": {
+        "@vue/compiler-ssr": "3.5.43",
+        "@vue/runtime-dom": "3.5.43",
+        "@vue/shared": "3.5.43"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-l2Ygjv9NehV94PSBxNWsAHC0j/eIIKbn92mBuWXAPGLnn6HfJ6MH5ubsd+Nk0YoZ5FRuxWI1P2VSoh+dbPQhCQ==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@vue/server-renderer/-/server-renderer-3.5.43.tgz",
+      "version": "3.5.43"
+    },
+    "@vue/shared": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-uksS7YGMR5NZyr4JNq0Rp+QyLns0ueaz20KwzIPW9R0LH1Vnt4E+XUM29PNseEbf1www2gOuhuDi5AKOIXag9Q==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/@vue/shared/-/shared-3.5.43.tgz",
+      "version": "3.5.43"
+    },
+    "acorn": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-lGq+9yr1/GuAWaVYIHRjvvySG5/4VfKIvC8EWxStPdcDh/Ka7FG3twP6v4d5BkravUilhIAsG4Qj83t02LWUPQ==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/acorn/-/acorn-8.18.0.tgz",
+      "version": "8.18.0"
+    },
+    "aria-query": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-Z/ZeOgVl7bcSYZ/u/rh0fOpvEpq//LZmdbkXyc7syVzjPAhfOa9ebsdTSjEBDU4vs5nC98Kfduj1uFo0qyET3g==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/aria-query/-/aria-query-5.3.1.tgz",
+      "version": "5.3.1"
+    },
+    "axobject-query": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/axobject-query/-/axobject-query-4.1.0.tgz",
+      "version": "4.1.0"
+    },
+    "clsx": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/clsx/-/clsx-2.1.1.tgz",
+      "version": "2.1.1"
+    },
+    "csstype": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/csstype/-/csstype-3.2.3.tgz",
+      "version": "3.2.3"
+    },
+    "devalue": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-sPAT4pztbu6586/hrhOnMKS17IJrvg12mXiSPSS3W5qDeN2RGgvZ0diZCm31dBbnevfVmujNO3IM2wrS4Y2Rhg==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/devalue/-/devalue-5.9.4.tgz",
+      "version": "5.9.4"
+    },
+    "entities": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-TWrgLOFUQTH994YUyl1yT4uyavY5nNB5muff+RtWaqNVCAK408b5ZnnbNAUEWLTCpum9w6arT70i1XdQ4UeOPA==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/entities/-/entities-7.0.1.tgz",
+      "version": "7.0.1"
+    },
+    "esm-env": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-Epxrv+Nr/CaL4ZcFGPJIYLWFom+YeV1DqMLHJoEd9SYRxNbaFruBwfEX/kkHUJf55j2+TUbmDcmuilbP1TmXHA==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/esm-env/-/esm-env-1.2.2.tgz",
+      "version": "1.2.2"
+    },
+    "esrap": {
+      "dependencies": {
+        "@jridgewell/sourcemap-codec": "^1.4.15"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-CQPcneEHw/czj32uwQC52nYnax8H4SXt25FCM+LIwGZ49cMIxpOj3bP8wmzcI+Z0HIy5KkClaPhRLfCySzwHPA==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/esrap/-/esrap-2.4.0.tgz",
+      "version": "2.4.0"
+    },
+    "estree-walker": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/estree-walker/-/estree-walker-2.0.2.tgz",
+      "version": "2.0.2"
+    },
+    "is-reference": {
+      "dependencies": {
+        "@types/estree": "^1.0.6"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-ixkJoqQvAP88E6wLydLGGqCJsrFUnqoH6HnaczB8XmDH1oaWU+xxdptvikTgaEhtZ53Ky6YXiBuUI2WXLMCwjw==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/is-reference/-/is-reference-3.0.3.tgz",
+      "version": "3.0.3"
+    },
+    "locate-character": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-SW13ws7BjaeJ6p7Q6CO2nchbYEc3X3J6WrmTTDto7yMPqVSZTUyY5Tjbid+Ab8gLnATtygYtiDIJGQRRn2ZOiA==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/locate-character/-/locate-character-3.0.0.tgz",
+      "version": "3.0.0"
+    },
+    "magic-string": {
+      "dependencies": {
+        "@jridgewell/sourcemap-codec": "^1.5.5"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/magic-string/-/magic-string-0.30.21.tgz",
+      "version": "0.30.21"
+    },
+    "nanoid": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-Y2tUNy4ouw6tq5oDSKeQYGOyhkUBhNOcGV/02KC+6kd9eDGqdZd++mjMiIDilrBYvjEnCYvVtsuHCuP+okSfug==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/nanoid/-/nanoid-3.3.19.tgz",
+      "version": "3.3.19"
+    },
+    "oxlint-tsgolint": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-YUSGSLUnoolsu8gxISEDio3q1rtsCozwfOzASUn3DT2mR2EeQ93uEEnen7s+6LpF+lyTQFln1pQfqwBh/fsVEg==",
+      "optional_dependencies": {
+        "@oxlint-tsgolint/darwin-arm64": "0.22.1",
+        "@oxlint-tsgolint/darwin-x64": "0.22.1",
+        "@oxlint-tsgolint/linux-arm64": "0.22.1",
+        "@oxlint-tsgolint/linux-x64": "0.22.1",
+        "@oxlint-tsgolint/win32-arm64": "0.22.1",
+        "@oxlint-tsgolint/win32-x64": "0.22.1"
+      },
+      "tarball": "https://registry.npmjs.org/oxlint-tsgolint/-/oxlint-tsgolint-0.22.1.tgz",
+      "version": "0.22.1"
+    },
+    "picocolors": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/picocolors/-/picocolors-1.1.1.tgz",
+      "version": "1.1.1"
+    },
+    "playwright": {
+      "dependencies": {
+        "playwright-core": "1.63.0"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-+7ziBLidS4NaNCdt57SUDT+wYmmd5fmiQejUic/kb+YsYSCPyOOE9sebzMjNmQrsnNpDJqd4WHvV/8lfKfUDUg==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/playwright/-/playwright-1.63.0.tgz",
+      "version": "1.63.0"
+    },
+    "playwright-core": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-rYCsBF/M5HjUch52bbtVONEFjv6Xu8sm8h72dNlR5bzIE1fvC/bxgspzkjSfU+MweEMmPM8KJebG6nnyxo5mCg==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/playwright-core/-/playwright-core-1.63.0.tgz",
+      "version": "1.63.0"
+    },
+    "postcss": {
+      "dependencies": {
+        "nanoid": "^3.3.18",
+        "picocolors": "^1.1.1",
+        "source-map-js": "^1.2.1"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-RRuzqDtt5Y9h3quz5hWhK+TPnsmVs6WwSU6LkJMeY4HstUEDuYTG8UJSdawMRzmzAtV+KEoG8N3Qg2qLy5vM/A==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/postcss/-/postcss-8.5.28.tgz",
+      "version": "8.5.28"
+    },
+    "react": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-E8LUcbtBWt20bbl2YoHfx4ZDBdxVTfOKtCZn9cDSJ4l6/nuoApcpIBcj47t2wZoVX8g2ZHuMHbiShgCR1T5Sog==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/react/-/react-19.3.0.tgz",
+      "version": "19.3.0"
+    },
+    "react-dom": {
+      "dependencies": {
+        "scheduler": "^0.28.0"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-JDk8dgif51OjFoDE70+OT9ICyYr+69HlmihNwp1+Nsfbna3t5sIiCa9ZJktDmQ4/1b/rn26hIAR2uYXDMr5r0Q==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/react-dom/-/react-dom-19.3.0.tgz",
+      "version": "19.3.0"
+    },
+    "scheduler": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-juorfCmIkIw8tT+p5BXSm6PJjQF/ycEYmKyzURCIt/RaZIhL+PulbQ9Yu2z1HdOJDdqDTlxA1+xKBmHXJsczAw==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/scheduler/-/scheduler-0.28.0.tgz",
+      "version": "0.28.0"
+    },
+    "seroval": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-rVQVWjjSvlINzaQPZH5JFqsqEsIWdTxY3iJZCnTL/5gQbXIRooVZKI60tVCkOVfzcRPejboxO2t0P89dg5mQaA==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/seroval/-/seroval-1.5.6.tgz",
+      "version": "1.5.6"
+    },
+    "seroval-plugins": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-HXuLAX2pu/UByPpaeo/TaMfvMIi+1QqIoPJYCcAtU8QkVNwgR6MPlGuCQTErV1JwraaMbYaWVIBX7mppzGLATQ==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/seroval-plugins/-/seroval-plugins-1.5.6.tgz",
+      "version": "1.5.6"
+    },
+    "solid-js": {
+      "dependencies": {
+        "csstype": "^3.1.0",
+        "seroval": "~1.5.4",
+        "seroval-plugins": "~1.5.4"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-EeiY2xfpZJqPLjXspVEKjAII4yv8NyG//NxZ3IpOFHdUNnnTyL0uJOeS9LWGvA7cFCz5y94cjFwYlmw5Luncsg==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/solid-js/-/solid-js-1.9.15.tgz",
+      "version": "1.9.15"
+    },
+    "source-map-js": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/source-map-js/-/source-map-js-1.2.2.tgz",
+      "version": "1.2.2"
+    },
+    "svelte": {
+      "dependencies": {
+        "@jridgewell/remapping": "^2.3.5",
+        "@jridgewell/sourcemap-codec": "^1.6.0",
+        "@sveltejs/acorn-typescript": "^1.0.13",
+        "@types/estree": "^1.0.9",
+        "acorn": "^8.18.0",
+        "aria-query": "5.3.1",
+        "axobject-query": "^4.1.0",
+        "clsx": "^2.1.1",
+        "devalue": "^5.9.2",
+        "esm-env": "^1.2.1",
+        "esrap": "^2.3.6",
+        "is-reference": "^3.0.3",
+        "locate-character": "^3.0.0",
+        "magic-string": "^0.30.11",
+        "zimmerframe": "^1.1.2"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-Uqj49lWKB+iSSnneuwiYYJ7MZgkB+eXr0LXBhv4uDuAkXqnWmq65Sxflfvp0Lc6MdKjMUxGaeOKWJqz5SNiVIA==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/svelte/-/svelte-5.57.1.tgz",
+      "version": "5.57.1"
+    },
+    "vue": {
+      "dependencies": {
+        "@vue/compiler-dom": "3.5.43",
+        "@vue/compiler-sfc": "3.5.43",
+        "@vue/runtime-dom": "3.5.43",
+        "@vue/server-renderer": "3.5.43",
+        "@vue/shared": "3.5.43"
+      },
+      "has_install_script": false,
+      "integrity": "sha512-o5qZoksdnjIKvW1srZ3ab7pcDNYAerBjRe54D0LBLfRdCYFrSgBHVXokMas35czQc0//lmx4/tuY4ZNQ+Rf2Ng==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/vue/-/vue-3.5.43.tgz",
+      "version": "3.5.43"
+    },
+    "zimmerframe": {
+      "dependencies": {},
+      "has_install_script": false,
+      "integrity": "sha512-msJxIvYDYcoNL+PJsu+7qmpDWsYmAxTY+2TNYXXF0hzBzBk0BMecOqDOG/EckUoKCuKwObfbugIl8QpqHDXeFA==",
+      "optional_dependencies": {},
+      "tarball": "https://registry.npmjs.org/zimmerframe/-/zimmerframe-1.1.5.tgz",
+      "version": "1.1.5"
+    }
+  },
+  "policy": {
+    "allow_registry_redirects": false,
+    "allowed_registries": [
+      "https://registry.npmjs.org"
+    ],
+    "block_exotic_subdeps": true,
+    "exotic_deps": []
+  }
+}
