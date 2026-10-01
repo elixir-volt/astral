@@ -80,6 +80,39 @@ If MDEx Native was already compiled with another highlighter, run
 `mix deps.clean mdex_native --build` before rebuilding (also in `MIX_ENV=test`
 when running tests).
 
+## Markdown plugins
+
+[MDEx plugins](https://hexdocs.pm/mdex/plugins.html) go in the same options, in any
+of the forms MDEx accepts:
+
+```elixir
+markdown plugins: [MDExGFM, {MDExMermaid, mermaid_version: "11"}]
+```
+
+A plugin is a module with `attach/2` that adds steps to the parsed document, so a
+site can write its own in `lib/`. This one wraps every blockquote in a
+`<div class="quote">`:
+
+```elixir
+defmodule MySite.Markdown.Quotes do
+  alias MDEx.Document
+
+  def attach(document, _options \\ []) do
+    Document.append_steps(document, wrap_quotes: &wrap_quotes/1)
+  end
+
+  defp wrap_quotes(document) do
+    Document.update_nodes(document, MDEx.BlockQuote, fn quote ->
+      %MDEx.BlockDirective{info: "quote", nodes: [quote]}
+    end)
+  end
+end
+```
+
+Plugins run on pages and collection entries while MDEx parses them, so they see
+Markdown images before Astral turns local ones into `<.image>` components, and
+the headings Astral collects for a table of contents include their changes.
+
 ## Components in Markdown
 
 Markdown pages and collection entries can use local `.astral` components through HEEx syntax:

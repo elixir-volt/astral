@@ -75,6 +75,25 @@ defmodule Astral.BuilderTest do
     def render_route(_route, _site), do: nil
   end
 
+  defmodule QuoteMarkdownPlugin do
+    alias MDEx.Document
+
+    def attach(document, options \\ []) do
+      document
+      |> Document.register_options([:quote_class])
+      |> Document.put_options(options)
+      |> Document.append_steps(mark_quotes: &mark_quotes/1)
+    end
+
+    defp mark_quotes(document) do
+      class = Document.get_option(document, :quote_class)
+
+      Document.update_nodes(document, MDEx.BlockQuote, fn quote ->
+        %MDEx.BlockDirective{info: class, nodes: [quote]}
+      end)
+    end
+  end
+
   defmodule UnsafeOutputPlugin do
     @behaviour Astral.Plugin
 
@@ -1227,6 +1246,39 @@ defmodule Astral.BuilderTest do
     assert read("dist/blog/hello/index.html") =~ "Hello Components"
     assert read("dist/blog/hello/index.html") =~ ~s(<aside class="callout">)
     assert read("dist/blog/hello/index.html") =~ "Rendered from Markdown."
+  end
+
+  test "runs MDEx plugins from the Markdown config on pages and collection entries" do
+    write("pages/index.md", "> A quoted page.")
+
+    write("content/posts/hello.md", ~S'''
+    ---
+    title: Hello Plugins
+    ---
+
+    > A quoted entry.
+    ''')
+
+    config =
+      Astral.Config.new(
+        root: tmp(),
+        layout: false,
+        markdown: [plugins: [{QuoteMarkdownPlugin, quote_class: "quoted"}]],
+        collections: [
+          [
+            name: :posts,
+            dir: "content/posts",
+            permalink: "/blog/:slug/",
+            schema: schema(%{required(:title) => String.t()})
+          ]
+        ]
+      )
+
+    assert {:ok, _result} = Astral.build(config)
+
+    for path <- ["dist/index.html", "dist/blog/hello/index.html"] do
+      assert read(path) =~ ~r{<div class="quoted">\s*<blockquote>}
+    end
   end
 
   test "discovers Ecto-style field schema collection entries" do
