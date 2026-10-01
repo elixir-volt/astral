@@ -6,6 +6,10 @@
 
 - `mix astral.dev` applies changes to `astral.config.exs` and the project's Elixir sources without a restart. A config change starts the server with the new config, and a source change recompiles the project. Open pages reload once the change is in. A broken config or a compile error shows in Volt's error overlay, titled "Config error" or "Compile error", and leaves the running server in place.
 
+### Changed
+
+- Require Volt 0.19.2, which accepts compiler diagnostic structs in its error overlay.
+
 ### Fixed
 
 - Locate syntax and compile errors in development at the file and line they carry, without the loader's stacktrace.

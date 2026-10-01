@@ -40,7 +40,7 @@ defmodule Astral.MixProject do
 
   defp deps do
     [
-      {:volt, "~> 0.19.0"},
+      {:volt, "~> 0.19.2"},
       {:file_system, "~> 1.0"},
       {:mdex, "~> 0.14.1"},
       {:lumis, "~> 0.10", optional: true},
