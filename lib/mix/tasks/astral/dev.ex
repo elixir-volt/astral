@@ -44,7 +44,8 @@ defmodule Mix.Tasks.Astral.Dev do
     [
       config: Keyword.get(parsed, :config, default_config()),
       host: Keyword.get(parsed, :host, "localhost"),
-      port: Keyword.get(parsed, :port, 4000)
+      port: Keyword.get(parsed, :port, 4000),
+      lib_dirs: Mix.Project.config()[:elixirc_paths] || ["lib"]
     ]
     |> Enum.reject(fn {_key, value} -> is_nil(value) end)
   end

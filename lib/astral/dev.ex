@@ -1,16 +1,35 @@
 defmodule Astral.Dev do
   @moduledoc """
   Starts the supervised Astral development server.
+
+  `Astral.Dev.Site` watches the config file and the Elixir source directories given
+  as `:config` and `:lib_dirs`. A config change restarts the server with the new
+  config, and an Elixir change recompiles the project, so both apply without
+  restarting `mix astral.dev`. Open pages reload once the change is in, and errors
+  show in Volt's error overlay.
   """
 
   @doc "Start Astral dev server, Volt asset server, and file watchers."
   @spec start_link(keyword()) :: Supervisor.on_start()
   def start_link(opts \\ []) do
-    dev_config = Astral.DevConfig.new(opts)
+    name = Keyword.get(opts, :name, Astral.Dev.Supervisor)
+    servers = Module.concat(name, Servers)
+
+    children = [
+      {DynamicSupervisor, name: servers, strategy: :one_for_one},
+      {Astral.Dev.Site, Keyword.put(opts, :servers, servers)}
+    ]
+
+    Supervisor.start_link(children, strategy: :rest_for_one, name: name)
+  end
+
+  @doc false
+  # The Volt session and HTTP server for one config, replaced when the config changes.
+  @spec start_server(Astral.DevConfig.t(), term(), keyword()) :: Supervisor.on_start()
+  def start_server(dev_config, session, opts) do
     config = dev_config.site
     File.mkdir_p!(config.assets)
 
-    session = {:astral, make_ref()}
     session_name = {:via, Registry, {Volt.Dev.WatcherRegistry, session}}
     dev_config = %{dev_config | volt_session: session_name}
     tailwind = Volt.Config.tailwind()
@@ -49,10 +68,7 @@ defmodule Astral.Dev do
        port: dev_config.port}
     ]
 
-    Supervisor.start_link(children,
-      strategy: :rest_for_one,
-      name: Keyword.get(opts, :name, Astral.Dev.Supervisor)
-    )
+    Supervisor.start_link(children, strategy: :rest_for_one)
   end
 
   defp existing_dirs(paths), do: Enum.filter(paths, &File.dir?/1)
