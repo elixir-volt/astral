@@ -27,12 +27,12 @@ Reference the asset entry from a layout:
 You can also place a `<style>` block directly in a `.astral` page, layout, or component:
 
 ```astral
-<style>
+<style :type={Astral.Style}>
   .hero { padding: 4rem; }
 </style>
 ```
 
-Astral extracts `.astral` `<style>` blocks into Volt embedded modules. They are browser assets, not server-rendered inline CSS.
+With `:type={Astral.Style}`, Astral extracts the block into a Volt embedded module, built as a browser asset. Without it, the `<style>` is rendered inline where it is written.
 
 Astral does **not** currently implement Astro-style scoped CSS, `is:global`, `:global()`, `class:list`, or `define:vars`. Use HEEx and CSS directly:
 
@@ -116,12 +116,12 @@ Syntax highlighting defaults remain a starter-template/product-polish item on th
 
 ## Client-side scripts
 
-Use `.astral` `<script>` blocks for page or component browser behavior:
+Use `.astral` `<script :type={Astral.Script}>` blocks for page or component browser behavior:
 
 ```astral
 <button data-confetti-button>Celebrate!</button>
 
-<script lang="ts">
+<script :type={Astral.Script} lang="ts">
   document.querySelectorAll("[data-confetti-button]").forEach((button) => {
     button.addEventListener("click", () => console.log("celebrate"));
   });
@@ -129,6 +129,19 @@ Use `.astral` `<script>` blocks for page or component browser behavior:
 ```
 
 Astral extracts these blocks into Volt embedded modules, so Volt handles TypeScript, imports, bundling, and dev-server behavior. Use standard DOM APIs and custom elements for static-site interactivity.
+
+A plain `<script>` is rendered where it is written and runs as soon as the browser reaches it. Use one for the rare script that has to run before the page paints, such as applying a stored color theme:
+
+```astral
+<script>
+  try {
+    const theme = localStorage.getItem("theme");
+    if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme;
+  } catch {}
+</script>
+```
+
+HEEx doesn't interpolate `{...}` inside `<script>` and `<style>`, so the code needs no escaping.
 
 Server-side assigns are not browser variables. Pass data through HTML attributes when JavaScript needs per-element values:
 

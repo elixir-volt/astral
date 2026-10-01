@@ -133,8 +133,8 @@ defmodule Astral.TemplateTest do
   test "extracts browser asset blocks with HEEx parser metadata" do
     source = """
     <.card>
-      <style>.card { color: red }</style>
-      <script lang="ts">const answer: number = 42</script>
+      <style :type={Astral.Style}>.card { color: red }</style>
+      <script :type={Astral.Script} lang="ts">const answer: number = 42</script>
     </.card>
     """
 
@@ -153,11 +153,13 @@ defmodule Astral.TemplateTest do
     assert script.source == "const answer: number = 42"
   end
 
-  test "keeps external script tags in the server template" do
+  test "keeps plain and external script and style tags in the server template" do
     source = """
     <head>
       <script type="module" src={Astral.asset_path(@site, "app.ts")}></script>
-      <script lang="ts">const answer: number = 42</script>
+      <script>document.documentElement.classList.add("js")</script>
+      <style>html { color: red }</style>
+      <script :type={Astral.Script} lang="ts">const answer: number = 42</script>
     </head>
     """
 
@@ -166,6 +168,8 @@ defmodule Astral.TemplateTest do
     assert result.source =~
              "<script type=\"module\" src={Astral.asset_path(@site, \"app.ts\")}></script>"
 
+    assert result.source =~ ~s|<script>document.documentElement.classList.add("js")</script>|
+    assert result.source =~ "<style>html { color: red }</style>"
     refute result.source =~ "const answer"
 
     assert [script] = result.modules

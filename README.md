@@ -85,11 +85,11 @@ Local components and slots use HEEx conventions:
 </article>
 ```
 
-Browser assets inside `.astral` templates are extracted into Volt's asset graph:
+Mark a `<style>` or `<script>` with `:type` to build it with Volt, with imports, TypeScript, and hot reloading. Without it, a block is rendered where it is written, as in any HEEx template:
 
 ```astral
-<style>.hero { padding: 4rem; }</style>
-<script lang="ts">console.log("ready")</script>
+<style :type={Astral.Style}>.hero { padding: 4rem; }</style>
+<script :type={Astral.Script} lang="ts">console.log("ready")</script>
 ```
 
 Markdown can use the same local components:

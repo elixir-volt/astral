@@ -2,10 +2,11 @@ defmodule Astral.Template.Assets do
   @moduledoc """
   Extracts Volt-managed browser assets from `.astral` templates.
 
-  The extraction is backed by Phoenix's HEEx parser so ordinary HEEx syntax,
-  local components, directives, and slot syntax are understood before Astral
-  removes top-level or nested `<style>` and `<script>` blocks from the server
-  template source.
+  As in any HEEx template, a plain `<script>` or `<style>` is rendered where it is
+  written. Blocks marked with `:type={Astral.Script}` or `:type={Astral.Style}` are
+  removed from the server template and become Volt modules. The extraction is
+  backed by Phoenix's HEEx parser, so ordinary HEEx syntax, local components,
+  directives, and slots are understood.
   """
 
   alias Volt.Plugin.EmbeddedModule
@@ -70,16 +71,11 @@ defmodule Astral.Template.Assets do
     Enum.flat_map(nodes, &collect_block(&1, source))
   end
 
-  defp collect_block({:block, :tag, "script", attrs, _children, open_meta, close_meta}, source) do
-    if attr_present?(attrs, "src") do
-      []
-    else
-      [asset_block("script", attrs, source, open_meta, close_meta)]
-    end
-  end
-
-  defp collect_block({:block, :tag, "style", attrs, _children, open_meta, close_meta}, source) do
-    [asset_block("style", attrs, source, open_meta, close_meta)]
+  defp collect_block({:block, :tag, tag, attrs, _children, open_meta, close_meta}, source)
+       when tag in ["script", "style"] do
+    if macro_type(attrs) == asset_type(tag),
+      do: [asset_block(tag, attrs, source, open_meta, close_meta)],
+      else: []
   end
 
   defp collect_block({:block, _type, _name, _attrs, children, _open_meta, _close_meta}, source) do
@@ -147,6 +143,19 @@ defmodule Astral.Template.Assets do
     |> Kernel.+(column - 1)
   end
 
+  defp asset_type("script"), do: Astral.Script
+  defp asset_type("style"), do: Astral.Style
+
+  defp macro_type(attrs) do
+    Enum.find_value(attrs, fn
+      {":type", {:expr, expr, _meta}, _attr_meta} ->
+        expr |> Code.string_to_quoted!() |> Macro.expand(__ENV__)
+
+      _attr ->
+        nil
+    end)
+  end
+
   defp style_extension(attrs), do: extension(attrs, ".css")
   defp script_extension(attrs), do: extension(attrs, ".js")
 
@@ -161,13 +170,6 @@ defmodule Astral.Template.Assets do
     Enum.find_value(attrs, fn
       {^name, {:string, value, _meta}, _attr_meta} -> value
       _attr -> nil
-    end)
-  end
-
-  defp attr_present?(attrs, name) do
-    Enum.any?(attrs, fn
-      {^name, _value, _attr_meta} -> true
-      _attr -> false
     end)
   end
 end
