@@ -8,7 +8,7 @@
 
 ### Changed
 
-- Require Volt 0.19.2, which accepts compiler diagnostic structs in its error overlay.
+- Require Volt 0.19.3, which accepts compiler diagnostic structs in its error overlay and resolves OXC runtime helpers.
 
 ### Fixed
 
