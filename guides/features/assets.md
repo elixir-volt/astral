@@ -209,19 +209,19 @@ end
 
 ## `.astral` template assets
 
-`<style>` and `<script>` blocks in `.astral` templates are extracted as Volt embedded modules:
+Mark `<style>` and `<script>` blocks with `:type` to extract them as Volt embedded modules:
 
 ```astral
-<style>
+<style :type={Astral.Style}>
   .card { border: 1px solid currentColor; }
 </style>
 
-<script lang="ts">
+<script :type={Astral.Script} lang="ts">
   console.log("loaded");
 </script>
 ```
 
-Volt builds those blocks alongside the configured asset entry.
+Volt builds those blocks alongside the configured asset entry. Blocks without `:type` stay in the HTML where they are written, as in any HEEx template, which suits small scripts that must run before the page paints.
 
 ## Volt features
 

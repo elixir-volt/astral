@@ -224,16 +224,16 @@ remains available without JavaScript; slot templates are inert until mounting.
 
 ## Browser assets
 
-`<style>` and `<script>` blocks are extracted into Volt's asset graph:
+`<style>` and `<script>` blocks marked with `:type` are extracted into Volt's asset graph:
 
 ```astral
-<style>
+<style :type={Astral.Style}>
   .hero { padding: 4rem; }
 </style>
 
-<script lang="ts">
+<script :type={Astral.Script} lang="ts">
   document.querySelector(".hero")?.classList.add("ready");
 </script>
 ```
 
-Astral removes those blocks from the server-rendered HTML template. Volt builds and serves them as first-class browser modules. See the styling and browser code guide for details on how this differs from Astro's scoped styles, script processing, fonts, syntax highlighting, and framework components.
+Astral removes those blocks from the server-rendered HTML template. Volt builds and serves them as first-class browser modules. A block without `:type` is rendered where it is written, as in any HEEx template. This follows Phoenix, where `<script :type={Phoenix.LiveView.ColocatedJS}>` opts a script into extraction, rather than Astro, which processes every script unless it is marked `is:inline`. See the styling and browser code guide for details on how this differs from Astro's scoped styles, script processing, fonts, syntax highlighting, and framework components.

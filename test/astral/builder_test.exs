@@ -609,8 +609,9 @@ defmodule Astral.BuilderTest do
   test "builds Volt assets extracted from Astral templates" do
     write("pages/index.astral", ~S'''
     <h1>Assets</h1>
-    <style>.asset-card { color: red }</style>
-    <script lang="ts">const answer: number = 42; console.log(answer)</script>
+    <style :type={Astral.Style}>.asset-card { color: red }</style>
+    <script :type={Astral.Script} lang="ts">const answer: number = 42; console.log(answer)</script>
+    <script>const inline = { theme: "dark" }</script>
     ''')
 
     assert {:ok, result} = Astral.build(root: tmp(), layout: false, asset_hash: false)
@@ -619,6 +620,7 @@ defmodule Astral.BuilderTest do
     assert read("dist/index.html") =~ "<h1>Assets</h1>"
     refute read("dist/index.html") =~ "asset-card"
     refute read("dist/index.html") =~ "console.log"
+    assert read("dist/index.html") =~ ~s|<script>const inline = { theme: "dark" }</script>|
 
     manifest = tmp() |> Path.join("dist/assets/manifest.json") |> File.read!() |> :json.decode()
     assert Map.has_key?(manifest, "index.js")

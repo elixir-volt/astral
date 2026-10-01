@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Breaking changes
+
+- A `<script>` or `<style>` in an `.astral` template is rendered where it is written, as in any HEEx template. To build one with Volt, mark it with `:type={Astral.Script}` or `:type={Astral.Style}`, following Phoenix's `<script :type={Phoenix.LiveView.ColocatedJS}>`. Add `:type` to existing blocks that should stay Volt modules.
+
 ## 0.4.1 - 2026-10-01
 
 ### Added
