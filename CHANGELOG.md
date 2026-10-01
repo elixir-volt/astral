@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Documentation
+
+- Document MDEx plugins in `markdown(plugins: [...])`. They already ran on pages and collection entries; a test now covers it.
+
 ## 0.5.0 - 2026-10-01
 
 ### Breaking changes
