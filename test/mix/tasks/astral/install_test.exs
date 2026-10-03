@@ -107,11 +107,15 @@ defmodule Mix.Tasks.Astral.InstallTest do
       assert content =~ "{pages,layouts,components}/**/*.astral"
       assert content =~ "assets/**/*.{js,ts,jsx,tsx}"
       assert content =~ ~s(excludes: ["assets/.astral/**/*"])
+
+      {formatter, _binding} = Code.eval_string(content)
+      assert formatter[:volt][:print_width] == 100
+      assert formatter[:volt][:trailing_comma] == :all
     end)
 
     assert_file(igniter, "config/config.exs", fn content ->
       assert content =~ "config :volt"
-      assert content =~ "format: ["
+      refute content =~ "format:"
       assert content =~ "lint: ["
       assert content =~ ~s(plugins: ["typescript"])
     end)

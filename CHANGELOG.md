@@ -1,5 +1,30 @@
 # Changelog
 
+## Unreleased
+
+### Breaking changes
+
+- Require Volt 0.20. Volt now reads JavaScript formatter options from the `:volt` key of `.formatter.exs` and raises on a keyword list under `config :volt, :format`. Move a site's options:
+
+      # .formatter.exs
+      [
+        plugins: [Astral.Formatter, Volt.Formatter],
+        volt: [semi: true, single_quote: false]
+      ]
+
+  `mix astral.install` writes them there. See [Volt's changelog](https://hexdocs.pm/volt/changelog.html) for the rest of 0.20, including externals staying as imports in ES module output.
+
+### Added
+
+- With Volt 0.20, saving a page, layout, component or collection entry reloads only the open pages whose HTML changed, instead of every page.
+- Pages can be updated in place instead of reloaded, keeping scroll position and mounted islands, with Volt's opt-in setting:
+
+      config :volt, :server, morph: [preserve: "[data-astral-island]"]
+
+### Fixed
+
+- The basic example resolves its dependencies and passes `mix check` again. Its lockfile predated Volt 0.19, and its lint plugins were atoms, which Volt 0.19 rejects.
+
 ## 0.5.1 - 2026-10-01
 
 ### Fixed

@@ -33,8 +33,8 @@ The layout uses `Astral.asset_path(@site, "app.ts")`; it returns `/assets/app.ts
 
 This example follows Volt's formatting and linting setup:
 
-- `.formatter.exs` installs `Volt.Formatter` so `mix format` formats TypeScript too.
-- `config/config.exs` configures `config :volt, :format` and `config :volt, :lint`.
+- `.formatter.exs` installs `Volt.Formatter` so `mix format` formats TypeScript too, and holds its options under `volt:`.
+- `config/config.exs` configures `config :volt, :lint`.
 - `mix check` runs `mix format --check-formatted` and `mix volt.js.check --type-aware --type-check`.
 
 ```sh
