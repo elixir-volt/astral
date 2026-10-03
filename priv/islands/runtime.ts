@@ -9,6 +9,21 @@ export type IslandMount = {
   mount: (island: HTMLElement, slots: IslandSlots) => unknown | Promise<unknown>
 }
 
+/**
+ * In development, Volt says when the server rendered an island with new props:
+ * it sets them on the island's element and dispatches `volt:element-update`.
+ * Handling the event re-renders the island in place; the page reloads otherwise.
+ */
+export function onPropsUpdate(
+  island: HTMLElement,
+  update: (props: Record<string, unknown>) => void
+): void {
+  island.addEventListener('volt:element-update', (event) => {
+    event.preventDefault()
+    update(JSON.parse(island.dataset.astralProps ?? '{}') as Record<string, unknown>)
+  })
+}
+
 export function mountIsland({ id, client, media, mount }: IslandMount): void {
   const start = (island: HTMLElement) => {
     if (island.dataset.astralMounted === 'true') return

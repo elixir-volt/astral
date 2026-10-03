@@ -1,5 +1,10 @@
-import { createRawSnippet, mount, type Component } from 'svelte'
-import { mountIsland, type ClientDirective, type IslandSlots } from 'astral:islands/runtime'
+import { createRawSnippet, mount, unmount, type Component } from 'svelte'
+import {
+  mountIsland,
+  onPropsUpdate,
+  type ClientDirective,
+  type IslandSlots
+} from 'astral:islands/runtime'
 
 export type FrameworkIsland<Props extends Record<string, unknown> = Record<string, unknown>> = {
   id: string
@@ -15,7 +20,15 @@ export function mountSvelteIsland({ id, component, props, client, media }: Frame
     client,
     media,
     mount(island, slots) {
-      mount(component, { target: island, props: { ...props, ...slotProps(slots) } })
+      const slotted = slotProps(slots)
+      let mounted = mount(component, { target: island, props: { ...props, ...slotted } })
+
+      // Props passed to `mount` are not reactive outside a Svelte module, so the
+      // island is mounted again, which resets its state.
+      onPropsUpdate(island, (next) => {
+        void unmount(mounted)
+        mounted = mount(component, { target: island, props: { ...next, ...slotted } })
+      })
     }
   })
 }

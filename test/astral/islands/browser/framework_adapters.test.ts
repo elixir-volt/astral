@@ -1,6 +1,7 @@
 import { describe, test, expect, beforeEach, afterEach } from 'volt:test'
 import React from 'react'
-import { defineComponent, h, nextTick } from 'vue'
+import { createRenderEffect } from 'solid-js'
+import { defineComponent, h, nextTick, ref } from 'vue'
 import { mountReactIsland } from 'astral:islands/react'
 import { mountSolidIsland } from 'astral:islands/solid'
 import { mountSvelteIsland } from 'astral:islands/svelte'
@@ -112,6 +113,125 @@ describe('framework island adapters', () => {
     expect(section.textContent).toContain('Svelte label')
     expect(section.innerHTML).toContain('Svelte slot')
     expect(section.innerHTML).toContain('Svelte aside')
+  })
+
+  describe('when the server rendered the island with new props', () => {
+    // What Volt's dev client does: set the new props and tell the island's owner.
+    function updateProps(id: string, props: Record<string, unknown>) {
+      const island = document.getElementById(id)!
+      island.dataset.astralProps = JSON.stringify(props)
+      const event = new CustomEvent('volt:element-update', { bubbles: true, cancelable: true })
+      island.dispatchEvent(event)
+      return event.defaultPrevented
+    }
+
+    test('a React island renders the new props and keeps its state', async () => {
+      renderIsland('react-update', [])
+
+      function Component(props: { label: string }) {
+        const [clicks, setClicks] = React.useState(0)
+
+        return React.createElement(
+          'button',
+          { id: 'react-update-result', onClick: () => setClicks(clicks + 1) },
+          `${props.label}:${clicks}`
+        )
+      }
+
+      mountReactIsland({
+        id: 'react-update',
+        component: Component,
+        props: { label: 'before' },
+        client: 'load',
+        media: null
+      })
+
+      const button = await waitForElement('#react-update-result')
+      button.click()
+      await waitForText('#react-update-result', 'before:1')
+
+      expect(updateProps('react-update', { label: 'after' })).toBe(true)
+      await waitForText('#react-update-result', 'after:1')
+    })
+
+    test('a Vue island renders the new props and keeps its state', async () => {
+      renderIsland('vue-update', [])
+
+      const Component = defineComponent({
+        props: { label: { type: String, required: true } },
+        setup(props) {
+          const clicks = ref(0)
+
+          return () =>
+            h(
+              'button',
+              { id: 'vue-update-result', onClick: () => clicks.value++ },
+              `${props.label}:${clicks.value}`
+            )
+        }
+      })
+
+      mountVueIsland({
+        id: 'vue-update',
+        component: Component,
+        props: { label: 'before' },
+        client: 'load',
+        media: null
+      })
+
+      const button = await waitForElement('#vue-update-result')
+      button.click()
+      await waitForText('#vue-update-result', 'before:1')
+
+      expect(updateProps('vue-update', { label: 'after' })).toBe(true)
+      await waitForText('#vue-update-result', 'after:1')
+    })
+
+    test('a Solid island renders the new props without mounting again', async () => {
+      renderIsland('solid-update', [])
+      let mounts = 0
+
+      function Component(props: { label: string }) {
+        mounts++
+        const button = document.createElement('button')
+        button.id = 'solid-update-result'
+        createRenderEffect(() => (button.textContent = props.label))
+        return button
+      }
+
+      mountSolidIsland({
+        id: 'solid-update',
+        component: Component,
+        props: { label: 'before' },
+        client: 'load',
+        media: null
+      })
+
+      await waitForText('#solid-update-result', 'before')
+
+      expect(updateProps('solid-update', { label: 'after' })).toBe(true)
+      await waitForText('#solid-update-result', 'after')
+      expect(mounts).toBe(1)
+    })
+
+    test('a Svelte island is mounted again with the new props', async () => {
+      renderIsland('svelte-update', [['default', '<strong>Svelte slot</strong>']])
+
+      mountSvelteIsland({
+        id: 'svelte-update',
+        component: SvelteComponent,
+        props: { label: 'before ' },
+        client: 'load',
+        media: null
+      })
+
+      await waitForText('#svelte-result', 'before')
+
+      expect(updateProps('svelte-update', { label: 'after ' })).toBe(true)
+      await waitForText('#svelte-result', 'after')
+      expect(document.querySelectorAll('#svelte-result')).toHaveLength(1)
+      expect(document.querySelector('#svelte-result')?.innerHTML).toContain('Svelte slot')
+    })
   })
 
   test('mounts repeated React islands once with independent props and slots', async () => {
@@ -292,4 +412,15 @@ async function waitForElement(selector: string): Promise<Element> {
   }
 
   throw new Error(`Timed out waiting for ${selector}`)
+}
+
+async function waitForText(selector: string, text: string): Promise<void> {
+  for (let attempt = 0; attempt < 50; attempt++) {
+    if (document.querySelector(selector)?.textContent?.includes(text)) return
+    await new Promise((resolve) => setTimeout(resolve, 10))
+  }
+
+  throw new Error(
+    `Timed out waiting for ${selector} to contain ${text}; it has ${document.querySelector(selector)?.textContent}`
+  )
 }
