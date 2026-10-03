@@ -6,5 +6,12 @@
     "assets/**/*.{js,ts,jsx,tsx}",
     "{pages,layouts,components}/**/*.astral"
   ],
-  excludes: ["assets/.astral/**/*"]
+  excludes: ["assets/.astral/**/*"],
+  volt: [
+    print_width: 100,
+    semi: true,
+    single_quote: false,
+    trailing_comma: :all,
+    arrow_parens: :always
+  ]
 ]

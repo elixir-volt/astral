@@ -37,15 +37,19 @@ You can also format browser assets directly:
 mix volt.js.format
 ```
 
-Configure JavaScript/TypeScript formatting in `config/config.exs`:
+Configure JavaScript/TypeScript formatting under the `:volt` key of `.formatter.exs`:
 
 ```elixir
-config :volt, :format,
-  print_width: 100,
-  semi: true,
-  single_quote: false,
-  trailing_comma: :all,
-  arrow_parens: :always
+[
+  plugins: [Astral.Formatter, Volt.Formatter],
+  volt: [
+    print_width: 100,
+    semi: true,
+    single_quote: false,
+    trailing_comma: :all,
+    arrow_parens: :always
+  ]
+]
 ```
 
 ## TypeScript configuration

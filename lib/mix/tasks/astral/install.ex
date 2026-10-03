@@ -174,18 +174,6 @@ if Code.ensure_loaded?(Igniter) do
 
     defp configure_volt(igniter) do
       igniter
-      |> ProjectConfig.configure_group(
-        "config.exs",
-        :volt,
-        [:format],
-        [
-          {:print_width, 100},
-          {:semi, true},
-          {:single_quote, false},
-          {:trailing_comma, :all},
-          {:arrow_parens, :always}
-        ]
-      )
       |> ProjectConfig.configure(
         "config.exs",
         :volt,
@@ -223,6 +211,7 @@ if Code.ensure_loaded?(Igniter) do
           |> ensure_formatter_input("assets/**/*.{js,ts,jsx,tsx}")
           |> ensure_formatter_input("{pages,layouts,components}/**/*.astral")
           |> ensure_formatter_exclude("assets/.astral/**/*")
+          |> Keyword.put_new(:volt, volt_formatter_options())
           |> Macro.to_string()
           |> Kernel.<>("\n")
 
@@ -271,6 +260,17 @@ if Code.ensure_loaded?(Igniter) do
 
     defp volt_formatter_ast do
       quote(do: Volt.Formatter)
+    end
+
+    # Volt.Formatter reads its options from the `:volt` key of `.formatter.exs`.
+    defp volt_formatter_options do
+      [
+        print_width: 100,
+        semi: true,
+        single_quote: false,
+        trailing_comma: :all,
+        arrow_parens: :always
+      ]
     end
 
     defp site_files do
