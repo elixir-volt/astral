@@ -28,6 +28,7 @@ defmodule Astral.DevServer do
           watch: false,
           prefix: config.asset_url_prefix,
           public_dir: false,
+          document: {__MODULE__, :render_document, [config]},
           plugins: [
             Astral.Template.AssetPlugin,
             {Astral.Islands.RuntimePlugin, assets: config.assets},
@@ -47,6 +48,38 @@ defmodule Astral.DevServer do
     |> put_private(:astral_volt_session, state.volt.session)
     |> Volt.DevServer.call(state.volt)
     |> maybe_serve_astral(state.config)
+  end
+
+  @doc """
+  Render the HTML a page request for `path` is answered with.
+
+  Volt keeps a render for each open page and, when sources change, renders the
+  page again to tell it what changed.
+  """
+  @spec render_document(String.t(), Astral.Config.t()) :: {:ok, String.t()} | :error
+  def render_document(path, config) do
+    %URI{path: request_path} = URI.parse(path)
+
+    with {:ok, site} <- discover_dev_site(config),
+         %Astral.Page{} = page <- find_page(site, request_path),
+         {:ok, html} <- render_page(site, page) do
+      {:ok, Astral.HMRClient.inject(html)}
+    else
+      _not_rendered -> :error
+    end
+  rescue
+    # A render failure is reported when the page itself requests its HTML.
+    # reach:disable-next-line bare_rescue
+    _exception -> :error
+  end
+
+  defp render_page(site, page) do
+    Astral.Image.Registry.start(site)
+    Astral.Islands.Registry.start(site)
+    Astral.Renderer.render_page(site, page)
+  after
+    Astral.Image.Registry.stop()
+    Astral.Islands.Registry.stop()
   end
 
   defp session_identity({:via, Registry, {Volt.Dev.WatcherRegistry, identity}}), do: identity

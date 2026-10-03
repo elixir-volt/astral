@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- The dev server gives Volt a way to render pages, so that with Volt's `morph` setting each open page is told what changed instead of requesting itself again. This needs a Volt release after 0.20.0; 0.20.0 ignores it.
+- A Vue island whose props changed on the server re-renders in place with the new props and keeps its state, instead of the page reloading. Islands of other frameworks still reload the page.
+
 ## 0.6.0 - 2026-10-03
 
 ### Breaking changes

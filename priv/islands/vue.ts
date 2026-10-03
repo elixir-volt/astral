@@ -1,4 +1,4 @@
-import { createApp, defineComponent, h, type Component } from 'vue'
+import { createApp, defineComponent, h, shallowRef, type Component } from 'vue'
 import { mountIsland, type ClientDirective, type IslandSlots } from 'astral:islands/runtime'
 
 export type FrameworkIsland<Props = Record<string, unknown>> = {
@@ -15,11 +15,21 @@ export function mountVueIsland({ id, component, props, client, media }: Framewor
     client,
     media,
     mount(island, islandSlots) {
+      const current = shallowRef(props)
+
       createApp({
         render() {
-          return h(component, props, slots(islandSlots))
+          return h(component, current.value, slots(islandSlots))
         }
       }).mount(island)
+
+      // In development the server says when it rendered this island with new
+      // props. Handling the event re-renders the island in place; otherwise
+      // the page would reload.
+      island.addEventListener('volt:element-update', (event) => {
+        event.preventDefault()
+        current.value = JSON.parse(island.dataset.astralProps ?? '{}')
+      })
     }
   })
 }

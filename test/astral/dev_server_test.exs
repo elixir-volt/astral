@@ -65,6 +65,20 @@ defmodule Astral.DevServerTest do
     assert get_resp_header(conn, "content-type") |> hd() =~ "text/html"
   end
 
+  test "renders a page for Volt as a request for it is answered" do
+    opts = Astral.DevServer.init(root: tmp())
+    conn = conn(:get, "/") |> Astral.DevServer.call(opts)
+
+    assert {:ok, html} = Astral.DevServer.render_document("/?utm=1", opts.config)
+    assert html =~ ~s(id="home")
+    assert html =~ ~s(src="/@volt/client.js")
+
+    # Volt identifies a page by the entity tag of this HTML.
+    assert get_resp_header(conn, "etag") == [Volt.HMR.Document.etag(html)]
+
+    assert Astral.DevServer.render_document("/missing", opts.config) == :error
+  end
+
   test "serves extensionless route paths" do
     conn = call_dev_server("/about")
 
