@@ -1,6 +1,11 @@
-import type { Component, JSX } from 'solid-js'
+import { createSignal, type Component, type JSX } from 'solid-js'
 import { render } from 'solid-js/web'
-import { mountIsland, type ClientDirective, type IslandSlots } from 'astral:islands/runtime'
+import {
+  mountIsland,
+  onPropsUpdate,
+  type ClientDirective,
+  type IslandSlots
+} from 'astral:islands/runtime'
 
 export type FrameworkIsland<Props extends Record<string, unknown> = Record<string, unknown>> = {
   id: string
@@ -16,7 +21,18 @@ export function mountSolidIsland({ id, component, props, client, media }: Framew
     client,
     media,
     mount(island, slots) {
-      render(() => component({ ...props, children: children(slots) }), island)
+      const [current, setCurrent] = createSignal(props)
+
+      // A Solid component runs once, so its props read through the signal.
+      // Props the island was not mounted with are not tracked.
+      const reactive = { children: children(slots) } as Record<string, unknown>
+
+      for (const name of Object.keys(props)) {
+        Object.defineProperty(reactive, name, { enumerable: true, get: () => current()[name] })
+      }
+
+      render(() => component(reactive as typeof props & { children?: JSX.Element }), island)
+      onPropsUpdate(island, (next) => setCurrent(() => next as typeof props))
     }
   })
 }

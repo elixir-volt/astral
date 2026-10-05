@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Require Volt 0.21. The dev server gives Volt a way to render pages, so that with Volt's `morph` setting each open page is told what changed instead of requesting itself again: its text, the attributes of `<html>` and `<body>`, and metadata in `<head>` update in place.
+- An island whose props changed on the server re-renders in place with the new props, instead of the page reloading. Vue, React and Solid islands keep their state. A Svelte island is mounted again, because props passed to `mount` are not reactive, so its state resets.
+
 ## 0.6.0 - 2026-10-03
 
 ### Breaking changes

@@ -1,7 +1,12 @@
 import React from 'react'
 import { flushSync } from 'react-dom'
 import { createRoot } from 'react-dom/client'
-import { mountIsland, type ClientDirective, type IslandSlots } from 'astral:islands/runtime'
+import {
+  mountIsland,
+  onPropsUpdate,
+  type ClientDirective,
+  type IslandSlots
+} from 'astral:islands/runtime'
 
 export type FrameworkIsland<
   Component = React.ComponentType<Record<string, unknown>>,
@@ -21,7 +26,13 @@ export function mountReactIsland({ id, component, props, client, media }: Framew
     media,
     mount(island, slots) {
       const root = createRoot(island)
-      flushSync(() => root.render(React.createElement(component, props, children(slots))))
+      const content = children(slots)
+      flushSync(() => root.render(React.createElement(component, props, content)))
+
+      // Rendering the same component again keeps its state.
+      onPropsUpdate(island, (next) => {
+        root.render(React.createElement(component, next, content))
+      })
     }
   })
 }

@@ -1,5 +1,10 @@
-import { createApp, defineComponent, h, type Component } from 'vue'
-import { mountIsland, type ClientDirective, type IslandSlots } from 'astral:islands/runtime'
+import { createApp, defineComponent, h, shallowRef, type Component } from 'vue'
+import {
+  mountIsland,
+  onPropsUpdate,
+  type ClientDirective,
+  type IslandSlots
+} from 'astral:islands/runtime'
 
 export type FrameworkIsland<Props = Record<string, unknown>> = {
   id: string
@@ -15,11 +20,18 @@ export function mountVueIsland({ id, component, props, client, media }: Framewor
     client,
     media,
     mount(island, islandSlots) {
+      const current = shallowRef(props)
+
       createApp({
         render() {
-          return h(component, props, slots(islandSlots))
+          return h(component, current.value, slots(islandSlots))
         }
       }).mount(island)
+
+      // The component keeps its state and renders with the new props.
+      onPropsUpdate(island, (next) => {
+        current.value = next
+      })
     }
   })
 }
