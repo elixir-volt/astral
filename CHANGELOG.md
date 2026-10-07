@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.1 - 2026-10-07
+
+### Changed
+
+- Require Volt 0.22, which gives vendor modules a new URL when a package changes and watches packages linked from outside `node_modules`, so a change to a linked package reaches open pages without a server restart.
+
 ## 0.7.0 - 2026-10-05
 
 ### Added
