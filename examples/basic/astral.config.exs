@@ -24,7 +24,6 @@ end
 
 assets do
   entry "app.ts"
-  url_prefix "/assets"
   hash false
 end
 

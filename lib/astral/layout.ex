@@ -62,6 +62,7 @@ defmodule Astral.Layout do
   defp route_assigns(route, site) do
     %{
       route: route.path,
+      url: Astral.URL.path(site.config, route.path),
       generated_route: route,
       site: site,
       collections: site.entries,

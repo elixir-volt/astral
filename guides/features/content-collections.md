@@ -69,8 +69,10 @@ Use image fields directly with Astral image components:
 `entry.metadata` contains original string-keyed frontmatter. `entry.data` contains schema-normalized values:
 
 ```astral
-<a :for={post <- @collections.posts} href={post.route_path}>{post.data.title}</a>
+<a :for={post <- @collections.posts} href={post.url}>{post.data.title}</a>
 ```
+
+`post.route_path` is the entry's route, such as `/blog/hello/`. `post.url` is the same path with the site's `base_path` applied, so link with `post.url`.
 
 Collection entry layouts receive `@entry` for the current entry.
 
@@ -186,7 +188,7 @@ paths =
 <h1>{@params.tag}</h1>
 <ul>
   <li :for={post <- @posts}>
-    <a href={post.route_path}>{post.data.title}</a>
+    <a href={post.url}>{post.data.title}</a>
   </li>
 </ul>
 ```

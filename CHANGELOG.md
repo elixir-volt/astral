@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- A top-level `base_path` serves a site below the domain root, such as a GitHub Pages project site at `https://<user>.github.io/<repo>/`. Asset, image, pagination, feed, sitemap and `llms.txt` URLs include it, and `mix astral.dev` serves the site only under it. Route paths such as `page.route_path`, `entry.route_path` and `@route` stay relative to it: they name the route and its output file.
+- `Astral.Page` and `Astral.Entry` have a `url` field, the route path with the base path applied, and layouts receive it as `@url`. Link entries with `href={entry.url}`.
+- When `asset_url_prefix` (`url_prefix` in an `assets` block) is not set, it defaults to the base path followed by `assets`, such as `/docs/assets`. A configured prefix is used as given and is not nested under the base path.
+- `Astral.url/2` builds links that include the base path, and `Astral.absolute_url/2` builds absolute ones.
+- A top-level `site_url`, used by the feed, sitemap and `llms.txt` plugins when their `:site_url` option is omitted.
+
 ## 0.8.0 - 2026-10-25
 
 ### Breaking changes

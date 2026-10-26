@@ -79,6 +79,31 @@ defmodule Astral.DevServerTest do
     assert Astral.DevServer.render_document("/missing", opts.config) == :error
   end
 
+  test "serves the site only under its base path" do
+    write("public/robots.txt", "User-agent: *")
+    write("assets/app.js", "console.log('docs')")
+    opts = Astral.DevServer.init(root: tmp(), base_path: "/docs/")
+    get = &(conn(:get, &1) |> Astral.DevServer.call(opts))
+
+    assert get.("/docs/").resp_body =~ ~s(id="home")
+    assert get.("/docs").resp_body =~ ~s(id="home")
+    assert get.("/docs/about/").resp_body =~ ~s(id="about")
+    assert get.("/docs/robots.txt").resp_body == "User-agent: *"
+    assert get.("/docs/assets/app.js").resp_body =~ "docs"
+
+    assert get.("/about/").status == 404
+    assert get.("/about/").resp_body =~ "served under /docs/"
+    assert get.("/robots.txt").status == 404
+
+    root = get.("/")
+    assert root.status == 302
+    assert get_resp_header(root, "location") == ["/docs/"]
+
+    assert {:ok, html} = Astral.DevServer.render_document("/docs/about/", opts.config)
+    assert html =~ ~s(id="about")
+    assert Astral.DevServer.render_document("/about/", opts.config) == :error
+  end
+
   test "serves extensionless route paths" do
     conn = call_dev_server("/about")
 
@@ -137,6 +162,30 @@ defmodule Astral.DevServerTest do
     assert byte_size(image_conn.resp_body) > 0
     assert get_resp_header(image_conn, "content-type") |> hd() =~ "image/webp"
     assert get_resp_header(image_conn, "cache-control") == ["no-cache, no-store, must-revalidate"]
+  end
+
+  test "serves optimized dev images under the base path" do
+    File.rm!(Path.join(tmp(), "pages/index.md"))
+    write("assets/images/hero.svg", svg_image(100, 50, "red"))
+
+    write("pages/index.astral", ~S'''
+    <.image src="images/hero.svg" alt="Hero" width={50} />
+    ''')
+
+    opts = Astral.DevServer.init(root: tmp(), base_path: "/docs/")
+    page_conn = conn(:get, "/docs/") |> Astral.DevServer.call(opts)
+
+    assert [url] =
+             Regex.run(
+               ~r/src="(\/docs\/_astral\/image\/hero-50x25-[^"]+\.webp)"/,
+               page_conn.resp_body,
+               capture: :all_but_first
+             )
+
+    image_conn = conn(:get, url) |> Astral.DevServer.call(opts)
+
+    assert image_conn.status == 200
+    assert get_resp_header(image_conn, "content-type") |> hd() =~ "image/webp"
   end
 
   test "serves generated island entries in development" do

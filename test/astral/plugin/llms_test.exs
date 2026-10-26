@@ -140,6 +140,16 @@ defmodule Astral.Plugin.LLMsTest do
     assert index =~ "[External](https://other.example/page)"
   end
 
+  test "links local routes through the site base path and site URL", %{tmp_dir: root} do
+    config = Astral.Config.new(root: root, base_path: "/docs/")
+    site = %Astral.Site{config: config, pages: [page(root, "/about/", "About")]}
+
+    assert render(site) =~ "[About](/docs/about/)"
+
+    site = %{site | config: %{config | site_url: "https://example.com"}}
+    assert render(site) =~ "[About](https://example.com/docs/about/)"
+  end
+
   test "serializes metadata as text rather than injected Markdown", %{tmp_dir: root} do
     site =
       site(root, [

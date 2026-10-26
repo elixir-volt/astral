@@ -9,7 +9,6 @@ Use Volt-managed CSS for site-wide styles:
 ```elixir
 assets do
   entry "app.ts"
-  url_prefix "/assets"
 end
 ```
 

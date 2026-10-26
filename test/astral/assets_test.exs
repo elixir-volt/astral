@@ -70,4 +70,13 @@ defmodule Astral.AssetsTest do
     }
     """)
   end
+
+  test "resolves asset paths under the site base path", %{config: config} do
+    config = %{config | base_path: "/docs/", asset_url_prefix: "/docs/assets"}
+
+    assert Astral.asset_path(%Astral.Site{config: config, mode: :dev}, "plain.css") ==
+             "/docs/assets/plain.css"
+
+    assert Astral.asset_path(config, "app.ts") == "/docs/assets/app.js"
+  end
 end

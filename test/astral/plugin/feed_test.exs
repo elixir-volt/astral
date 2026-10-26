@@ -130,4 +130,46 @@ defmodule Astral.Plugin.FeedTest do
     File.mkdir_p!(Path.dirname(path))
     File.write!(path, content)
   end
+
+  test "uses the configured site URL and base path", %{root: root} do
+    config =
+      Astral.Config.new(
+        root: root,
+        site_url: "https://example.github.io",
+        base_path: "/my-site/",
+        plugins: [Astral.Plugin.Feed],
+        collections: [
+          [
+            name: :posts,
+            dir: "content/posts",
+            permalink: "/blog/:slug/",
+            schema: %Astral.Schema.Fields{
+              fields: [
+                %Astral.Schema.Field{name: :title, type: :string, required?: true},
+                %Astral.Schema.Field{name: :date, type: :date, required?: true},
+                %Astral.Schema.Field{name: :description, type: :string}
+              ]
+            }
+          ]
+        ]
+      )
+
+    assert {:ok, _result} = Astral.build(config)
+
+    feed = File.read!(Path.join(root, "dist/feed.xml"))
+    assert feed =~ "<id>https://example.github.io/my-site/feed.xml</id>"
+    assert feed =~ ~s(<link href="https://example.github.io/my-site/feed.xml" rel="self"/>)
+    assert feed =~ "<id>https://example.github.io/my-site/blog/hello/</id>"
+  end
+
+  test "requires a site URL from options or config", %{root: root} do
+    config =
+      Astral.Config.new(
+        root: root,
+        plugins: [Astral.Plugin.Feed],
+        collections: [[name: :posts, dir: "content/posts"]]
+      )
+
+    assert_raise ArgumentError, ~r/requires :site_url/, fn -> Astral.build(config) end
+  end
 end

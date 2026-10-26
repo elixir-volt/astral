@@ -83,6 +83,7 @@ defmodule Astral.Discovery do
     %Astral.Page{
       source_path: path,
       route_path: route_path,
+      url: Astral.URL.path(config, route_path),
       output_path: Path.join(config.outdir, Astral.Route.output_relative(route_path)),
       content: content
     }
@@ -162,6 +163,7 @@ defmodule Astral.Discovery do
     %Astral.Page{
       source_path: path,
       route_path: page_route,
+      url: Astral.URL.path(config, page_route),
       output_path: Path.join(config.outdir, Astral.Route.output_relative(page_route)),
       content: content,
       params: route_path.params,
@@ -185,6 +187,7 @@ defmodule Astral.Discovery do
           %Astral.Page{
             source_path: path,
             route_path: entry.route_path,
+            url: entry.url,
             output_path: Path.join(config.outdir, Astral.Route.output_relative(entry.route_path)),
             content: %{content | layout: content.layout || entry.content.layout},
             entry: entry,
@@ -239,7 +242,7 @@ defmodule Astral.Discovery do
 
   defp discover_collections(config) do
     Enum.reduce_while(config.collections, {:ok, %{}}, fn collection, {:ok, entries} ->
-      case discover_collection(collection, config.markdown) do
+      case discover_collection(collection, config) do
         {:ok, collection_entries} ->
           {:cont, {:ok, Map.put(entries, collection.name, collection_entries)}}
 
@@ -249,20 +252,20 @@ defmodule Astral.Discovery do
     end)
   end
 
-  defp discover_collection(collection, markdown) do
+  defp discover_collection(collection, config) do
     if File.dir?(collection.dir) do
       collection.dir
       |> page_paths()
       |> Enum.filter(&(Path.extname(&1) == ".md"))
-      |> build_entries(collection, markdown)
+      |> build_entries(collection, config)
     else
       {:error, {:missing_collection_dir, collection.name, collection.dir}}
     end
   end
 
-  defp build_entries(paths, collection, markdown) do
+  defp build_entries(paths, collection, config) do
     Enum.reduce_while(paths, {:ok, []}, fn path, {:ok, entries} ->
-      case entry(path, collection, markdown) do
+      case entry(path, collection, config) do
         {:ok, nil} -> {:cont, {:ok, entries}}
         {:ok, entry} -> {:cont, {:ok, [entry | entries]}}
         {:error, _reason} = error -> {:halt, error}
@@ -274,9 +277,9 @@ defmodule Astral.Discovery do
     end
   end
 
-  defp entry(path, collection, markdown) do
+  defp entry(path, collection, config) do
     with {:ok, source} <- File.read(path),
-         {:ok, content} <- Astral.Markdown.render(source, markdown),
+         {:ok, content} <- Astral.Markdown.render(source, config.markdown),
          {:ok, data} <-
            Astral.Schema.normalize(collection.schema, content.metadata,
              base: path,
@@ -292,6 +295,7 @@ defmodule Astral.Discovery do
          slug: slug,
          source_path: path,
          route_path: route_path,
+         url: Astral.URL.path(config, route_path),
          content: %{content | layout: content.layout || collection.layout},
          metadata: content.metadata,
          data: data
@@ -329,6 +333,7 @@ defmodule Astral.Discovery do
     %Astral.Page{
       source_path: entry.source_path,
       route_path: entry.route_path,
+      url: entry.url,
       output_path: Path.join(config.outdir, Astral.Route.output_relative(entry.route_path)),
       content: entry.content,
       entry: entry,

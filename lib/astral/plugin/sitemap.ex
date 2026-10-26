@@ -8,7 +8,9 @@ defmodule Astral.Plugin.Sitemap do
 
   ## Options
 
-    * `:site_url` - required absolute site URL, for example `"https://example.com"`.
+    * `:site_url` - absolute site URL, for example `"https://example.com"`.
+      Defaults to the site's `site_url`; one of them is required. Links include
+      the site's `base_path`.
     * `:path` - sitemap route path. Defaults to `"/sitemap.xml"`.
     * `:include_routes` - include plugin-generated routes in addition to pages.
       Defaults to `true`.
@@ -44,7 +46,7 @@ defmodule Astral.Plugin.Sitemap do
   def render_route(_route, _site, _opts), do: nil
 
   defp render(site, opts) do
-    site_url = required!(opts, :site_url)
+    site_url = site_url!(site, opts)
     urls = sitemap_urls(site, opts)
 
     document do
@@ -57,7 +59,7 @@ defmodule Astral.Plugin.Sitemap do
       urlset do
         for url <- urls do
           url do
-            loc(absolute_url(site_url, url.path))
+            loc(absolute_url(site_url, site, url.path))
             lastmod(url.lastmod)
 
             if url.changefreq do
@@ -152,10 +154,11 @@ defmodule Astral.Plugin.Sitemap do
 
   defp date(_value), do: Date.utc_today()
 
-  defp absolute_url(site_url, path), do: String.trim_trailing(site_url, "/") <> path
+  defp absolute_url(site_url, site, path),
+    do: Astral.URL.absolute(site_url, site.config.base_path, path)
 
-  defp required!(opts, key) do
-    Keyword.get(opts, key) ||
-      raise ArgumentError, "Astral.Plugin.Sitemap requires #{inspect(key)}"
+  defp site_url!(site, opts) do
+    Keyword.get(opts, :site_url) || site.config.site_url ||
+      raise ArgumentError, "Astral.Plugin.Sitemap requires :site_url or a site_url config"
   end
 end

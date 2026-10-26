@@ -13,6 +13,11 @@ defmodule Astral.Pagination do
   The `*page` glob form omits the page parameter for the first page, producing
   `/blog/`, `/blog/2/`, `/blog/3/`, and so on. A required `:page` parameter can
   be used when page one should be explicit: `/blog/1/`, `/blog/2/`.
+
+  URLs from `pages/2` are route paths relative to the site's base path.
+  `routes/3` keeps those as route paths and gives each route's `:page` assign
+  browser URLs with the configured `base_path` applied, so templates can link
+  `@page.urls.next` directly.
   """
 
   alias Astral.Pagination.Page
@@ -43,7 +48,7 @@ defmodule Astral.Pagination do
     end
   end
 
-  @doc "Convert pagination pages into generated routes."
+  @doc "Convert pagination pages into generated routes whose `:page` assigns carry browser URLs."
   @spec routes([Page.t()], Astral.Config.t(), keyword()) :: [Astral.Route.t()]
   def routes(pages, %Astral.Config{} = config, opts \\ []) when is_list(pages) do
     assigns = Keyword.get(opts, :assigns, %{})
@@ -53,11 +58,24 @@ defmodule Astral.Pagination do
       Astral.Route.new(page.urls.current, config,
         content_type: Keyword.get(opts, :content_type, "text/html"),
         kind: Keyword.get(opts, :kind, :pagination),
-        assigns: Map.merge(assigns, %{page: page}),
+        assigns: Map.merge(assigns, %{page: %{page | urls: site_urls(page.urls, config)}}),
         metadata: metadata
       )
     end)
   end
+
+  defp site_urls(%URLs{} = urls, config) do
+    URLs.new(
+      current: Astral.URL.path(config, urls.current),
+      previous: site_url(urls.previous, config),
+      next: site_url(urls.next, config),
+      first: site_url(urls.first, config),
+      last: site_url(urls.last, config)
+    )
+  end
+
+  defp site_url(nil, _config), do: nil
+  defp site_url(url, config), do: Astral.URL.path(config, url)
 
   defp page_entries(entries, page_number, page_size) do
     Enum.slice(entries, (page_number - 1) * page_size, page_size)

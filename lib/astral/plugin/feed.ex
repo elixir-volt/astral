@@ -7,7 +7,9 @@ defmodule Astral.Plugin.Feed do
 
   ## Options
 
-    * `:site_url` - required absolute site URL, for example `"https://example.com"`.
+    * `:site_url` - absolute site URL, for example `"https://example.com"`.
+      Defaults to the site's `site_url`; one of them is required. Links include
+      the site's `base_path`.
     * `:collection` - collection name to publish. Defaults to `:posts`.
     * `:title` - feed title. Defaults to `"Feed"`.
     * `:author` - feed author. Defaults to `"Astral"`.
@@ -44,7 +46,7 @@ defmodule Astral.Plugin.Feed do
   def render_route(_route, _site, _opts), do: nil
 
   defp render(site, opts) do
-    site_url = required!(opts, :site_url)
+    site_url = site_url!(site, opts)
     feed_path = Keyword.get(opts, :path, "/feed.xml")
     title = Keyword.get(opts, :title, "Feed")
     feed_author = Keyword.get(opts, :author, "Astral")
@@ -59,9 +61,9 @@ defmodule Astral.Plugin.Feed do
 
       feed do
         title(title)
-        id(absolute_url(site_url, feed_path))
+        id(absolute_url(site_url, site, feed_path))
         updated(updated)
-        link(href: absolute_url(site_url, feed_path), rel: "self")
+        link(href: absolute_url(site_url, site, feed_path), rel: "self")
 
         author do
           name(feed_author)
@@ -70,10 +72,10 @@ defmodule Astral.Plugin.Feed do
         for entry <- entries do
           entry do
             title(entry.data.title)
-            id(absolute_url(site_url, entry.route_path))
+            id(absolute_url(site_url, site, entry.route_path))
             updated(entry_updated(entry))
             published(entry_published(entry))
-            link(href: absolute_url(site_url, entry.route_path))
+            link(href: absolute_url(site_url, site, entry.route_path))
             summary(entry_summary(entry, opts))
 
             if entry_author = entry_author(entry, opts) do
@@ -178,9 +180,11 @@ defmodule Astral.Plugin.Feed do
 
   def entry_content(entry, _mode), do: entry_content(entry, :html)
 
-  defp absolute_url(site_url, path), do: String.trim_trailing(site_url, "/") <> path
+  defp absolute_url(site_url, site, path),
+    do: Astral.URL.absolute(site_url, site.config.base_path, path)
 
-  defp required!(opts, key) do
-    Keyword.get(opts, key) || raise ArgumentError, "Astral.Plugin.Feed requires #{inspect(key)}"
+  defp site_url!(site, opts) do
+    Keyword.get(opts, :site_url) || site.config.site_url ||
+      raise ArgumentError, "Astral.Plugin.Feed requires :site_url or a site_url config"
   end
 end

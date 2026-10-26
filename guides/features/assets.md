@@ -170,11 +170,10 @@ Astral delegates browser assets to Volt.
 ```elixir
 assets do
   entry "app.ts"
-  url_prefix "/assets"
 end
 ```
 
-The source root is `assets/`; the browser URL prefix is `/assets`.
+The source root is `assets/`. The browser URL prefix defaults to the base path followed by `assets`, which is `/assets` for a site at the domain root. Set `url_prefix` to serve assets from somewhere else.
 
 ## Reference assets from layouts
 

@@ -4,9 +4,9 @@ defmodule Astral.Image.Dev do
 
   During dev rendering, image components register deterministic transform
   manifests under the image cache directory and emit URLs under
-  `/_astral/image/`. The dev server then generates cached files on demand and
-  serves them with no-cache headers, mirroring Volt's dev-server style while
-  keeping image semantics in Astral.
+  `/_astral/image/` beneath the site's base path. The dev server then generates
+  cached files on demand and serves them with no-cache headers, mirroring Volt's
+  dev-server style while keeping image semantics in Astral.
   """
 
   import Plug.Conn
@@ -26,7 +26,8 @@ defmodule Astral.Image.Dev do
   def prepare(%Transform{} = transform, %Astral.Config{} = config) do
     filename = Path.basename(transform.output_path)
     output_path = Path.join(config.image.cache_dir, filename)
-    dev_transform = %{transform | output_path: output_path, url: @prefix <> "/" <> filename}
+    url = Astral.URL.path(config, @prefix <> "/" <> filename)
+    dev_transform = %{transform | output_path: output_path, url: url}
 
     write_manifest(dev_transform, config)
     dev_transform

@@ -188,7 +188,7 @@ assigns = assign(assigns, :posts, posts)
 
 <ul>
   <li :for={post <- @posts}>
-    <a href={post.route_path}>{post.data.title}</a>
+    <a href={post.url}>{post.data.title}</a>
   </li>
 </ul>
 ```

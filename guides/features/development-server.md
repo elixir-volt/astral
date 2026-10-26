@@ -32,6 +32,8 @@ The development server:
 - invalidates rendered pages after file changes,
 - renders HTML error pages for Markdown, layout, template, and config failures.
 
+With a `base_path` such as `"/docs/"`, the server serves pages, public files, and images only under that path, as the deployed site is served. A request for `/` redirects to the base path, and other paths outside it return 404, so links missing the prefix show up in development.
+
 ## HMR and reloads
 
 Volt handles browser asset HMR. Astral triggers full reloads for site-layer files such as pages, layouts, components, and public files.

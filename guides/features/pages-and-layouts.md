@@ -129,7 +129,8 @@ Layouts receive these assigns from Markdown and HTML pages, and from `.astral` p
 - `@title` — the frontmatter title, or a title the page assigned, otherwise `nil`.
 - `@page` — current `%Astral.Content{}`.
 - `@metadata` — decoded frontmatter map.
-- `@route` — route path such as `/about/`.
+- `@route` — route path such as `/about/`, relative to the site's `base_path`.
+- `@url` — browser path with the `base_path` applied, such as `/docs/about/`.
 - `@params` — atom-keyed route params for dynamic file routes.
 - `@site` — discovered `%Astral.Site{}`.
 - `@collections` — content entries grouped by collection name.

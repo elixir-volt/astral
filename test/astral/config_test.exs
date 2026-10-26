@@ -151,4 +151,62 @@ defmodule Astral.ConfigTest do
     assert Enum.find(schema.fields, &(&1.name == :draft)).default == false
     assert Enum.find(schema.fields, &(&1.name == :tags)).default == []
   end
+
+  test "site DSL sets a base path and site URL" do
+    config =
+      site do
+        root("/tmp/astral")
+        site_url("https://example.github.io")
+        base_path("my-site")
+
+        assets do
+          url_prefix("/my-site/static")
+        end
+      end
+
+    assert config.site_url == "https://example.github.io"
+    assert config.base_path == "/my-site/"
+    assert config.asset_url_prefix == "/my-site/static"
+  end
+
+  test "base path defaults to the domain root" do
+    config = Astral.Config.new(root: "/tmp/astral")
+
+    assert config.base_path == "/"
+    assert config.site_url == nil
+    assert config.asset_url_prefix == "/assets"
+  end
+
+  test "base path sets the default asset URL prefix but not a configured one" do
+    assert Astral.Config.new(root: "/tmp/astral", base_path: "/docs/").asset_url_prefix ==
+             "/docs/assets"
+
+    assert Astral.Config.new(
+             root: "/tmp/astral",
+             base_path: "/repo/",
+             asset_url_prefix: "/repo/assets"
+           ).asset_url_prefix == "/repo/assets"
+
+    assert Astral.Config.new(
+             root: "/tmp/astral",
+             base_path: "/docs/",
+             asset_url_prefix: "/static"
+           ).asset_url_prefix == "/static"
+
+    assert Astral.Config.new(
+             root: "/tmp/astral",
+             base_path: "/docs/",
+             asset_url_prefix: "https://cdn.example.com/assets"
+           ).asset_url_prefix == "https://cdn.example.com/assets"
+  end
+
+  test "rejects invalid base paths and site URLs" do
+    assert_raise ArgumentError, ~r/base_path/, fn ->
+      Astral.Config.new(root: "/tmp/astral", base_path: "https://example.com/docs/")
+    end
+
+    assert_raise ArgumentError, ~r/site_url/, fn ->
+      Astral.Config.new(root: "/tmp/astral", site_url: "example.com")
+    end
+  end
 end

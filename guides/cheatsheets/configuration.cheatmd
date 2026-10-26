@@ -20,6 +20,22 @@ public "public"
 components "components"
 ```
 
+## Site URL and base path
+
+```elixir
+site_url "https://example.github.io"
+base_path "/my-site/"
+```
+
+`base_path` defaults to `"/"`. Pages and entries carry a `url` with the base path applied; build other links with `Astral.url/2`:
+
+```astral
+<a href={entry.url}>{entry.data.title}</a>
+<a href={Astral.url(@site, "/about/")}>About</a>
+```
+
+The asset URL prefix defaults to the base path followed by `assets`. A configured `url_prefix` is absolute and is used as given.
+
 ## Layouts
 
 ```elixir
@@ -41,7 +57,6 @@ end
 ```elixir
 assets do
   entry "app.ts"
-  url_prefix "/assets"
   hash true
 end
 ```

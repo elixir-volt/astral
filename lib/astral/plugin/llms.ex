@@ -11,7 +11,9 @@ defmodule Astral.Plugin.LLMs do
 
     * `:title` — required site name. Never inferred from the Mix application name.
     * `:description` — optional short site summary.
-    * `:site_url` — optional absolute HTTP(S) site URL. Without it links are root-relative.
+    * `:site_url` — optional absolute HTTP(S) site URL. Defaults to the site's
+      `site_url`. Without either, links are root-relative. Local links include
+      the site's `base_path`.
     * `:exclude` — route paths to omit, with trailing slashes treated equivalently.
     * `:sections` — ordered `{heading, selectors}` pairs. When omitted, a single
       `"Pages"` section lists all eligible routes. An empty list produces no sections.
@@ -69,7 +71,7 @@ defmodule Astral.Plugin.LLMs do
         if links == [] do
           []
         else
-          [heading(heading, 2), %MDEx.List{nodes: Enum.map(links, &list_item(&1, opts))}]
+          [heading(heading, 2), %MDEx.List{nodes: Enum.map(links, &list_item(&1, site, opts))}]
         end
       end)
 
@@ -202,16 +204,15 @@ defmodule Astral.Plugin.LLMs do
     raise ArgumentError, "llms.txt: invalid selector #{inspect(selector)}"
   end
 
-  defp list_item(link, opts) do
+  defp list_item(link, site, opts) do
     label = required_text!(link.title, :link_title)
     description = optional_text!(link.description, :link_description)
 
-    base = site_url(opts)
-
     url =
-      if base && String.starts_with?(link.url, "/"),
-        do: String.trim_trailing(base, "/") <> link.url,
-        else: link.url
+      case site_url(opts) || site.config.site_url do
+        nil -> Astral.URL.path(site, link.url)
+        base -> Astral.URL.absolute(base, site.config.base_path, link.url)
+      end
 
     annotation = if description, do: [text(": " <> description)], else: []
 

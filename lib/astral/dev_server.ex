@@ -4,6 +4,10 @@ defmodule Astral.DevServer do
 
   Asset requests and Volt HMR endpoints are delegated to `Volt.DevServer`.
   Astral handles public files and page routes.
+
+  With a non-root `base_path`, Astral serves the site only under that path, as
+  the deployed site is, so links missing the prefix fail in development too.
+  A request for `/` redirects to the base path.
   """
 
   @behaviour Plug
@@ -60,7 +64,8 @@ defmodule Astral.DevServer do
   def render_document(path, config) do
     %URI{path: request_path} = URI.parse(path)
 
-    with {:ok, site} <- discover_dev_site(config),
+    with {:ok, request_path} <- Astral.URL.strip(config.base_path, request_path),
+         {:ok, site} <- discover_dev_site(config),
          %Astral.Page{} = page <- find_page(site, request_path),
          {:ok, html} <- render_page(site, page) do
       {:ok, Astral.HMRClient.inject(html)}
@@ -92,6 +97,19 @@ defmodule Astral.DevServer do
 
   defp maybe_serve_astral(%Plug.Conn{method: method} = conn, config)
        when method in ["GET", "HEAD"] do
+    case Astral.URL.strip(config.base_path, conn.request_path) do
+      {:ok, request_path} -> serve_site(%{conn | request_path: request_path}, config)
+      :error -> outside_base_path(conn, config)
+    end
+  end
+
+  defp maybe_serve_astral(conn, _config) do
+    conn
+    |> send_resp(405, "method not allowed")
+    |> halt()
+  end
+
+  defp serve_site(conn, config) do
     serve_image(conn, config) || serve_public(conn, config) || serve_page(conn, config) ||
       serve_route(conn, config) || not_found(conn)
   rescue
@@ -100,9 +118,16 @@ defmodule Astral.DevServer do
     exception -> server_error(conn, {:exception, exception, __STACKTRACE__}, config)
   end
 
-  defp maybe_serve_astral(conn, _config) do
+  defp outside_base_path(%Plug.Conn{request_path: "/"} = conn, config) do
     conn
-    |> send_resp(405, "method not allowed")
+    |> put_resp_header("location", config.base_path)
+    |> send_resp(302, "")
+    |> halt()
+  end
+
+  defp outside_base_path(conn, config) do
+    conn
+    |> send_resp(404, "not found: this site is served under #{config.base_path}")
     |> halt()
   end
 

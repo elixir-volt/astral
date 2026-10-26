@@ -15,6 +15,19 @@ defmodule Astral do
   @spec asset_path(Astral.Site.t() | Astral.Config.t(), String.t()) :: String.t()
   defdelegate asset_path(site_or_config, source), to: Astral.Assets, as: :path
 
+  @doc """
+  Return the browser path for a root-relative site path, applying the site's base path.
+
+      Astral.url(@site, "/about/")
+      #=> "/docs/about/" with `base_path "/docs/"`
+  """
+  @spec url(Astral.Site.t() | Astral.Config.t(), String.t()) :: String.t()
+  defdelegate url(site_or_config, path), to: Astral.URL, as: :path
+
+  @doc "Return the absolute URL for a root-relative site path using `site_url` and `base_path`."
+  @spec absolute_url(Astral.Site.t() | Astral.Config.t(), String.t()) :: String.t()
+  defdelegate absolute_url(site_or_config, path), to: Astral.URL, as: :absolute
+
   @doc "Start a supervised Astral development server."
   @spec dev(keyword()) :: Supervisor.on_start()
   defdelegate dev(opts \\ []), to: Astral.Dev, as: :start_link

@@ -11,6 +11,7 @@ defmodule Mix.Tasks.Astral.InstallTest do
     igniter
     |> assert_creates("astral.config.exs", fn content ->
       assert content =~ "entry(\"app.ts\")"
+      refute content =~ "url_prefix"
       assert content =~ ~s|plugin(Astral.Plugin.LLMs, title: "Star Chart")|
       refute content =~ "site do"
     end)

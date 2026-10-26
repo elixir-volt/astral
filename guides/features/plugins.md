@@ -60,7 +60,7 @@ defmodule MySite.SearchIndex do
   @impl true
   def render_route(%Astral.Route{path: "/search.json"}, site) do
     entries = Map.get(site.entries, :posts, [])
-    {:ok, JSON.encode!(Enum.map(entries, &%{title: &1.data.title, url: &1.route_path}))}
+    {:ok, JSON.encode!(Enum.map(entries, &%{title: &1.data.title, url: &1.url}))}
   end
 
   def render_route(_route, _site), do: nil
@@ -129,5 +129,7 @@ Available hooks include:
 - `render_route/2`
 - `render_page/3`
 - `build_done/1`
+
+A `site_discovered/1` hook that changes a page's or entry's `route_path` must update its `url` too, with `Astral.url/2`, so links keep the base path.
 
 Use `enforce/0` to return `:pre` or `:post` when ordering matters.

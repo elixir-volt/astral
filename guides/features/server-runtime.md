@@ -11,7 +11,7 @@ Astral is currently static-first. This guide maps Astro's server-rendering guide
 - Volt handles browser assets and HMR endpoints.
 - Astral serves optimized image requests, public files, page routes, and config/plugin generated routes.
 - Only `GET` and `HEAD` requests are accepted for Astral routes; other HTTP methods return `405 method not allowed`.
-- Page rendering receives build-shaped assigns such as `@site`, `@page`, `@route`, `@params`, `@collections`, `@entry`, and `@routes`, not a request context.
+- Page rendering receives build-shaped assigns such as `@site`, `@page`, `@route`, `@url`, `@params`, `@collections`, `@entry`, and `@routes`, not a request context.
 - Config-generated routes are rendered through a synthetic `Plug.Test.conn("GET", route.path)` so route plugs can set response headers for static outputs, but they do not receive the real browser request body, cookies, method, or per-request connection state.
 
 Use this model for static HTML, Markdown, collection pages, feeds, sitemaps, robots files, search indexes, generated images, and other files that can be produced at build time.

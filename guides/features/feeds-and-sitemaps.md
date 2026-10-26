@@ -2,6 +2,17 @@
 
 Astral ships built-in plugins for feed and sitemap generation in static sites.
 
+Each plugin takes a `:site_url` option. When it is omitted, the plugins use the site's top-level `site_url`, so a site declares it once:
+
+```elixir
+site_url "https://example.com"
+
+plugin Astral.Plugin.Feed, title: "My Blog"
+plugin Astral.Plugin.Sitemap
+```
+
+Links include the site's `base_path`, so with `base_path "/blog/"` an entry at `/hello/` is published as `https://example.com/blog/hello/`.
+
 ## Feed
 
 ```elixir

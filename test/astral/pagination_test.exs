@@ -95,6 +95,27 @@ defmodule Astral.PaginationTest do
     assert %Page{page_number: 2, entries: [3]} = second.assigns.page
   end
 
+  test "generated routes keep route paths and link through the base path" do
+    config = Astral.Config.new(root: "/tmp/site", base_path: "/docs/")
+
+    [first, second] =
+      [1, 2, 3]
+      |> Pagination.pages(pattern: "/blog/*page", page_size: 2)
+      |> Pagination.routes(config)
+
+    assert first.path == "/blog"
+    assert first.output_path == Path.join(config.outdir, "blog/index.html")
+    assert first.assigns.page.urls.current == "/docs/blog/"
+    assert first.assigns.page.urls.next == "/docs/blog/2/"
+    assert first.assigns.page.urls.last == "/docs/blog/2/"
+    assert first.assigns.page.urls.previous == nil
+
+    assert second.path == "/blog/2"
+    assert second.assigns.page.urls.previous == "/docs/blog/"
+    assert second.assigns.page.urls.first == "/docs/blog/"
+    assert second.assigns.page.urls.next == nil
+  end
+
   test "can omit trailing slashes" do
     [first, second] =
       Pagination.pages(Enum.to_list(1..2),

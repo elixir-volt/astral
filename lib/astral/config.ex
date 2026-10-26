@@ -4,10 +4,17 @@ defmodule Astral.Config do
 
   Paths are stored as absolute paths so downstream modules can work without
   repeatedly resolving them against the site root.
+
+  `base_path` is normalized with leading and trailing slashes, such as `"/"` or
+  `"/docs/"`. `asset_url_prefix` is an absolute public prefix and is not nested
+  under `base_path`; when it is not configured, it defaults to the base path
+  followed by `assets`, such as `"/docs/assets"`.
   """
 
   @type t :: %__MODULE__{
           root: String.t(),
+          base_path: String.t(),
+          site_url: String.t() | nil,
           pages: String.t(),
           layouts: String.t(),
           components: String.t(),
@@ -27,6 +34,8 @@ defmodule Astral.Config do
         }
 
   defstruct root: nil,
+            base_path: "/",
+            site_url: nil,
             pages: nil,
             layouts: nil,
             components: nil,
@@ -59,6 +68,12 @@ defmodule Astral.Config do
 
   @doc "Set the site root against which relative configuration paths are resolved."
   defdirective(root(path), do: Scope.put_top_level(root: path))
+
+  @doc ~S(Set the URL path the site is served under, such as `"/docs/"`. Defaults to `"/"`.)
+  defdirective(base_path(path), do: Scope.put_top_level(base_path: path))
+
+  @doc "Set the absolute site URL used by feeds, sitemaps and other absolute links."
+  defdirective(site_url(url), do: Scope.put_top_level(site_url: url))
 
   @doc "Set the directory containing file-based pages."
   defdirective(pages(path), do: Scope.put_top_level(pages: path))
@@ -113,7 +128,7 @@ defmodule Astral.Config do
   @doc "Set the browser output directory, relative to the site output directory."
   defdirective(asset_outdir(path), do: Scope.put_top_level(asset_outdir: path))
 
-  @doc "Set the public URL prefix used for browser assets."
+  @doc ~S(Set the absolute public URL prefix used for browser assets. Defaults to `base_path` followed by `"assets"`.)
   defdirective(asset_url_prefix(prefix), do: Scope.put_top_level(asset_url_prefix: prefix))
 
   @doc "Collect image settings in a scoped configuration block."
@@ -205,7 +220,7 @@ defmodule Astral.Config do
   @doc "Append a browser entry in an assets block."
   defdirective(entry(path), do: Scope.put_top_level(asset_entry: [path]))
 
-  @doc "Set the browser asset URL prefix in an assets block."
+  @doc ~S(Set the absolute browser asset URL prefix in an assets block. Defaults to `base_path` followed by `"assets"`.)
   defdirective(url_prefix(prefix), do: Scope.put_top_level(asset_url_prefix: prefix))
 
   @doc "Enable or disable content hashes in generated browser asset filenames."
@@ -273,9 +288,12 @@ defmodule Astral.Config do
     assets = path(opts, :assets, root, "assets")
 
     plugins = configured_plugins(opts)
+    base_path = opts |> Keyword.get(:base_path, "/") |> Astral.URL.normalize_base_path!()
 
     config = %__MODULE__{
       root: root,
+      base_path: base_path,
+      site_url: opts |> Keyword.get(:site_url) |> Astral.URL.validate_site_url!(),
       pages: path(opts, :pages, root, "pages"),
       layouts: path(opts, :layouts, root, "layouts"),
       components: path(opts, :components, root, "components"),
@@ -284,7 +302,7 @@ defmodule Astral.Config do
       outdir: outdir,
       asset_entry: asset_entries(opts, assets),
       asset_outdir: path(opts, :asset_outdir, outdir, "assets"),
-      asset_url_prefix: Keyword.get(opts, :asset_url_prefix, "/assets"),
+      asset_url_prefix: Keyword.get(opts, :asset_url_prefix, base_path <> "assets"),
       asset_hash: Keyword.get(opts, :asset_hash, true),
       layout: Keyword.get(opts, :layout, "default"),
       markdown: Keyword.get(opts, :markdown, []),
