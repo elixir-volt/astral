@@ -1,7 +1,7 @@
 defmodule Astral.Islands.IntegrationTest do
   use ExUnit.Case, async: false
 
-  alias PlaywrightEx.{Browser, BrowserContext, Frame}
+  alias Playwright.{Browser, BrowserContext, BrowserType, Page}
 
   defmodule StaticSitePlug do
     import Plug.Conn
@@ -64,32 +64,28 @@ defmodule Astral.Islands.IntegrationTest do
     {:ok, playwright, playwright_owner?} = start_playwright!()
 
     try do
-      {:ok, browser} = PlaywrightEx.launch_browser(:chromium, timeout: 10_000)
+      browser = launch_browser!()
+      context = Browser.new_context!(browser, viewport: %{width: 1024, height: 768})
+      page = BrowserContext.new_page!(context)
 
-      {:ok, context} =
-        Browser.new_context(browser.guid, viewport: %{width: 1024, height: 768}, timeout: 10_000)
+      Page.goto!(page, url(port), wait_until: :load, timeout: 15_000)
 
-      {:ok, %{main_frame: frame}} = BrowserContext.new_page(context.guid, timeout: 10_000)
+      assert_eventually_text(page, "#vue-result", "Vue Gallery Vue slot")
+      assert_eventually_text(page, "#vue-secondary", "Vue Second")
 
-      assert {:ok, _response} =
-               Frame.goto(frame.guid, url: url(port), wait_until: "load", timeout: 15_000)
-
-      assert_eventually_text(frame, "#vue-result", "Vue Gallery Vue slot")
-      assert_eventually_text(frame, "#vue-secondary", "Vue Second")
-
-      assert {:ok, "rgb(12, 34, 56)"} =
-               Frame.evaluate(frame.guid,
-                 expression: "getComputedStyle(document.querySelector('#vue-result')).color",
-                 timeout: 5_000
+      assert "rgb(12, 34, 56)" =
+               Page.evaluate!(
+                 page,
+                 "getComputedStyle(document.querySelector('#vue-result')).color"
                )
 
-      assert_eventually_text(frame, "#svelte-result", "Svelte Counter Svelte slot")
-      assert_eventually_text(frame, "#react-result", "React Counter React slot")
-      assert_eventually_text(frame, "#react-secondary", "React Second")
-      assert_eventually_text(frame, "#solid-result", "Solid Counter Solid slot")
+      assert_eventually_text(page, "#svelte-result", "Svelte Counter Svelte slot")
+      assert_eventually_text(page, "#react-result", "React Counter React slot")
+      assert_eventually_text(page, "#react-secondary", "React Second")
+      assert_eventually_text(page, "#solid-result", "Solid Counter Solid slot")
 
-      BrowserContext.close(context.guid, timeout: 10_000)
-      Browser.close(browser.guid, timeout: 10_000)
+      BrowserContext.close!(context)
+      Browser.close!(browser)
     after
       Process.exit(server, :normal)
 
@@ -117,19 +113,18 @@ defmodule Astral.Islands.IntegrationTest do
     {:ok, playwright, playwright_owner?} = start_playwright!()
 
     try do
-      {:ok, browser} = PlaywrightEx.launch_browser(:chromium, timeout: 10_000)
-      {:ok, context} = Browser.new_context(browser.guid, timeout: 10_000)
-      {:ok, %{main_frame: frame}} = BrowserContext.new_page(context.guid, timeout: 10_000)
+      browser = launch_browser!()
+      context = Browser.new_context!(browser)
+      page = BrowserContext.new_page!(context)
 
-      assert {:ok, _response} =
-               Frame.goto(frame.guid, url: url(port), wait_until: "load", timeout: 15_000)
+      Page.goto!(page, url(port), wait_until: :load, timeout: 15_000)
 
-      assert_eventually_text(frame, "#outer-shell", "Outer shell Nested Button")
-      assert_selector?(frame, "#nested-svelte-island")
-      assert_eventually_text(frame, "#nested-result", "Nested Button")
+      assert_eventually_text(page, "#outer-shell", "Outer shell Nested Button")
+      assert_selector?(page, "#nested-svelte-island")
+      assert_eventually_text(page, "#nested-result", "Nested Button")
 
-      BrowserContext.close(context.guid, timeout: 10_000)
-      Browser.close(browser.guid, timeout: 10_000)
+      BrowserContext.close!(context)
+      Browser.close!(browser)
     after
       Process.exit(server, :normal)
 
@@ -157,71 +152,53 @@ defmodule Astral.Islands.IntegrationTest do
     {:ok, playwright, playwright_owner?} = start_playwright!()
 
     try do
-      {:ok, browser} = PlaywrightEx.launch_browser(:chromium, timeout: 10_000)
-
-      {:ok, context} =
-        Browser.new_context(browser.guid, viewport: %{width: 1024, height: 768}, timeout: 10_000)
-
-      {:ok, %{main_frame: frame} = page} = BrowserContext.new_page(context.guid, timeout: 10_000)
+      browser = launch_browser!()
+      context = Browser.new_context!(browser, viewport: %{width: 1024, height: 768})
+      page = BrowserContext.new_page!(context)
 
       try do
-        assert {:ok, _} =
-                 Frame.goto(frame.guid, url: url(port), wait_until: "load", timeout: 15_000)
+        Page.goto!(page, url(port), wait_until: :load, timeout: 15_000)
 
-        assert_eventually_text(frame, "#outside .styled", "Outside")
+        assert_eventually_text(page, "#outside .styled", "Outside")
 
-        assert {:ok, ["rgb(12, 34, 56)", 1, "CSS1Compat", false]} =
-                 Frame.evaluate(frame.guid,
-                   expression:
-                     "[getComputedStyle(document.querySelector('#outside .styled')).color, document.styleSheets.length, document.compatMode, !!document.querySelector('#delayed-shell')]",
-                   timeout: 5_000
+        assert ["rgb(12, 34, 56)", 1, "CSS1Compat", false] =
+                 Page.evaluate!(
+                   page,
+                   "[getComputedStyle(document.querySelector('#outside .styled')).color, document.styleSheets.length, document.compatMode, !!document.querySelector('#delayed-shell')]"
                  )
 
-        assert {:ok, _} =
-                 PlaywrightEx.Connection.send(
-                   PlaywrightEx.Supervisor.Connection,
-                   %{
-                     guid: page.guid,
-                     method: :set_viewport_size,
-                     params: %{viewport_size: %{width: 1600, height: 900}}
-                   },
-                   5_000
-                 )
-                 |> PlaywrightEx.ChannelResponse.unwrap(& &1)
+        Page.set_viewport_size!(page, %{width: 1600, height: 900})
 
-        assert_eventually_text(frame, "#nested-one .styled", "Nested one")
-        assert_eventually_text(frame, "#nested-two .styled", "Nested two")
+        assert_eventually_text(page, "#nested-one .styled", "Nested one")
+        assert_eventually_text(page, "#nested-two .styled", "Nested two")
 
-        assert {:ok, [3, "rgb(12, 34, 56)"]} =
-                 Frame.evaluate(frame.guid,
-                   expression:
-                     "[globalThis.astralMounts, getComputedStyle(document.querySelector('#nested-one .styled')).color]",
-                   timeout: 5_000
+        assert [3, "rgb(12, 34, 56)"] =
+                 Page.evaluate!(
+                   page,
+                   "[globalThis.astralMounts, getComputedStyle(document.querySelector('#nested-one .styled')).color]"
                  )
       after
-        BrowserContext.close(context.guid, timeout: 10_000)
-        Browser.close(browser.guid, timeout: 10_000)
+        BrowserContext.close!(context)
+        Browser.close!(browser)
       end
     after
       if playwright_owner?, do: Process.exit(playwright, :normal)
     end
   end
 
-  defp assert_eventually_text(frame, selector, expected) do
-    assert {:ok, _element} =
-             Frame.wait_for_selector(frame.guid, selector: selector, timeout: 15_000)
+  defp assert_eventually_text(page, selector, expected) do
+    assert {:ok, _element} = Page.wait_for_selector(page, selector, timeout: 15_000)
 
     deadline = System.monotonic_time(:millisecond) + 15_000
-    assert :ok = wait_for_text(frame, selector, expected, deadline)
+    assert :ok = wait_for_text(page, selector, expected, deadline)
   end
 
-  defp wait_for_text(frame, selector, expected, deadline) do
+  defp wait_for_text(page, selector, expected, deadline) do
     result =
-      Frame.evaluate(frame.guid,
-        expression: "selector => document.querySelector(selector)?.textContent?.trim()",
-        is_function: true,
-        arg: selector,
-        timeout: 5_000
+      Page.evaluate(
+        page,
+        "selector => document.querySelector(selector)?.textContent?.trim()",
+        selector
       )
 
     case result do
@@ -229,7 +206,7 @@ defmodule Astral.Islands.IntegrationTest do
         if normalize_space(text) == expected do
           :ok
         else
-          retry_text(frame, selector, expected, deadline, text)
+          retry_text(page, selector, expected, deadline, text)
         end
 
       {:error, reason} ->
@@ -237,38 +214,34 @@ defmodule Astral.Islands.IntegrationTest do
     end
   end
 
-  defp retry_text(frame, selector, expected, deadline, text) do
+  defp retry_text(page, selector, expected, deadline, text) do
     if System.monotonic_time(:millisecond) < deadline do
       Process.sleep(50)
-      wait_for_text(frame, selector, expected, deadline)
+      wait_for_text(page, selector, expected, deadline)
     else
       {:error, {:unexpected_text, normalize_space(text), expected}}
     end
   end
 
-  defp assert_selector?(frame, selector) do
-    assert {:ok, true} = selector?(frame, selector)
+  defp assert_selector?(page, selector) do
+    assert {:ok, true} = selector?(page, selector)
   end
 
-  defp selector?(frame, selector) do
-    Frame.evaluate(frame.guid,
-      expression: "selector => document.querySelector(selector) !== null",
-      is_function: true,
-      arg: selector,
-      timeout: 5_000
-    )
+  defp selector?(page, selector) do
+    Page.evaluate(page, "selector => document.querySelector(selector) !== null", selector)
   end
 
   defp normalize_space(text), do: String.replace(text || "", ~r/\s+/, " ")
 
   defp start_playwright! do
-    case PlaywrightEx.Supervisor.start_link(
-           timeout: 10_000,
-           executable: "node_modules/playwright/cli.js"
-         ) do
+    case Playwright.Supervisor.start_link() do
       {:ok, pid} -> {:ok, pid, true}
       {:error, {:already_started, pid}} -> {:ok, pid, false}
     end
+  end
+
+  defp launch_browser! do
+    Playwright.instance() |> Playwright.chromium() |> BrowserType.launch!(timeout: 10_000)
   end
 
   defp url(port), do: "http://127.0.0.1:#{port}/"

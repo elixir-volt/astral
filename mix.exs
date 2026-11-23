@@ -40,7 +40,7 @@ defmodule Astral.MixProject do
 
   defp deps do
     [
-      {:volt, "~> 0.22.0"},
+      {:volt, github: "ftes/volt", ref: "ec9b47b3b2cd836ede9f3b7c2f4346141ba4171a"},
       {:file_system, "~> 1.0"},
       {:mdex, "~> 0.14.1"},
       {:lumis, "~> 0.10", optional: true},
@@ -66,7 +66,7 @@ defmodule Astral.MixProject do
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.35", only: :dev, runtime: false},
-      {:playwright_ex, "~> 0.5", only: :test}
+      {:playwright, "~> 1.65.0-rc.4", hex: :playwright_ex, only: :test}
     ]
   end
 
