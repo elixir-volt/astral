@@ -14,6 +14,9 @@
 # Temporary files, for example, from tests.
 /tmp/
 
+# Playwright traces and screenshots of failed browser tests.
+/test-results/
+
 # If the VM crashes, it generates a dump, let's ignore it too.
 erl_crash.dump
 
