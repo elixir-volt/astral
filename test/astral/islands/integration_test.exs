@@ -1,7 +1,5 @@
 defmodule Astral.Islands.IntegrationTest do
-  use ExUnit.Case, async: false
-
-  alias PlaywrightEx.{Browser, BrowserContext, Frame}
+  use Playwright.Case, async: false
 
   defmodule StaticSitePlug do
     import Plug.Conn
@@ -41,7 +39,8 @@ defmodule Astral.Islands.IntegrationTest do
     :ok
   end
 
-  test "mounts mixed framework islands from a static build in a browser" do
+  @tag Test.use(viewport: %{width: 1024, height: 768})
+  test "mounts mixed framework islands from a static build in a browser", %{page: page} do
     File.write!(
       Path.join(tmp(), "assets/islands/Gallery.vue"),
       "\n<style scoped>button { color: rgb(12, 34, 56); }</style>",
@@ -61,45 +60,24 @@ defmodule Astral.Islands.IntegrationTest do
     {:ok, server} =
       Bandit.start_link(plug: {StaticSitePlug, root: Path.join(tmp(), "dist")}, port: port)
 
-    {:ok, playwright, playwright_owner?} = start_playwright!()
-
     try do
-      {:ok, browser} = PlaywrightEx.launch_browser(:chromium, timeout: 10_000)
+      Page.goto!(page, url(port), wait_until: :load, timeout: 15_000)
 
-      {:ok, context} =
-        Browser.new_context(browser.guid, viewport: %{width: 1024, height: 768}, timeout: 10_000)
+      Expect.to_have_text!(Page.locator(page, "#vue-result"), "Vue Gallery Vue slot")
+      Expect.to_have_text!(Page.locator(page, "#vue-secondary"), "Vue Second")
 
-      {:ok, %{main_frame: frame}} = BrowserContext.new_page(context.guid, timeout: 10_000)
+      Expect.to_have_css!(Page.locator(page, "#vue-result"), "color", "rgb(12, 34, 56)")
 
-      assert {:ok, _response} =
-               Frame.goto(frame.guid, url: url(port), wait_until: "load", timeout: 15_000)
-
-      assert_eventually_text(frame, "#vue-result", "Vue Gallery Vue slot")
-      assert_eventually_text(frame, "#vue-secondary", "Vue Second")
-
-      assert {:ok, "rgb(12, 34, 56)"} =
-               Frame.evaluate(frame.guid,
-                 expression: "getComputedStyle(document.querySelector('#vue-result')).color",
-                 timeout: 5_000
-               )
-
-      assert_eventually_text(frame, "#svelte-result", "Svelte Counter Svelte slot")
-      assert_eventually_text(frame, "#react-result", "React Counter React slot")
-      assert_eventually_text(frame, "#react-secondary", "React Second")
-      assert_eventually_text(frame, "#solid-result", "Solid Counter Solid slot")
-
-      BrowserContext.close(context.guid, timeout: 10_000)
-      Browser.close(browser.guid, timeout: 10_000)
+      Expect.to_have_text!(Page.locator(page, "#svelte-result"), "Svelte Counter Svelte slot")
+      Expect.to_have_text!(Page.locator(page, "#react-result"), "React Counter React slot")
+      Expect.to_have_text!(Page.locator(page, "#react-secondary"), "React Second")
+      Expect.to_have_text!(Page.locator(page, "#solid-result"), "Solid Counter Solid slot")
     after
       Process.exit(server, :normal)
-
-      if playwright_owner? do
-        Process.exit(playwright, :normal)
-      end
     end
   end
 
-  test "hydrates islands nested inside another island slot" do
+  test "hydrates islands nested inside another island slot", %{page: page} do
     tmp = tmp()
     File.rm_rf!(tmp)
     File.mkdir_p!(tmp)
@@ -114,32 +92,20 @@ defmodule Astral.Islands.IntegrationTest do
     {:ok, server} =
       Bandit.start_link(plug: {StaticSitePlug, root: Path.join(tmp, "dist")}, port: port)
 
-    {:ok, playwright, playwright_owner?} = start_playwright!()
-
     try do
-      {:ok, browser} = PlaywrightEx.launch_browser(:chromium, timeout: 10_000)
-      {:ok, context} = Browser.new_context(browser.guid, timeout: 10_000)
-      {:ok, %{main_frame: frame}} = BrowserContext.new_page(context.guid, timeout: 10_000)
+      Page.goto!(page, url(port), wait_until: :load, timeout: 15_000)
 
-      assert {:ok, _response} =
-               Frame.goto(frame.guid, url: url(port), wait_until: "load", timeout: 15_000)
-
-      assert_eventually_text(frame, "#outer-shell", "Outer shell Nested Button")
-      assert_selector?(frame, "#nested-svelte-island")
-      assert_eventually_text(frame, "#nested-result", "Nested Button")
-
-      BrowserContext.close(context.guid, timeout: 10_000)
-      Browser.close(browser.guid, timeout: 10_000)
+      Expect.to_have_text!(Page.locator(page, "#outer-shell"), "Outer shell Nested Button")
+      Expect.to_be_attached!(Page.locator(page, "#nested-svelte-island"))
+      Expect.to_have_text!(Page.locator(page, "#nested-result"), "Nested Button")
     after
       Process.exit(server, :normal)
-
-      if playwright_owner? do
-        Process.exit(playwright, :normal)
-      end
     end
   end
 
-  test "delayed nested instances reuse an entry without suppressing layout CSS or mounting twice" do
+  @tag Test.use(viewport: %{width: 1024, height: 768})
+  test "delayed nested instances reuse an entry without suppressing layout CSS or mounting twice",
+       %{page: page} do
     Astral.Islands.SiteFixtures.write_delayed_shared_island_site!(tmp())
     assert {:ok, _} = Astral.build(root: tmp(), asset_hash: false)
     html = File.read!(Path.join(tmp(), "dist/index.html"))
@@ -154,121 +120,26 @@ defmodule Astral.Islands.IntegrationTest do
       {Bandit, plug: {StaticSitePlug, root: Path.join(tmp(), "dist")}, port: port}
     )
 
-    {:ok, playwright, playwright_owner?} = start_playwright!()
+    Page.goto!(page, url(port), wait_until: :load, timeout: 15_000)
 
-    try do
-      {:ok, browser} = PlaywrightEx.launch_browser(:chromium, timeout: 10_000)
+    Expect.to_have_text!(Page.locator(page, "#outside .styled"), "Outside")
 
-      {:ok, context} =
-        Browser.new_context(browser.guid, viewport: %{width: 1024, height: 768}, timeout: 10_000)
+    assert ["rgb(12, 34, 56)", 1, "CSS1Compat", false] =
+             Page.evaluate!(
+               page,
+               "[getComputedStyle(document.querySelector('#outside .styled')).color, document.styleSheets.length, document.compatMode, !!document.querySelector('#delayed-shell')]"
+             )
 
-      {:ok, %{main_frame: frame} = page} = BrowserContext.new_page(context.guid, timeout: 10_000)
+    Page.set_viewport_size!(page, %{width: 1600, height: 900})
 
-      try do
-        assert {:ok, _} =
-                 Frame.goto(frame.guid, url: url(port), wait_until: "load", timeout: 15_000)
+    Expect.to_have_text!(Page.locator(page, "#nested-one .styled"), "Nested one")
+    Expect.to_have_text!(Page.locator(page, "#nested-two .styled"), "Nested two")
 
-        assert_eventually_text(frame, "#outside .styled", "Outside")
-
-        assert {:ok, ["rgb(12, 34, 56)", 1, "CSS1Compat", false]} =
-                 Frame.evaluate(frame.guid,
-                   expression:
-                     "[getComputedStyle(document.querySelector('#outside .styled')).color, document.styleSheets.length, document.compatMode, !!document.querySelector('#delayed-shell')]",
-                   timeout: 5_000
-                 )
-
-        assert {:ok, _} =
-                 PlaywrightEx.Connection.send(
-                   PlaywrightEx.Supervisor.Connection,
-                   %{
-                     guid: page.guid,
-                     method: :set_viewport_size,
-                     params: %{viewport_size: %{width: 1600, height: 900}}
-                   },
-                   5_000
-                 )
-                 |> PlaywrightEx.ChannelResponse.unwrap(& &1)
-
-        assert_eventually_text(frame, "#nested-one .styled", "Nested one")
-        assert_eventually_text(frame, "#nested-two .styled", "Nested two")
-
-        assert {:ok, [3, "rgb(12, 34, 56)"]} =
-                 Frame.evaluate(frame.guid,
-                   expression:
-                     "[globalThis.astralMounts, getComputedStyle(document.querySelector('#nested-one .styled')).color]",
-                   timeout: 5_000
-                 )
-      after
-        BrowserContext.close(context.guid, timeout: 10_000)
-        Browser.close(browser.guid, timeout: 10_000)
-      end
-    after
-      if playwright_owner?, do: Process.exit(playwright, :normal)
-    end
-  end
-
-  defp assert_eventually_text(frame, selector, expected) do
-    assert {:ok, _element} =
-             Frame.wait_for_selector(frame.guid, selector: selector, timeout: 15_000)
-
-    deadline = System.monotonic_time(:millisecond) + 15_000
-    assert :ok = wait_for_text(frame, selector, expected, deadline)
-  end
-
-  defp wait_for_text(frame, selector, expected, deadline) do
-    result =
-      Frame.evaluate(frame.guid,
-        expression: "selector => document.querySelector(selector)?.textContent?.trim()",
-        is_function: true,
-        arg: selector,
-        timeout: 5_000
-      )
-
-    case result do
-      {:ok, text} ->
-        if normalize_space(text) == expected do
-          :ok
-        else
-          retry_text(frame, selector, expected, deadline, text)
-        end
-
-      {:error, reason} ->
-        {:error, reason}
-    end
-  end
-
-  defp retry_text(frame, selector, expected, deadline, text) do
-    if System.monotonic_time(:millisecond) < deadline do
-      Process.sleep(50)
-      wait_for_text(frame, selector, expected, deadline)
-    else
-      {:error, {:unexpected_text, normalize_space(text), expected}}
-    end
-  end
-
-  defp assert_selector?(frame, selector) do
-    assert {:ok, true} = selector?(frame, selector)
-  end
-
-  defp selector?(frame, selector) do
-    Frame.evaluate(frame.guid,
-      expression: "selector => document.querySelector(selector) !== null",
-      is_function: true,
-      arg: selector,
-      timeout: 5_000
-    )
-  end
-
-  defp normalize_space(text), do: String.replace(text || "", ~r/\s+/, " ")
-
-  defp start_playwright! do
-    case PlaywrightEx.Supervisor.start_link(
-           timeout: 10_000,
-           executable: "node_modules/playwright/cli.js"
-         ) do
-      {:ok, pid} -> {:ok, pid, true}
-      {:error, {:already_started, pid}} -> {:ok, pid, false}
-    end
+    assert [3, "rgb(12, 34, 56)"] =
+             Page.evaluate!(
+               page,
+               "[globalThis.astralMounts, getComputedStyle(document.querySelector('#nested-one .styled')).color]"
+             )
   end
 
   defp url(port), do: "http://127.0.0.1:#{port}/"
